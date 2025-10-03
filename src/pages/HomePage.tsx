@@ -9,7 +9,7 @@ import RankingSection from "../components/sections/RankingSection";
 import HeroSection from "../components/sections/HeroSection";
 import StatsSection from "../components/sections/StatsSection";
 
-const HomePage: React.FC = () => {
+export const HomePage: React.FC = () => {
   return (
      <Layout>
       <Content style={{ background: "#000", padding: "40px 80px" }}>
@@ -24,5 +24,3 @@ const HomePage: React.FC = () => {
     </Layout>
   );
 };
-
-export default HomePage;

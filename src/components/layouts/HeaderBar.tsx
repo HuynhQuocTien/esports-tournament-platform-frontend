@@ -1,6 +1,6 @@
 import { Button, Layout, Menu } from "antd";
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AuthModal from "../auth/AuthModal";
 
 const { Header } = Layout;

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../types";
+import type { AuthStep } from "../../../types";
 
 const { Title, Text } = Typography;
 
@@ -29,8 +29,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
       </Form>
 
       <Text>
-        Quay lại{" "}
-        <a onClick={() => onSwitch("login")}>Đăng nhập</a>
+        Quay lại <a onClick={() => onSwitch("login")}>Đăng nhập</a>
       </Text>
     </div>
   );

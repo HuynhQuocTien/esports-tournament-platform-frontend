@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../types";
+import type { AuthStep } from "../../../types";
 
 const { Title } = Typography;
 
@@ -9,7 +9,7 @@ interface Props {
   onClose: () => void;
 }
 
-export  const SetupPasswordForm: React.FC<Props> = ({ onClose }) => {
+export const SetupPasswordForm: React.FC<Props> = ({ onClose }) => {
   const onFinish = (values: any) => {
     console.log("Setup password:", values);
     onClose();
@@ -53,4 +53,3 @@ export  const SetupPasswordForm: React.FC<Props> = ({ onClose }) => {
     </div>
   );
 };
-

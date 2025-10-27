@@ -5,7 +5,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const { Title } = Typography;
 
-// Giả lập dữ liệu biểu đồ
 const chartData = [
   { month: "T1", players: 200 },
   { month: "T2", players: 350 },
@@ -15,7 +14,6 @@ const chartData = [
   { month: "T6", players: 1000 },
 ];
 
-// Giả lập dữ liệu hoạt động gần đây
 const activities = [
   "Đội Phoenix đăng ký tham gia giải Esports Cup 2025",
   "Người dùng admin cập nhật bảng xếp hạng",

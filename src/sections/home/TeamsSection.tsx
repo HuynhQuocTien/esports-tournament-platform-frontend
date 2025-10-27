@@ -10,7 +10,7 @@ const teams = [
   { id: 4, name: "Team Delta", logo: "/img/team4.png", country: "Trung Quốc" },
 ];
 
-const TeamsSection: React.FC = () => {
+export const TeamsSection: React.FC = () => {
   return (
     <section style={{ marginBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -36,5 +36,3 @@ const TeamsSection: React.FC = () => {
     </section>
   );
 };
-
-export default TeamsSection;

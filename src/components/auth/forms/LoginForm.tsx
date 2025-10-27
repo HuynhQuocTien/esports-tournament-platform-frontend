@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../types";
+import type { AuthStep } from "../../../types";
 
 const { Title, Text } = Typography;
 
@@ -47,5 +47,3 @@ export const LoginForm: React.FC<Props> = ({ onSwitch, onClose }) => {
     </div>
   );
 };
-
-

@@ -8,7 +8,7 @@ const stats = [
   { number: "30", text: "Ngày thi đấu" },
 ];
 
-const StatsSection: React.FC = () => {
+export const StatsSection: React.FC = () => {
   return (
     <Row gutter={16} justify="center" style={{ margin: "50px 0", textAlign: "center" }}>
       {stats.map((s, i) => (
@@ -22,5 +22,3 @@ const StatsSection: React.FC = () => {
     </Row>
   );
 };
-
-export default StatsSection;

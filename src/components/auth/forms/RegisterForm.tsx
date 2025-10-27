@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../types";
+import type { AuthStep } from "../../../types";
 
 const { Title, Text } = Typography;
 
@@ -37,8 +37,7 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch, onClose }) => {
       </Form>
 
       <Text>
-        Đã có tài khoản?{" "}
-        <a onClick={() => onSwitch("login")}>Đăng nhập</a>
+        Đã có tài khoản? <a onClick={() => onSwitch("login")}>Đăng nhập</a>
       </Text>
     </div>
   );

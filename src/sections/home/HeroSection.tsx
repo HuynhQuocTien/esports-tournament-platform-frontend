@@ -3,7 +3,7 @@ import { Typography, Button, Space } from "antd";
 
 const { Title, Paragraph } = Typography;
 
-const HeroSection: React.FC = () => {
+export const HeroSection: React.FC = () => {
   return (
     <div
       style={{
@@ -25,5 +25,3 @@ const HeroSection: React.FC = () => {
     </div>
   );
 };
-
-export default HeroSection;

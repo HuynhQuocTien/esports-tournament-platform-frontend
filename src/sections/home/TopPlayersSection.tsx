@@ -9,7 +9,7 @@ const players = [
   { id: 3, name: "Lê Văn C", team: "Team Gamma", avatar: "/img/player3.jpg", kda: "9.8", role: "Top" },
 ];
 
-const TopPlayersSection: React.FC = () => {
+export const TopPlayersSection: React.FC = () => {
   return (
     <section style={{ marginBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -37,5 +37,3 @@ const TopPlayersSection: React.FC = () => {
     </section>
   );
 };
-
-export default TopPlayersSection;

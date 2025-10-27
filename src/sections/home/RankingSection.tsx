@@ -18,7 +18,7 @@ const columns = [
   { title: "Điểm", dataIndex: "points", key: "points" },
 ];
 
-const RankingSection: React.FC = () => {
+export const RankingSection: React.FC = () => {
   return (
     <section style={{ marginBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -36,5 +36,3 @@ const RankingSection: React.FC = () => {
     </section>
   );
 };
-
-export default RankingSection;

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Modal } from "antd";
 import type { AuthStep } from "../../types";
-import { LoginForm } from "./LoginForm";
-import { RegisterForm } from "./RegisterForm";
-import ForgotPasswordForm from "./ForgotPasswordForm";
-import { VerifyOtpForm } from "./VerifyOtpForm";
-import { SetupPasswordForm } from "./SetupPasswordForm";
+import { LoginForm } from "./forms/LoginForm";
+import { RegisterForm } from "./forms/RegisterForm";
+import ForgotPasswordForm from "./forms/ForgotPasswordForm";
+import { VerifyOtpForm } from "./forms/VerifyOtpForm";
+import { SetupPasswordForm } from "./forms/SetupPasswordForm";
 
 interface AuthModalProps {
   open: boolean;
@@ -33,13 +33,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose }) => {
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      destroyOnClose
-      centered
-    >
+    <Modal open={open} onCancel={onClose} footer={null} destroyOnClose centered>
       {renderForm()}
     </Modal>
   );

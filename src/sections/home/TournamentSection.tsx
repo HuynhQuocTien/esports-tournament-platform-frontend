@@ -42,7 +42,7 @@ const tournaments = [
   },
 ];
 
-const TournamentSection: React.FC = () => {
+export const TournamentSection: React.FC = () => {
   return (
     <section style={{ marginBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -81,5 +81,3 @@ const TournamentSection: React.FC = () => {
     </section>
   );
 };
-
-export default TournamentSection;

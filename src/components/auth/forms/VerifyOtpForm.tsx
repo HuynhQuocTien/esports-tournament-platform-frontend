@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../types";
+import type { AuthStep } from "../../../types";
 
 const { Title } = Typography;
 
@@ -8,7 +8,7 @@ interface Props {
   onSwitch: (step: AuthStep) => void;
 }
 
-export  const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
+export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
   const onFinish = (values: any) => {
     console.log("Verify OTP:", values);
     onSwitch("setupPassword");

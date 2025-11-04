@@ -1,10 +1,11 @@
 import { Card, Row, Col, Statistic } from "antd";
 import { TeamOutlined, TrophyOutlined, BarChartOutlined, UserOutlined } from "@ant-design/icons";
 
+
 const AdminPage: React.FC = () => {
   return (
     <div>
-      <h2>🎯 Tổng quan quản trị</h2>
+      <h2>Tổng quan quản trị</h2>
       <Row gutter={16}>
         <Col span={6}>
           <Card>

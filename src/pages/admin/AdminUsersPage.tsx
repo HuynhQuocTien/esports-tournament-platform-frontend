@@ -8,7 +8,7 @@ export const AdminUsersPage: React.FC = () => {
 
   return (
     <div>
-      <h2>👤 Quản lý người dùng</h2>
+      <h2>Quản lý người dùng</h2>
       <Button type="primary" style={{ marginBottom: 16 }}>
         Thêm người dùng
       </Button>

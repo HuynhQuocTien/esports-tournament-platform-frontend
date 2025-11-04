@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Form, Input, Typography } from "antd";
 import type { AuthStep } from "../../../types";
+import { login } from "../../../api/auth";
 
 const { Title, Text } = Typography;
 

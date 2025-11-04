@@ -9,7 +9,7 @@ export const AdminRankingPage: React.FC = () => {
 
   return (
     <div>
-      <h2>📊 Bảng xếp hạng</h2>
+      <h2>Bảng xếp hạng</h2>
       <Table
         dataSource={ranking}
         rowKey="rank"

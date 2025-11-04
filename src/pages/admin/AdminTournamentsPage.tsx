@@ -28,7 +28,7 @@ export const AdminTournamentsPage: React.FC = () => {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2>🏆 Quản lý giải đấu</h2>
+        <h2>Quản lý giải đấu</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
           Thêm giải đấu
         </Button>

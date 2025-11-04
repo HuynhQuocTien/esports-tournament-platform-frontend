@@ -25,7 +25,7 @@ export const AdminTeamsPage: React.FC = () => {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-        <h2>👥 Quản lý đội tham gia</h2>
+        <h2>Quản lý đội tham gia</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
           Thêm đội
         </Button>

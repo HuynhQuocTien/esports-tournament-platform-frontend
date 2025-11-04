@@ -1,3 +1,4 @@
+// frontend/src/components/auth/AuthModal.tsx
 import React, { useState } from "react";
 import { Modal } from "antd";
 import type { AuthStep } from "../../types";

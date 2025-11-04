@@ -1,7 +1,8 @@
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../../types";
-import { login } from "../../../api/auth";
+import React, { useState } from "react";
+import { Button, Form, Input, Typography, message } from "antd";
+import type { AuthStep, Login } from "../../../types";
+import { login } from "../../../services/auth";
+import type { AxiosError } from "axios";
 
 const { Title, Text } = Typography;
 
@@ -11,9 +12,21 @@ interface Props {
 }
 
 export const LoginForm: React.FC<Props> = ({ onSwitch, onClose }) => {
-  const onFinish = (values: any) => {
-    console.log("Login:", values);
-    onClose();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: Login) => {
+    try {
+      setLoading(true);
+      await login(values);
+      message.success("Đăng nhập thành công!");
+      onClose();
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      const errorMessage = err.response?.data?.message || "Đăng nhập thất bại!";
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,7 +44,7 @@ export const LoginForm: React.FC<Props> = ({ onSwitch, onClose }) => {
           <Input.Password placeholder="Nhập mật khẩu" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block loading={loading}>
             Đăng nhập
           </Button>
         </Form.Item>

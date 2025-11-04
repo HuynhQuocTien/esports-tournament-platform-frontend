@@ -1,6 +1,8 @@
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../../types";
+import React, { useState } from "react";
+import { Button, Form, Input, Typography, message } from "antd";
+import type { AuthStep, Forgot } from "../../../types";
+import { forgotPassword } from "../../../services/auth";
+import type { AxiosError } from "axios";
 
 const { Title, Text } = Typography;
 
@@ -9,9 +11,21 @@ interface Props {
 }
 
 const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
-  const onFinish = (values: any) => {
-    console.log("Forgot password:", values);
-    onSwitch("verifyOtp");
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: Forgot) => {
+    try {
+      setLoading(true);
+      await forgotPassword(values);
+      message.success("Đã gửi mã OTP qua email!");
+      onSwitch("verifyOtp");
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      const errorMessage = err.response?.data?.message || "Gửi OTP thất bại!";
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,7 +36,7 @@ const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
           <Input placeholder="Nhập email" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block loading={loading}>
             Gửi OTP
           </Button>
         </Form.Item>

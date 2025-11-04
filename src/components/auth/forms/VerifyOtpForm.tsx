@@ -1,6 +1,7 @@
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, Typography, message } from "antd";
 import type { AuthStep } from "../../../types";
+import { verifyOTP } from "../../../services/auth";
 
 const { Title } = Typography;
 
@@ -9,9 +10,19 @@ interface Props {
 }
 
 export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
-  const onFinish = (values: any) => {
-    console.log("Verify OTP:", values);
-    onSwitch("setupPassword");
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      await verifyOTP(values.email, values.otp);
+      message.success("Xác minh OTP thành công!");
+      onSwitch("setupPassword");
+    } catch (error: any) {
+      message.error(error.response?.data?.message || "OTP không hợp lệ!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -22,7 +33,7 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
           <Input placeholder="Nhập OTP" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block loading={loading}>
             Xác minh
           </Button>
         </Form.Item>

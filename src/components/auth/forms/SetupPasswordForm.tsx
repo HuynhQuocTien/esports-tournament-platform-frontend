@@ -1,7 +1,7 @@
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, Typography, message } from "antd";
 import type { AuthStep } from "../../../types";
-
+import { resetPassword } from "../../../services/auth";
 const { Title } = Typography;
 
 interface Props {
@@ -10,9 +10,19 @@ interface Props {
 }
 
 export const SetupPasswordForm: React.FC<Props> = ({ onClose }) => {
-  const onFinish = (values: any) => {
-    console.log("Setup password:", values);
-    onClose();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      await resetPassword(values.email, values.otp, values.password);
+      message.success("Đặt mật khẩu mới thành công!");
+      onClose();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || "Lỗi khi đặt mật khẩu!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -45,7 +55,7 @@ export const SetupPasswordForm: React.FC<Props> = ({ onClose }) => {
           <Input.Password placeholder="Nhập lại mật khẩu" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" htmlType="submit" block loading={loading}>
             Xác nhận
           </Button>
         </Form.Item>

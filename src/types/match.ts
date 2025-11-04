@@ -3,3 +3,8 @@ export interface MatchResult {
   winner: string;
   score: string;
 }
+
+export interface MatchSchedule {
+  match: string;
+  time: string;
+}

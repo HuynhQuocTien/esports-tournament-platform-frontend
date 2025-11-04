@@ -1,4 +1,4 @@
-import type { MatchSchedule } from "./matchSchedule";
+import type { MatchSchedule } from "./match";
 
 export interface TournamentDetail {
   id: string;

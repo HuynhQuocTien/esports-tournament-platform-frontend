@@ -1,6 +1,8 @@
-import React from "react";
-import { Button, Form, Input, Typography } from "antd";
-import type { AuthStep } from "../../../types";
+import React, { useState } from "react";
+import { Button, Form, Input, Typography, message } from "antd";
+import type { AuthStep, Register } from "../../../types";
+import { register } from "../../../services/auth";
+import type { AxiosError } from "axios";
 
 const { Title, Text } = Typography;
 
@@ -9,10 +11,22 @@ interface Props {
   onClose: () => void;
 }
 
-export const RegisterForm: React.FC<Props> = ({ onSwitch, onClose }) => {
-  const onFinish = (values: any) => {
-    console.log("Register:", values);
-    onSwitch("verifyOtp");
+export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: Register) => {
+    try {
+      setLoading(true);
+      await register(values);
+      message.success("Đăng ký thành công! Vui lòng kiểm tra email để nhận OTP.");
+      onSwitch("verifyOtp");
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+      const errorMessage = err.response?.data?.message || "Đăng ký thất bại!";
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,7 +44,12 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch, onClose }) => {
           <Input placeholder="Nhập tên hiển thị" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" block>
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            loading={loading}
+          >
             Đăng ký
           </Button>
         </Form.Item>

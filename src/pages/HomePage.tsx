@@ -1,22 +1,52 @@
-import { Layout } from "antd";
-import { Content } from "antd/es/layout/layout";
+// HomePage.tsx (Đã cập nhật)
 import React from "react";
+import { Layout, ConfigProvider } from "antd";
+import { Content } from "antd/es/layout/layout";
 import Footer from "../components/layouts/Footer";
-import { HeroSection, RankingSection, StatsSection, TeamsSection, TopPlayersSection, TournamentSection } from "../sections/home";
+import {
+  HeroSection,
+  RankingSection,
+  StatsSection,
+  TeamsSection,
+  TopPlayersSection,
+  TournamentSection,
+} from "../sections/home";
 
+const THEME_PRIMARY_COLOR = "#722ed1";
+const PAGE_BACKGROUND_COLOR = "#f5f7fa";
+const CARD_BACKGROUND_COLOR = "#e6f7ff";
+const CARD_BORDER_COLOR = "#bae0ff";
 
 export const HomePage: React.FC = () => {
   return (
-     <Layout>
-      <Content style={{ background: "#000", padding: "40px 80px" }}>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: THEME_PRIMARY_COLOR,
+          colorBgContainer: CARD_BACKGROUND_COLOR,
+          colorBorderSecondary: CARD_BORDER_COLOR, 
+          colorWarning: "#faad14",
+          colorError: "#f5222d",
+          colorSuccess: "#52c41a",
+        },
+      }}
+    >
+      <Layout style={{ background: PAGE_BACKGROUND_COLOR }}>
         <HeroSection />
-        <StatsSection />
-        <TournamentSection />
-        <TopPlayersSection />
-        <TeamsSection />
-        <RankingSection />
-      </Content>
-      <Footer />
-    </Layout>
+
+        <Content
+          style={{
+            padding: "40px 80px",
+            minHeight: "calc(100vh - 64px)",
+          }}
+        >
+          <StatsSection />
+          <TournamentSection />
+          <TopPlayersSection />
+          <TeamsSection />
+          <RankingSection />
+        </Content>
+      </Layout>
+    </ConfigProvider>
   );
 };

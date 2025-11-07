@@ -1,5 +1,7 @@
 import React from "react";
 import { Row, Col, Card, Typography, Tag, Button } from "antd";
+import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 const { Title, Text } = Typography;
 
@@ -7,7 +9,7 @@ const tournaments = [
   {
     id: 1,
     status: "Đang diễn ra",
-    img: "/img/valorant.jpg",
+    img: `https://picsum.photos/seed/${uuidv4()}/400/200`,
     title: "VALORANT CHAMPIONS",
     date: "15-17 Thg 3",
     place: "Saigon Exhibition Center",
@@ -19,7 +21,7 @@ const tournaments = [
   {
     id: 2,
     status: "Sắp diễn ra",
-    img: "/img/lol.jpg",
+    img: `https://picsum.photos/seed/${uuidv4()}/400/200`,
     title: "LEAGUE OF LEGENDS",
     date: "22-24 Thg 3",
     place: "National Convention Center",
@@ -31,7 +33,7 @@ const tournaments = [
   {
     id: 3,
     status: "Đăng ký mở",
-    img: "/img/cs2.jpg",
+    img: `https://picsum.photos/seed/${uuidv4()}/400/200`,
     title: "COUNTER-STRIKE 2",
     date: "5-7 Thg 4",
     place: "Ariyana Convention Center",
@@ -42,32 +44,84 @@ const tournaments = [
   },
 ];
 
+
+const getStatusTag = (status: string) => {
+  if (status === "Đang diễn ra")
+    return <Tag color="error">Đang diễn ra</Tag>;
+  if (status === "Sắp diễn ra")
+    return <Tag color="warning">Sắp diễn ra</Tag>;
+  if (status === "Đăng ký mở")
+    return <Tag color="success">Đăng ký mở</Tag>;
+  return <Tag>{status}</Tag>;
+};
+
 export const TournamentSection: React.FC = () => {
   return (
-    <section style={{ marginBottom: 80 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Title level={2} style={{ color: "#fff" }}>GIẢI ĐẤU 2025</Title>
-        <a style={{ color: "#fff" }}>Xem tất cả →</a>
+    <section
+      style={{
+        marginBottom: 80,
+        background: "var(--ant-color-bg-container)",
+        border: "1px solid var(--ant-color-border-secondary)",
+        padding: 24,
+        borderRadius: 10,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Title level={2}>GIẢI ĐẤU 2025</Title>
+        <Link to="/tournaments">
+          <Button type="link">Xem tất cả →</Button>
+        </Link>
       </div>
-      <Text style={{ color: "#aaa" }}>Các giải đấu esports hàng đầu với tổng giải thưởng khủng</Text>
+      <Text type="secondary">
+        Các giải đấu esports hàng đầu với tổng giải thưởng khủng
+      </Text>
 
       <Row gutter={24} style={{ marginTop: 24 }}>
         {tournaments.map((t) => (
           <Col span={8} key={t.id}>
+            {/* Card này sẽ có nền TRẮNG */}
             <Card
               cover={<img alt={t.title} src={t.img} />}
               bordered={false}
-              style={{ background: "#111", color: "#fff", borderRadius: 12 }}
+              style={{
+                borderRadius: 12,
+                border: "1px solid #f0f0f0",
+                // Bỏ background: #111
+              }}
             >
-              <Tag color="red">{t.status}</Tag>
-              <Title level={4} style={{ color: "#fff" }}>{t.title}</Title>
-              <Text style={{ color: "#bbb" }}>{t.desc}</Text>
+              {getStatusTag(t.status)} {/* Dùng helper Tag */}
+              <Title level={4}>{t.title}</Title>
+              <Text type="secondary">{t.desc}</Text>
               <div style={{ marginTop: 16 }}>
-                <Text style={{ color: "#f5222d", marginRight: 16 }}>{t.prize}</Text>
-                <Text>{t.teams} đội • {t.city}</Text>
+                {/* Đổi giải thưởng sang Vàng (Warning) */}
+                <Text
+                  style={{
+                    color: "var(--ant-color-warning)",
+                    marginRight: 16,
+                    fontWeight: 600,
+                  }}
+                >
+                  🏆 {t.prize}
+                </Text>
+                <Text type="secondary">
+                  {t.teams} đội • {t.city}
+                </Text>
               </div>
-              <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between" }}>
+              <div
+                style={{
+                  marginTop: 16,
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Button>Xem kết quả</Button>
+                {/* Nút này sẽ có màu Tím */}
                 <Button type="primary">Chi tiết</Button>
               </div>
             </Card>
@@ -76,7 +130,10 @@ export const TournamentSection: React.FC = () => {
       </Row>
 
       <div style={{ textAlign: "center", marginTop: 24 }}>
-        <Button type="primary" size="large">Đăng ký tham gia giải đấu</Button>
+        {/* Nút này sẽ có màu Tím */}
+        <Button type="primary" size="large">
+          Đăng ký tham gia giải đấu
+        </Button>
       </div>
     </section>
   );

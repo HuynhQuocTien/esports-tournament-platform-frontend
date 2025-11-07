@@ -1,15 +1,24 @@
-// frontend/src/components/layouts/HeaderBar.tsx
-import { Button, Layout, Menu, Dropdown, Modal, message, Avatar, Space, Typography } from "antd";
+import {
+  Button,
+  Layout,
+  Menu,
+  Dropdown,
+  Modal,
+  message,
+  Avatar,
+  Space,
+  Typography,
+} from "antd";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  UserOutlined,  
+import {
+  UserOutlined,
   ProfileOutlined,
   TrophyOutlined,
   TeamOutlined,
   ScheduleOutlined,
   HomeOutlined,
-  BarChartOutlined
+  BarChartOutlined,
 } from "@ant-design/icons";
 import AuthModal from "../auth/AuthModal";
 import { useAuth } from "../../hooks/useAuth";
@@ -21,9 +30,8 @@ type MenuItem = {
   onClick?: () => void;
 };
 
-
 type MenuDivider = {
-  type: 'divider';
+  type: "divider";
 };
 
 type MenuItemType = MenuItem | MenuDivider;
@@ -37,7 +45,6 @@ const HeaderBar: React.FC = () => {
   const location = useLocation();
 
   const handleLogout = () => {
-    console.log("HÀM HANDLELOGOUT ĐÃ ĐƯỢC GỌI");
     Modal.confirm({
       title: "Xác nhận đăng xuất",
       content: "Bạn có chắc chắn muốn đăng xuất?",
@@ -54,44 +61,24 @@ const HeaderBar: React.FC = () => {
   };
 
   const menuItems = [
-    { 
-      key: "1", 
-      label: <Link to="/">Trang chủ</Link>,
-      icon: <HomeOutlined />
-    },
-    { 
-      key: "2", 
-      label: <Link to="/tournaments">Giải đấu</Link>,
-      icon: <TrophyOutlined />
-    },
-    { 
-      key: "3", 
-      label: <Link to="/teams">Đội tham gia</Link>,
-      icon: <TeamOutlined />
-    },
-    { 
-      key: "4", 
-      label: <Link to="/results">Kết quả</Link>,
-      icon: <BarChartOutlined />
-    },
-    { 
-      key: "5", 
-      label: <Link to="/ranking">Lịch thi đấu</Link>,
-      icon: <ScheduleOutlined />
-    },
+    { key: "1", label: <Link to="/">Trang chủ</Link>, icon: <HomeOutlined /> },
+    { key: "2", label: <Link to="/tournaments">Giải đấu</Link>, icon: <TrophyOutlined /> },
+    { key: "3", label: <Link to="/teams">Đội tham gia</Link>, icon: <TeamOutlined /> },
+    { key: "4", label: <Link to="/results">Kết quả</Link>, icon: <BarChartOutlined /> },
+    { key: "5", label: <Link to="/ranking">Lịch thi đấu</Link>, icon: <ScheduleOutlined /> },
   ];
 
-  const userMenuItems : MenuItemType[] = [
-    { 
-      key: "profile", 
+  const userMenuItems: MenuItemType[] = [
+    {
+      key: "profile",
       label: <Link to="/profile">Hồ sơ</Link>,
-      icon: <ProfileOutlined />
+      icon: <ProfileOutlined />,
     },
     { type: "divider" },
-    { 
-      key: "logout", 
-      label: <span style={{ color: '#ff4d4f' }}> Đăng xuất</span>,
-      onClick: handleLogout
+    {
+      key: "logout",
+      label: <span style={{ color: "#ff4d4f" }}>Đăng xuất</span>,
+      onClick: handleLogout,
     },
   ];
 
@@ -106,20 +93,17 @@ const HeaderBar: React.FC = () => {
   };
 
   const getUserAvatar = () => {
-    if (user?.avatar) {
-      return <Avatar size="small" src={user?.avatar} />;
-    }
-    if (user?.username) {
-      return <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
-        {user.username.charAt(0).toUpperCase()}
-      </Avatar>;
-    }
-    return <Avatar size="small" icon={<UserOutlined />} style={{ backgroundColor: '#1890ff' }} />;
+    if (user?.avatar) return <Avatar size="small" src={user.avatar} />;
+    if (user?.username)
+      return (
+        <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
+          {user.username.charAt(0).toUpperCase()}
+        </Avatar>
+      );
+    return <Avatar size="small" icon={<UserOutlined />} style={{ backgroundColor: "#1890ff" }} />;
   };
 
-  const getDisplayName = () => {
-    return user?.username || 'Người dùng';
-  };
+  const getDisplayName = () => user?.username || "Người dùng";
 
   return (
     <Header
@@ -128,95 +112,79 @@ const HeaderBar: React.FC = () => {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "0 24px",
-        background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+        background: "#f5f7fa",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
         position: "sticky",
         top: 0,
         zIndex: 1000,
       }}
     >
+      {/* Logo */}
       <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-        <div style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          gap: 8 
-        }}>
-          <div style={{ 
-            fontSize: 24,
-            background: "linear-gradient(45deg, #ff6b6b, #feca57)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontWeight: "bold"
-          }}>
-          </div>
-          <Text style={{ 
-            color: "#fff", 
-            fontWeight: "bold", 
-            fontSize: 20,
-            background: "linear-gradient(45deg, #fff, #f0f0f0)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent"
-          }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Text
+            style={{
+              color: "#1890ff",
+              fontWeight: "bold",
+              fontSize: 22,
+              letterSpacing: 0.5,
+            }}
+          >
             ESports Arena
           </Text>
         </div>
       </Link>
 
+      {/* Menu */}
       <Menu
-        theme="dark"
         mode="horizontal"
         selectedKeys={getActiveKey()}
         items={menuItems}
-        style={{ 
-          flex: 1, 
+        style={{
+          flex: 1,
           marginLeft: 32,
           background: "transparent",
           borderBottom: "none",
           fontSize: 15,
-          fontWeight: 500
+          fontWeight: 500,
         }}
-        className="custom-menu"
+        className="custom-menu-light"
       />
 
+      {/* User / Login */}
       <Space>
         {user ? (
-          <Dropdown
-            menu={{ items: userMenuItems }}
-            placement="bottomRight"
-            arrow
-          >
-            <Button 
-              type="text" 
-              style={{ 
-                color: "#fff",
-                background: "rgba(255, 255, 255, 0.1)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+            <Button
+              type="text"
+              style={{
+                color: "#333",
+                background: "#fff",
+                border: "1px solid #d9d9d9",
                 borderRadius: 8,
                 padding: "8px 16px",
                 height: "auto",
                 display: "flex",
                 alignItems: "center",
-                gap: 8
+                gap: 8,
               }}
             >
               {getUserAvatar()}
-              <Text style={{ color: "#fff", fontWeight: 500 }}>
-                {getDisplayName()}
-              </Text>
+              <Text style={{ color: "#333", fontWeight: 500 }}>{getDisplayName()}</Text>
             </Button>
           </Dropdown>
         ) : (
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             onClick={() => setAuthOpen(true)}
             style={{
-              background: "linear-gradient(45deg, #1890ff, #722ed1)",
+              background: "linear-gradient(45deg, #1890ff, #2f54eb)",
               border: "none",
               borderRadius: 8,
               fontWeight: 600,
               padding: "8px 20px",
               height: "auto",
-              boxShadow: "0 2px 6px rgba(24, 144, 255, 0.4)"
+              boxShadow: "0 2px 6px rgba(24, 144, 255, 0.3)",
             }}
           >
             Đăng nhập / Đăng ký
@@ -228,35 +196,33 @@ const HeaderBar: React.FC = () => {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         onLoginSuccess={(userData: any) => {
-          if (userData.token) {
-            localStorage.setItem("access_token", userData.token);
-          }
-          if (userData.user) {
-            setUser(userData.user);
-          }
+          if (userData.token) localStorage.setItem("access_token", userData.token);
+          if (userData.user) setUser(userData.user);
           setAuthOpen(false);
         }}
       />
 
       <style>
         {`
-          .custom-menu .ant-menu-item {
+          .custom-menu-light .ant-menu-item {
             margin: 0 8px;
             border-radius: 6px;
             transition: all 0.3s ease;
           }
-          
-          .custom-menu .ant-menu-item:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
+
+          .custom-menu-light .ant-menu-item:hover {
+            background: #e6f7ff !important;
+            color: #1890ff !important;
           }
-          
-          .custom-menu .ant-menu-item-selected {
-            background: linear-gradient(45deg, #1890ff, #722ed1) !important;
+
+          .custom-menu-light .ant-menu-item-selected {
+            background: #bae7ff !important;
+            color: #1890ff !important;
           }
-          
+
           .ant-dropdown-menu {
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
           }
         `}
       </style>

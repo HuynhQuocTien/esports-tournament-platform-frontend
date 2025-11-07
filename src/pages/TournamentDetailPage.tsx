@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Card, List, Typography } from "antd";
-import type { MatchSchedule, TournamentDetail } from "../types";
+import type { MatchSchedule, TournamentDetail } from "../common/types";
 import { v4 as uuidv4 } from "uuid";
 
 const { Title, Paragraph } = Typography;
@@ -9,7 +9,8 @@ const mockDetails: TournamentDetail[] = [
   {
     id: uuidv4(),
     name: "Esports Cup 2025",
-    description: "Giải đấu Esports lớn nhất năm với sự tham gia của 16 đội hàng đầu.",
+    description:
+      "Giải đấu Esports lớn nhất năm với sự tham gia của 16 đội hàng đầu.",
     schedule: [
       { match: "Đội A vs Đội B", time: "2025-10-05 18:00" },
       { match: "Đội C vs Đội D", time: "2025-10-06 20:00" },
@@ -29,7 +30,7 @@ const mockDetails: TournamentDetail[] = [
 export const TournamentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-   const detail = mockDetails.find((t) => t.id === id);
+  const detail = mockDetails.find((t) => t.id === id);
 
   if (!detail) {
     return <p>Không tìm thấy giải đấu</p>;
@@ -42,7 +43,7 @@ export const TournamentDetailPage: React.FC = () => {
         <Paragraph>{detail.description}</Paragraph>
 
         <Title level={3}>Lịch thi đấu</Title>
-        <List<MatchSchedule> 
+        <List<MatchSchedule>
           bordered
           dataSource={detail.schedule}
           renderItem={(item) => (

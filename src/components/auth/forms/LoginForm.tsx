@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep, Login } from "../../../types";
+import type { AuthStep, Login } from "../../../common/types";
 import { login } from "../../../services/auth";
 import type { AxiosError } from "axios";
 
@@ -9,16 +9,25 @@ const { Title, Text } = Typography;
 interface Props {
   onSwitch: (step: AuthStep) => void;
   onClose: () => void;
+  onLoginSuccess: (token: string) => void;
 }
 
-export const LoginForm: React.FC<Props> = ({ onSwitch, onClose }) => {
+export const LoginForm: React.FC<Props> = ({
+  onSwitch,
+  onClose,
+  onLoginSuccess,
+}) => {
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: Login) => {
     try {
       setLoading(true);
-      await login(values);
+      const response = await login(values);
+      const token = response.access_token;
+
+      if (!token) throw new Error("Không nhận được token từ máy chủ!");
       message.success("Đăng nhập thành công!");
+      onLoginSuccess(token);
       onClose();
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;

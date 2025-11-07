@@ -1,5 +1,5 @@
 import { Card, List, Avatar, Typography } from "antd";
-import type { Team } from "../types";
+import type { Team } from "../common/types";
 
 const { Title } = Typography;
 

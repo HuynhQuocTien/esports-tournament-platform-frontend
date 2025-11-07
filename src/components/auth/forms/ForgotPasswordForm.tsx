@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep, Forgot } from "../../../types";
+import type { AuthStep, Forgot } from "../../../common/types";
 import { forgotPassword } from "../../../services/auth";
 import type { AxiosError } from "axios";
 

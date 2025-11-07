@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep, Register } from "../../../types";
+import type { AuthStep, Register } from "../../../common/types";
 import { register } from "../../../services/auth";
 import type { AxiosError } from "axios";
 
@@ -18,7 +18,9 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
     try {
       setLoading(true);
       await register(values);
-      message.success("Đăng ký thành công! Vui lòng kiểm tra email để nhận OTP.");
+      message.success(
+        "Đăng ký thành công! Vui lòng kiểm tra email để nhận OTP."
+      );
       onSwitch("verifyOtp");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -44,12 +46,7 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
           <Input placeholder="Nhập tên hiển thị" />
         </Form.Item>
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            block
-            loading={loading}
-          >
+          <Button type="primary" htmlType="submit" block loading={loading}>
             Đăng ký
           </Button>
         </Form.Item>

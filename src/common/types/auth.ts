@@ -30,3 +30,10 @@ export interface AuthResponse {
   access_token: string;
   refresh_token?: string;
 }
+export interface JwtPayload{
+  sub: string;   
+  email: string;
+  username?: string;
+  avatar?: string;
+  exp: number;
+}

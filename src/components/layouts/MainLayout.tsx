@@ -8,15 +8,17 @@ const { Content } = Layout;
 
 const MainLayout: React.FC = () => {
   return (
-    <Layout style={{ minHeight: "100vh", background: "#000" }}>
-      <HeaderBar />
+    <div style={{ position: "relative", zIndex: 0 }}>
+      <Layout style={{ minHeight: "100vh", background: "#000" }}>
+        <HeaderBar />
 
-      <Content style={{ padding: "40px 80px" }}>
-        <Outlet />
-      </Content>
+        <Content style={{ padding: "40px 80px" }}>
+          <Outlet />
+        </Content>
 
-      <Footer />
-    </Layout>
+        <Footer />
+      </Layout>
+    </div>
   );
 };
 

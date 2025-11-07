@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Table, Typography } from "antd";
 const { Title } = Typography;
-import type { Ranking } from "../types";
+import type { Ranking } from "../common/types";
 const mockRanking: Ranking[] = [
   { key: "1", team: "Đội A", wins: 5, losses: 1, points: 15 },
   { key: "2", team: "Đội B", wins: 4, losses: 2, points: 12 },

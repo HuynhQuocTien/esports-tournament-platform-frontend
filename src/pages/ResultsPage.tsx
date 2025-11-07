@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, List, Typography } from "antd";
-import type { MatchResult } from "../types";
+import type { MatchResult } from "../common/types";
 
 const { Title } = Typography;
 
@@ -11,7 +11,7 @@ const mockResults: MatchResult[] = [
 ];
 
 export const ResultsPage: React.FC = () => {
-   return (
+  return (
     <div style={{ padding: 24 }}>
       <Card>
         <Title level={2}>Kết quả gần đây</Title>
@@ -24,9 +24,7 @@ export const ResultsPage: React.FC = () => {
                 <strong>{item.match}</strong>
               </div>
               <div>
-                <span style={{ marginRight: 16 }}>
-                  🏆 {item.winner}
-                </span>
+                <span style={{ marginRight: 16 }}>🏆 {item.winner}</span>
                 <span>{item.score}</span>
               </div>
             </List.Item>

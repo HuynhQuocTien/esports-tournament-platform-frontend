@@ -1,8 +1,7 @@
 import type { RouteObject } from "react-router-dom";
-import AdminLayout from "../components/layouts/AdminLayout";
+import AdminLayout from "../components/layouts/admin/AdminLayout";
 import React from "react";
-import AdminPage from "../pages/AdminPage";
-import { AdminPermissionsPage, AdminRankingPage, AdminTeamsPage, AdminTournamentsPage, AdminUsersPage } from "../pages/admin";
+import { AdminPage, AdminPermissionsPage, AdminRankingPage, AdminTeamsPage, AdminTournamentsPage, AdminUsersPage } from "../pages/admin";
 
 export const adminRoutes: RouteObject[] = [
     {

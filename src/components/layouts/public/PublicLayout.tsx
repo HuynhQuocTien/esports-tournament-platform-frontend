@@ -6,7 +6,7 @@ import Footer from "./Footer";
 
 const { Content } = Layout;
 
-const MainLayout: React.FC = () => {
+const PublicLayout: React.FC = () => {
   return (
     <div style={{ position: "relative", zIndex: 0 }}>
       <Layout style={{ minHeight: "100vh", background: "#f5f7fa" }}>
@@ -22,4 +22,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export default MainLayout;
+export default PublicLayout;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
 import type { AuthStep } from "../../../common/types";
-import { resetPassword } from "../../../services/auth";
+import { resetPassword } from "../../../services/authService";
 const { Title } = Typography;
 
 interface Props {

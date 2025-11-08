@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, List, Avatar, Typography } from "antd";
-import type { Team } from "../common/types";
+import type { Team } from "../../common/types";
 
 const { Title } = Typography;
 

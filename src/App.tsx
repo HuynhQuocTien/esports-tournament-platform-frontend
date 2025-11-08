@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./components/layouts/MainLayout";
-import AdminLayout from "./components/layouts/AdminLayout";
+import MainLayout from "./components/layouts/public/PublicLayout";
+import AdminLayout from "./components/layouts/admin/AdminLayout";
 import {
   HomePage,
   RankingPage,

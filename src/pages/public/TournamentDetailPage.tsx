@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Card, List, Typography } from "antd";
-import type { TournamentDetail } from "../common/types";
+import type { TournamentDetail } from "../../common/types";
 import { v4 as uuidv4 } from "uuid";
 
 const { Title, Paragraph } = Typography;

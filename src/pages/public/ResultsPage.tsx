@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, List, Typography } from "antd";
-import type { MatchResult } from "../common/types";
+import type { MatchResult } from "../../common/types";
 
 const { Title } = Typography;
 

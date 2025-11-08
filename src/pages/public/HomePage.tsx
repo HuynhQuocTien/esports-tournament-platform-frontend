@@ -2,7 +2,6 @@
 import React from "react";
 import { Layout, ConfigProvider } from "antd";
 import { Content } from "antd/es/layout/layout";
-import Footer from "../components/layouts/Footer";
 import {
   HeroSection,
   RankingSection,
@@ -10,7 +9,7 @@ import {
   TeamsSection,
   TopPlayersSection,
   TournamentSection,
-} from "../sections/home";
+} from "../../sections/public/home";
 
 const THEME_PRIMARY_COLOR = "#722ed1";
 const PAGE_BACKGROUND_COLOR = "#f5f7fa";
@@ -24,7 +23,7 @@ export const HomePage: React.FC = () => {
         token: {
           colorPrimary: THEME_PRIMARY_COLOR,
           colorBgContainer: CARD_BACKGROUND_COLOR,
-          colorBorderSecondary: CARD_BORDER_COLOR, 
+          colorBorderSecondary: CARD_BORDER_COLOR,
           colorWarning: "#faad14",
           colorError: "#f5222d",
           colorSuccess: "#52c41a",

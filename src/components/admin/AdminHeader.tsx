@@ -7,7 +7,7 @@ const AdminHeader: React.FC = () => {
   return (
     <Header
       style={{
-        background: "#001529",
+        background: "#ffffffff",
         color: "#fff",
         display: "flex",
         justifyContent: "space-between",

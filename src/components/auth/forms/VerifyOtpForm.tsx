@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep } from "../../../types";
+import type { AuthStep } from "../../../common/types";
 import { verifyOTP } from "../../../services/auth";
 
 const { Title } = Typography;

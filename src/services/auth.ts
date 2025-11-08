@@ -1,4 +1,4 @@
-import type { AuthResponse, Forgot, Login, Register } from "../types";
+import type { AuthResponse, Forgot, Login, Register } from "../common/types";
 import api from "./api";
 
 export const login = async (data: Login): Promise<AuthResponse> => {

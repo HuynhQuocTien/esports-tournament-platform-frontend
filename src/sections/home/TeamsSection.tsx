@@ -1,34 +1,64 @@
 import React from "react";
-import { Card, Col, Row, Typography, Avatar } from "antd";
+import { Card, Col, Row, Typography, Avatar, Button } from "antd";
+import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 const { Title, Text } = Typography;
 
 const teams = [
-  { id: 1, name: "Team Alpha", logo: "/img/team1.png", country: "Việt Nam" },
-  { id: 2, name: "Team Beta", logo: "/img/team2.png", country: "Thái Lan" },
-  { id: 3, name: "Team Gamma", logo: "/img/team3.png", country: "Hàn Quốc" },
-  { id: 4, name: "Team Delta", logo: "/img/team4.png", country: "Trung Quốc" },
+  { id: 1, name: "Team Alpha", logo: `https://picsum.photos/seed/${uuidv4()}/400/200`, country: "Việt Nam" },
+  { id: 2, name: "Team Beta", logo: `https://picsum.photos/seed/${uuidv4()}/400/200`, country: "Thái Lan" },
+  { id: 3, name: "Team Gamma", logo: `https://picsum.photos/seed/${uuidv4()}/400/200`, country: "Hàn Quốc" },
+  { id: 4, name: "Team Delta", logo: `https://picsum.photos/seed/${uuidv4()}/400/200`, country: "Trung Quốc" },
 ];
 
 export const TeamsSection: React.FC = () => {
   return (
-    <section style={{ marginBottom: 80 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Title level={2} style={{ color: "#fff" }}>CÁC ĐỘI TUYỂN</Title>
-        <a style={{ color: "#fff" }}>Xem tất cả →</a>
+    <section
+      style={{
+        marginBottom: 80,
+        // Thêm nền xanh nhạt và viền cho <section>
+        background: "var(--ant-color-bg-container)",
+        border: "1px solid var(--ant-color-border-secondary)",
+        padding: 24,
+        borderRadius: 10,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Title level={2}>CÁC ĐỘI TUYỂN</Title>
+        <Link to="/teams">
+          <Button type="link">Xem tất cả →</Button>
+        </Link>
       </div>
-      <Text style={{ color: "#aaa" }}>Những đội tuyển esports nổi bật tham gia giải đấu</Text>
+      <Text type="secondary">
+        Những đội tuyển esports nổi bật tham gia giải đấu
+      </Text>
 
       <Row gutter={24} style={{ marginTop: 24 }}>
         {teams.map((t) => (
           <Col span={6} key={t.id}>
+            {/* Card này sẽ có nền TRẮNG, nổi bật trên nền section */}
             <Card
               bordered={false}
-              style={{ background: "#111", borderRadius: 12, textAlign: "center" }}
+              style={{
+                borderRadius: 12,
+                textAlign: "center",
+                border: "1px solid #f0f0f0", // Thêm viền trắng nhẹ
+                // Bỏ background: #111
+              }}
             >
               <Avatar size={80} src={t.logo} />
-              <Title level={4} style={{ color: "#fff", marginTop: 12 }}>{t.name}</Title>
-              <Text style={{ color: "#bbb" }}>{t.country}</Text>
+              {/* Bỏ các style 'color' */}
+              <Title level={4} style={{ marginTop: 12 }}>
+                {t.name}
+              </Title>
+              <Text type="secondary">{t.country}</Text>
             </Card>
           </Col>
         ))}

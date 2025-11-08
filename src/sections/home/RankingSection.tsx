@@ -1,5 +1,6 @@
 import React from "react";
-import { Table, Typography } from "antd";
+import { Table, Typography, Button } from "antd";
+import { Link } from "react-router-dom"; // Giả sử bạn dùng router
 
 const { Title, Text } = Typography;
 
@@ -20,18 +21,34 @@ const columns = [
 
 export const RankingSection: React.FC = () => {
   return (
-    <section style={{ marginBottom: 80 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Title level={2} style={{ color: "#fff" }}>BẢNG XẾP HẠNG</Title>
-        <a style={{ color: "#fff" }}>Xem tất cả →</a>
+    <section
+      style={{
+        marginBottom: 80,
+        background: "var(--ant-color-bg-container)",
+        border: "1px solid var(--ant-color-border-secondary)",
+        padding: 24,
+        borderRadius: 10,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Title level={2}>BẢNG XẾP HẠNG</Title>
+        <Link to="/rankings">
+          <Button type="link">Xem tất cả →</Button>
+        </Link>
       </div>
-      <Text style={{ color: "#aaa" }}>Cập nhật kết quả và thứ hạng mới nhất</Text>
+      <Text type="secondary">Cập nhật kết quả và thứ hạng mới nhất</Text>
 
       <Table
         columns={columns}
         dataSource={data}
         pagination={false}
-        style={{ marginTop: 24, background: "#111", borderRadius: 12 }}
+        style={{ marginTop: 24, borderRadius: 12 }}
       />
     </section>
   );

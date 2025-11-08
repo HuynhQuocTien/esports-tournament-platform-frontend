@@ -1,12 +1,11 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Card, List, Typography } from "antd";
-import type { TournamentDetail } from "../../common/types";
 import { v4 as uuidv4 } from "uuid";
 
 const { Title, Paragraph } = Typography;
 
-const mockDetails: TournamentDetail[] = [
+const mockDetails = [
   {
     id: uuidv4(),
     name: "Esports Cup 2025",

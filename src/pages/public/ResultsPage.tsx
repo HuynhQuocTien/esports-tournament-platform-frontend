@@ -1,10 +1,9 @@
 import React from "react";
 import { Card, List, Typography } from "antd";
-import type { MatchResult } from "../../common/types";
 
 const { Title } = Typography;
 
-const mockResults: MatchResult[] = [
+const mockResults = [
   { match: "Đội A vs Đội B", winner: "Đội A", score: "2 - 1" },
   { match: "Đội C vs Đội D", winner: "Đội D", score: "0 - 2" },
   { match: "Đội E vs Đội F", winner: "Đội E", score: "2 - 0" },

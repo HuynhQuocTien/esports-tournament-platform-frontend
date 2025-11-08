@@ -1,4 +1,3 @@
-// HomePage.tsx (Đã cập nhật)
 import React from "react";
 import { Layout, ConfigProvider } from "antd";
 import { Content } from "antd/es/layout/layout";

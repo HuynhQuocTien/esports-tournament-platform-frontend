@@ -85,21 +85,18 @@ export const TournamentSection: React.FC = () => {
       <Row gutter={24} style={{ marginTop: 24 }}>
         {tournaments.map((t) => (
           <Col span={8} key={t.id}>
-            {/* Card này sẽ có nền TRẮNG */}
             <Card
               cover={<img alt={t.title} src={t.img} />}
               bordered={false}
               style={{
                 borderRadius: 12,
                 border: "1px solid #f0f0f0",
-                // Bỏ background: #111
               }}
             >
-              {getStatusTag(t.status)} {/* Dùng helper Tag */}
+              {getStatusTag(t.status)}
               <Title level={4}>{t.title}</Title>
               <Text type="secondary">{t.desc}</Text>
               <div style={{ marginTop: 16 }}>
-                {/* Đổi giải thưởng sang Vàng (Warning) */}
                 <Text
                   style={{
                     color: "var(--ant-color-warning)",
@@ -121,7 +118,6 @@ export const TournamentSection: React.FC = () => {
                 }}
               >
                 <Button>Xem kết quả</Button>
-                {/* Nút này sẽ có màu Tím */}
                 <Button type="primary">Chi tiết</Button>
               </div>
             </Card>
@@ -130,7 +126,6 @@ export const TournamentSection: React.FC = () => {
       </Row>
 
       <div style={{ textAlign: "center", marginTop: 24 }}>
-        {/* Nút này sẽ có màu Tím */}
         <Button type="primary" size="large">
           Đăng ký tham gia giải đấu
         </Button>

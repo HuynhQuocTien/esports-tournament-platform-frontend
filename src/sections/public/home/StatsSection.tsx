@@ -19,20 +19,16 @@ export const StatsSection: React.FC = () => {
     >
       {stats.map((s, i) => (
         <Col xs={12} md={6} key={i}>
-          {/* Card này tự động nhận colorBgContainer và colorBorderSecondary */}
           <Card
             bordered={false}
             style={{
               borderRadius: 10,
               border: "1px solid var(--ant-color-border-secondary)",
-              // Bỏ tất cả style 'background' và 'color' cứng
             }}
           >
-            {/* Đổi màu số liệu sang màu Tím (primary) */}
             <Title level={2} style={{ color: "var(--ant-color-primary)" }}>
               {s.number}
             </Title>
-            {/* Chữ này tự động có màu xám */}
             <Text type="secondary">{s.text}</Text>
           </Card>
         </Col>

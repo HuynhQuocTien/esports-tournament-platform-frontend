@@ -17,7 +17,6 @@ export const TeamsSection: React.FC = () => {
     <section
       style={{
         marginBottom: 80,
-        // Thêm nền xanh nhạt và viền cho <section>
         background: "var(--ant-color-bg-container)",
         border: "1px solid var(--ant-color-border-secondary)",
         padding: 24,
@@ -43,18 +42,15 @@ export const TeamsSection: React.FC = () => {
       <Row gutter={24} style={{ marginTop: 24 }}>
         {teams.map((t) => (
           <Col span={6} key={t.id}>
-            {/* Card này sẽ có nền TRẮNG, nổi bật trên nền section */}
             <Card
               bordered={false}
               style={{
                 borderRadius: 12,
                 textAlign: "center",
-                border: "1px solid #f0f0f0", // Thêm viền trắng nhẹ
-                // Bỏ background: #111
+                border: "1px solid #f0f0f0",
               }}
             >
               <Avatar size={80} src={t.logo} />
-              {/* Bỏ các style 'color' */}
               <Title level={4} style={{ marginTop: 12 }}>
                 {t.name}
               </Title>

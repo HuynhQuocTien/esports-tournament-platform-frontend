@@ -11,19 +11,18 @@ import {
   TournamentsPage,
 } from "./pages";
 import {
-  AdminDashboardPage,
   AdminTournamentsPage,
   AdminTeamsPage,
   AdminRankingPage,
   AdminUsersPage,
   AdminPermissionsPage,
 } from "./pages/admin";
+import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Layout người dùng */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="tournaments" element={<TournamentsPage />} />
@@ -33,7 +32,6 @@ const App: React.FC = () => {
           <Route path="ranking" element={<RankingPage />} />
         </Route>
 
-        {/* Layout admin */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="tournaments" element={<AdminTournamentsPage />} />

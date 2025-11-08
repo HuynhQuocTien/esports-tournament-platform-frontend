@@ -1,10 +1,9 @@
 import React from "react";
 import { Card, List, Avatar, Typography } from "antd";
-import type { Team } from "../../common/types";
 
 const { Title } = Typography;
 
-const mockTeams: Team[] = [
+const mockTeams = [
   {
     id: "team-1",
     name: "Đội A",

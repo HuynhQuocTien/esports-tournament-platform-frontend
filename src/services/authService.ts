@@ -1,4 +1,3 @@
-import type { ApiResponse } from "../common/interfaces/ApiResponse";
 import type { ForgotRequest, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "../common/interfaces/auth";
 import api from "./api";
 

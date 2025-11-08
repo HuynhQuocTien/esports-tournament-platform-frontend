@@ -27,6 +27,7 @@ const App: React.FC = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="tournaments" element={<TournamentsPage />} />
+          <Route path="tournaments/create-league" element={<ResultsPage />} />
           <Route path="tournaments/:id" element={<TournamentDetailPage />} />
           <Route path="results" element={<ResultsPage />} />
           <Route path="teams" element={<TeamsPage />} />

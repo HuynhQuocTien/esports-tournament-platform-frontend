@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
 import type { AuthStep, Register } from "../../../common/types";
-import { register } from "../../../services/auth";
+import { register } from "../../../services/authService";
 import type { AxiosError } from "axios";
 
 const { Title, Text } = Typography;

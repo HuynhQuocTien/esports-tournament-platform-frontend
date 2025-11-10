@@ -1,10 +1,9 @@
 import React from "react";
 import { Card, Table, Typography } from "antd";
-import type { Ranking } from "../common/types";
 
 const { Title } = Typography;
 
-const mockRanking: Ranking[] = [
+const mockRanking = [
   { key: "1", team: "Đội A", wins: 5, losses: 1, points: 15 },
   { key: "2", team: "Đội B", wins: 4, losses: 2, points: 12 },
   { key: "3", team: "Đội C", wins: 3, losses: 3, points: 9 },
@@ -33,9 +32,9 @@ export const RankingPage: React.FC = () => {
     >
       <Card
         style={{
-          background: CARD_BACKGROUND_COLOR, // <-- THAY ĐỔI
+          background: CARD_BACKGROUND_COLOR,
           borderRadius: 10,
-          border: `1px solid ${CARD_BORDER_COLOR}`, // <-- THAY ĐỔI
+          border: `1px solid ${CARD_BORDER_COLOR}`,
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >

@@ -15,7 +15,6 @@ export const TopPlayersSection: React.FC = () => {
     <section
       style={{
         marginBottom: 80,
-        // Thêm nền xanh nhạt và viền cho <section>
         background: "var(--ant-color-bg-container)",
         border: "1px solid var(--ant-color-border-secondary)",
         padding: 24,
@@ -39,14 +38,12 @@ export const TopPlayersSection: React.FC = () => {
       <Row gutter={24} style={{ marginTop: 24 }}>
         {players.map((p) => (
           <Col span={8} key={p.id}>
-            {/* Card này sẽ có nền TRẮNG */}
             <Card
               bordered={false}
               style={{
                 borderRadius: 12,
                 textAlign: "center",
                 border: "1px solid #f0f0f0",
-                // Bỏ background: #111
               }}
             >
               <Avatar size={100} src={p.avatar} />
@@ -54,7 +51,6 @@ export const TopPlayersSection: React.FC = () => {
                 {p.name}
               </Title>
               <Text type="secondary">{p.team}</Text>
-              {/* Đổi màu KDA sang Vàng (Warning) */}
               <div
                 style={{
                   marginTop: 8,
@@ -64,7 +60,6 @@ export const TopPlayersSection: React.FC = () => {
               >
                 KDA: {p.kda}
               </div>
-              {/* Bỏ style 'color' */}
               <Text>Role: {p.role}</Text>
             </Card>
           </Col>

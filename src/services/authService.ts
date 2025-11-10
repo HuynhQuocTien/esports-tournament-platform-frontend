@@ -1,10 +1,10 @@
-import type { AuthResponse, Forgot, Login, Register } from "../common/types";
+import type { ForgotRequest, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "../common/interfaces/auth";
 import api from "./api";
 
-export const login = async (data: Login): Promise<AuthResponse> => {
-  const res = await api.post<AuthResponse>("/auth/login", data);
+export const login = async (data: LoginRequest): Promise<LoginResponse> => {
+  const res = await api.post<LoginResponse>("/auth/login", data);
 
-  const { access_token, refresh_token } = res.data;
+  const { access_token, refresh_token } = res.data.data;
   if (access_token) {
     localStorage.setItem("access_token", access_token);
     if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
@@ -13,17 +13,17 @@ export const login = async (data: Login): Promise<AuthResponse> => {
   return res.data;
 };
 
-export const register = async (data: Register): Promise<AuthResponse> => {
-  const res = await api.post<AuthResponse>("/auth/register", data);
+export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+  const res = await api.post<RegisterResponse>("/auth/register", data);
   return res.data;
 };
 
-export const refreshToken = async (): Promise<AuthResponse> => {
+export const refreshToken = async () => {
   const refresh_token = localStorage.getItem("refresh_token");
   if (!refresh_token) throw new Error("No refresh token found");
 
-  const res = await api.post<AuthResponse>("/auth/refresh", {
-    refresh_token,
+  const res = await api.post("/auth/refresh", {
+    refresh_token
   });
 
   const { access_token, refresh_token: newRefresh } = res.data;
@@ -35,7 +35,7 @@ export const refreshToken = async (): Promise<AuthResponse> => {
   return res.data;
 };
 
-export const forgotPassword = async (data: Forgot): Promise<void> => {
+export const forgotPassword = async (data: ForgotRequest): Promise<void> => {
   await api.post("/auth/forgot-password", { email: data.email });
 };
 

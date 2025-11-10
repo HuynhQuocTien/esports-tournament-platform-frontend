@@ -20,8 +20,8 @@ import {
   HomeOutlined,
   BarChartOutlined,
 } from "@ant-design/icons";
-import AuthModal from "../auth/AuthModal";
-import { useAuth } from "../../hooks/useAuth";
+import AuthModal from "../../auth/AuthModal";
+import { useAuth } from "../../../hooks/useAuth";
 
 type MenuItem = {
   key: string;
@@ -62,10 +62,26 @@ const HeaderBar: React.FC = () => {
 
   const menuItems = [
     { key: "1", label: <Link to="/">Trang chủ</Link>, icon: <HomeOutlined /> },
-    { key: "2", label: <Link to="/tournaments">Giải đấu</Link>, icon: <TrophyOutlined /> },
-    { key: "3", label: <Link to="/teams">Đội tham gia</Link>, icon: <TeamOutlined /> },
-    { key: "4", label: <Link to="/results">Kết quả</Link>, icon: <BarChartOutlined /> },
-    { key: "5", label: <Link to="/ranking">Lịch thi đấu</Link>, icon: <ScheduleOutlined /> },
+    {
+      key: "2",
+      label: <Link to="/tournaments">Giải đấu</Link>,
+      icon: <TrophyOutlined />,
+    },
+    {
+      key: "3",
+      label: <Link to="/teams">Đội tham gia</Link>,
+      icon: <TeamOutlined />,
+    },
+    {
+      key: "4",
+      label: <Link to="/results">Kết quả</Link>,
+      icon: <BarChartOutlined />,
+    },
+    {
+      key: "5",
+      label: <Link to="/ranking">Lịch thi đấu</Link>,
+      icon: <ScheduleOutlined />,
+    },
   ];
 
   const userMenuItems: MenuItemType[] = [
@@ -100,7 +116,13 @@ const HeaderBar: React.FC = () => {
           {user.username.charAt(0).toUpperCase()}
         </Avatar>
       );
-    return <Avatar size="small" icon={<UserOutlined />} style={{ backgroundColor: "#1890ff" }} />;
+    return (
+      <Avatar
+        size="small"
+        icon={<UserOutlined />}
+        style={{ backgroundColor: "#1890ff" }}
+      />
+    );
   };
 
   const getDisplayName = () => user?.username || "Người dùng";
@@ -120,7 +142,14 @@ const HeaderBar: React.FC = () => {
       }}
     >
       {/* Logo */}
-      <Link to="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+      <Link
+        to="/"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          textDecoration: "none",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text
             style={{
@@ -154,7 +183,11 @@ const HeaderBar: React.FC = () => {
       {/* User / Login */}
       <Space>
         {user ? (
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+          <Dropdown
+            menu={{ items: userMenuItems }}
+            placement="bottomRight"
+            arrow
+          >
             <Button
               type="text"
               style={{
@@ -170,7 +203,9 @@ const HeaderBar: React.FC = () => {
               }}
             >
               {getUserAvatar()}
-              <Text style={{ color: "#333", fontWeight: 500 }}>{getDisplayName()}</Text>
+              <Text style={{ color: "#333", fontWeight: 500 }}>
+                {getDisplayName()}
+              </Text>
             </Button>
           </Dropdown>
         ) : (
@@ -196,7 +231,8 @@ const HeaderBar: React.FC = () => {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         onLoginSuccess={(userData: any) => {
-          if (userData.token) localStorage.setItem("access_token", userData.token);
+          if (userData.token)
+            localStorage.setItem("access_token", userData.token);
           if (userData.user) setUser(userData.user);
           setAuthOpen(false);
         }}

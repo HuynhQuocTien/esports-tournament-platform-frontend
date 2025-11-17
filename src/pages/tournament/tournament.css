@@ -1,0 +1,26 @@
+/* Đảm bảo mũi tên number rõ ràng */
+input[type="number"] {
+  color: #000;
+  background: #fff;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+  background: #fff;
+}
+
+input[type="datetime-local"] {
+  color: #000;
+  background: #fff;
+}
+
+/* Hiển thị icon lịch rõ ràng */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0); /* icon đen */
+  opacity: 1;
+}
+
+.form-label {
+  text-align: left;
+}

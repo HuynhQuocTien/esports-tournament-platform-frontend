@@ -9,7 +9,7 @@ import {
   TeamsPage,
   TournamentDetailPage,
   TournamentsPage,
-} from "./pages";
+} from "./pages/public";
 import {
   AdminTournamentsPage,
   AdminTeamsPage,

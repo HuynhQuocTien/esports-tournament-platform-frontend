@@ -1,5 +1,6 @@
 import React from "react";
 import { Typography, Button, Space } from "antd";
+import DecryptedText from "../../../components/Textanimate/DecryptedText";
 
 const { Title, Paragraph } = Typography;
 
@@ -20,7 +21,16 @@ export const HeroSection: React.FC = () => {
           textShadow: "1px 1px 4px rgba(255,255,255,0.95)",
         }}
       >
-        GIẢI ĐẤU ESPORTS CHAMPIONSHIP 2025
+      
+      <div style={{ marginTop: '4rem' }}>
+        <DecryptedText
+          text="GIẢI ĐẤU ESPORTS CHAMPIONSHIP 2025"
+          animateOn="view"
+          revealDirection="center"
+          sequential={true}
+        />
+      </div>
+        
       </Title>
       <Paragraph
         style={{

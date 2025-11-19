@@ -9,7 +9,7 @@ export const tournamentService = {
     listPublic: () => api.get('tournaments'),
     register: (tournamemtId: number, teamName?: string) => api.post(`/tournaments/${tournamemtId}/register`, { team_name: teamName }),
     generateBracket: (tournamemtId: number) => api.post(`/tournaments/${tournamemtId}/generate-bracket`),
-    createMatch: (data) => api.post(`tournaments/matches`, data),
+    createMatch: (data: any) => api.post(`tournaments/matches`, data),
     updateMatchScore: (matchId: number, scoreA: number, scoreB: number) => api.patch(`tournaments/matches/${matchId}/score`, { scoreA, scoreB }),
     standings: (tournamentId: number) => api.get(`/tournaments/${tournamentId}/standings`),
 }

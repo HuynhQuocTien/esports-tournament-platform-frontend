@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep, Forgot } from "../../../common/types";
+import type { ForgotRequest } from "../../../common/interfaces/auth";
 import { forgotPassword } from "../../../services/authService";
 import type { AxiosError } from "axios";
+import type { AuthStep } from "../../../common/types";
+import { MailOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface Props {
   onSwitch: (step: AuthStep) => void;
 }
 
-const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
+export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
   const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: Forgot) => {
+  const onFinish = async (values: ForgotRequest) => {
     try {
       setLoading(true);
       await forgotPassword(values);
@@ -30,23 +32,54 @@ const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
 
   return (
     <div>
-      <Title level={3}>Quên mật khẩu</Title>
-      <Form layout="vertical" onFinish={onFinish}>
-        <Form.Item name="email" label="Email" rules={[{ required: true }]}>
-          <Input placeholder="Nhập email" />
+      <div style={{ marginBottom: 24 }}>
+        <Button 
+          type="text" 
+          icon={<ArrowLeftOutlined />} 
+          onClick={() => onSwitch("login")}
+          style={{ padding: 0, marginBottom: 16 }}
+        >
+          Quay lại
+        </Button>
+      </div>
+
+      <Form layout="vertical" onFinish={onFinish} size="large">
+        <Form.Item 
+          name="email" 
+          rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+        >
+          <Input 
+            prefix={<MailOutlined style={{ color: '#722ed1' }} />}
+            placeholder="Nhập email của bạn" 
+            style={{ borderRadius: 8, height: 48 }}
+          />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block loading={loading}>
-            Gửi OTP
+        
+        <Form.Item style={{ marginBottom: 16 }}>
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            block 
+            loading={loading}
+            style={{
+              height: 48,
+              borderRadius: 8,
+              background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+              border: "none",
+              fontSize: 16,
+              fontWeight: 600,
+            }}
+          >
+            Gửi mã OTP
           </Button>
         </Form.Item>
       </Form>
 
-      <Text>
-        Quay lại <a onClick={() => onSwitch("login")}>Đăng nhập</a>
-      </Text>
+      <div style={{ textAlign: 'center' }}>
+        <Text style={{ color: '#666' }}>
+          Chúng tôi sẽ gửi mã xác minh đến email của bạn
+        </Text>
+      </div>
     </div>
   );
 };
-
-export default ForgotPasswordForm;

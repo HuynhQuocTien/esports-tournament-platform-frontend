@@ -6,6 +6,7 @@ import {
   HomePage,
   RankingPage,
   ResultsPage,
+  SchedulePage,
   TeamsPage,
   TournamentDetailPage,
   TournamentsPage,
@@ -32,6 +33,7 @@ const App: React.FC = () => {
           <Route path="results" element={<ResultsPage />} />
           <Route path="teams" element={<TeamsPage />} />
           <Route path="ranking" element={<RankingPage />} />
+          <Route path="schedule" element={<SchedulePage />} />
         </Route>
 
         <Route path="/admin" element={<AdminLayout />}>

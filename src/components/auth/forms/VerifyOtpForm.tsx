@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Typography, message } from "antd";
-import type { AuthStep } from "../../../common/types";
 import { verifyOTP } from "../../../services/authService";
+import type { AuthStep } from "../../../common/types";
+import { KeyOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 
-const { Title } = Typography;
+const {  Text } = Typography;
 
 interface Props {
   onSwitch: (step: AuthStep) => void;
@@ -27,17 +28,55 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
 
   return (
     <div>
-      <Title level={3}>Xác minh OTP</Title>
-      <Form layout="vertical" onFinish={onFinish}>
-        <Form.Item name="otp" label="Mã OTP" rules={[{ required: true }]}>
-          <Input placeholder="Nhập OTP" />
+      <div style={{ marginBottom: 24 }}>
+        <Button 
+          type="text" 
+          icon={<ArrowLeftOutlined />} 
+          onClick={() => onSwitch("forgotPassword")}
+          style={{ padding: 0, marginBottom: 16 }}
+        >
+          Quay lại
+        </Button>
+      </div>
+
+      <Form layout="vertical" onFinish={onFinish} size="large">
+        <Form.Item 
+          name="otp" 
+          rules={[{ required: true, message: 'Vui lòng nhập mã OTP!' }]}
+        >
+          <Input 
+            prefix={<KeyOutlined style={{ color: '#722ed1' }} />}
+            placeholder="Nhập mã OTP 6 chữ số" 
+            style={{ borderRadius: 8, height: 48 }}
+            maxLength={6}
+          />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" block loading={loading}>
-            Xác minh
+        
+        <Form.Item style={{ marginBottom: 16 }}>
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            block 
+            loading={loading}
+            style={{
+              height: 48,
+              borderRadius: 8,
+              background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+              border: "none",
+              fontSize: 16,
+              fontWeight: 600,
+            }}
+          >
+            Xác minh OTP
           </Button>
         </Form.Item>
       </Form>
+
+      <div style={{ textAlign: 'center' }}>
+        <Text style={{ color: '#666' }}>
+          Mã OTP đã được gửi đến email của bạn
+        </Text>
+      </div>
     </div>
   );
 };

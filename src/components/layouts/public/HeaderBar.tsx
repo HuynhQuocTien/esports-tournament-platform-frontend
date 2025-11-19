@@ -79,7 +79,12 @@ const HeaderBar: React.FC = () => {
     },
     {
       key: "5",
-      label: <Link to="/ranking">Lịch thi đấu</Link>,
+      label: <Link to="/ranking">Xếp hạng</Link>,
+      icon: <ScheduleOutlined />,
+    },
+    {
+      key: "6",
+      label: <Link to="/schedule">Lịch thi đấu</Link>,
       icon: <ScheduleOutlined />,
     },
   ];
@@ -105,6 +110,7 @@ const HeaderBar: React.FC = () => {
     if (path.includes("/teams")) return ["3"];
     if (path.includes("/results")) return ["4"];
     if (path.includes("/ranking")) return ["5"];
+    if (path.includes("/schedule")) return ["6"];
     return ["1"];
   };
 
@@ -142,6 +148,7 @@ const HeaderBar: React.FC = () => {
       }}
     >
       {/* Logo */}
+
       <Link
         to="/"
         style={{
@@ -150,6 +157,17 @@ const HeaderBar: React.FC = () => {
           textDecoration: "none",
         }}
       >
+        <img
+          src="/logo-removebg.png"
+          alt="ESports Arena Logo"
+          style={{
+            width: 40,
+            height: 40,
+            objectFit: "contain",
+            marginRight: 12,
+          }}
+        />
+
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Text
             style={{

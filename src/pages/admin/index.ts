@@ -4,3 +4,5 @@ export * from "./AdminRankingPage";
 export * from "./AdminTournamentsPage";
 export * from "./AdminTeamsPage";
 export * from "./AdminUsersPage";
+export * from "./AdminAnalyticsPage";
+export * from "./AdminSettingsPage";

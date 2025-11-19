@@ -17,6 +17,8 @@ import {
   AdminRankingPage,
   AdminUsersPage,
   AdminPermissionsPage,
+  AdminAnalyticsPage,
+  AdminSettingsPage,
 } from "./pages/admin";
 import { CreateTournamentPage } from "./pages/tournament/Create";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
@@ -43,6 +45,8 @@ const App: React.FC = () => {
           <Route path="ranking" element={<AdminRankingPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="permissions" element={<AdminPermissionsPage />} />
+          <Route path="analytics" element={<AdminAnalyticsPage />} />
+          <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

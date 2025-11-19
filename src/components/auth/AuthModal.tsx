@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Card, Typography } from "antd";
 import type { AuthStep } from "../../common/types/common";
 import { ForgotPasswordForm, LoginForm, RegisterForm, SetupPasswordForm, VerifyOtpForm } from "./forms";
@@ -9,14 +9,22 @@ interface AuthModalProps {
   open: boolean;
   onClose: () => void;
   onLoginSuccess: (token: string) => void;
+  initialStep?: AuthStep;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   open,
   onClose,
   onLoginSuccess,
+  initialStep = "login",
 }) => {
-  const [step, setStep] = useState<AuthStep>("login");
+  const [step, setStep] = useState<AuthStep>(initialStep);
+
+  useEffect(() => {
+    if (open) {
+      setStep(initialStep);
+    }
+  }, [open, initialStep]);
 
   const getStepTitle = () => {
     const titles = {

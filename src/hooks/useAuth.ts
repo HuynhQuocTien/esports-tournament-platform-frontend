@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "../common/types";
-
+import type { JwtPayload } from "../common/interfaces/payload/jwt-payload";
 export function useAuth() {
   const [user, setUser] = useState<JwtPayload | null>(null);
 

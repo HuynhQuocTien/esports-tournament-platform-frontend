@@ -121,7 +121,6 @@ export const HeroSection: React.FC = () => {
           </Button>
         </Space>
 
-        {/* Stats Preview */}
         <div
           style={{
             background: "rgba(255, 255, 255, 0.1)",

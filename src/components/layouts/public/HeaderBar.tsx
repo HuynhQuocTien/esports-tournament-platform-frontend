@@ -8,6 +8,7 @@ import {
   Avatar,
   Space,
   Typography,
+  Badge,
 } from "antd";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -19,9 +20,15 @@ import {
   ScheduleOutlined,
   HomeOutlined,
   BarChartOutlined,
+  BellOutlined,
+  MessageOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+  LoginOutlined,
+  UserAddOutlined,
 } from "@ant-design/icons";
-import AuthModal from "../../auth/AuthModal";
 import { useAuth } from "../../../hooks/useAuth";
+import { AuthModal } from "../../auth";
 
 type MenuItem = {
   key: string;
@@ -41,6 +48,7 @@ const { Text } = Typography;
 
 const HeaderBar: React.FC = () => {
   const [authOpen, setAuthOpen] = useState(false);
+  const [authStep, setAuthStep] = useState<"login" | "register">("login");
   const { user, setUser } = useAuth();
   const location = useLocation();
 
@@ -50,7 +58,20 @@ const HeaderBar: React.FC = () => {
       content: "Bạn có chắc chắn muốn đăng xuất?",
       okText: "Đăng xuất",
       cancelText: "Hủy",
-      okButtonProps: { danger: true },
+      okButtonProps: {
+        danger: true,
+        style: {
+          background: "linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%)",
+          border: "none",
+          borderRadius: 6,
+        },
+      },
+      cancelButtonProps: {
+        style: {
+          borderColor: "#d9d9d9",
+          borderRadius: 6,
+        },
+      },
       onOk: () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
@@ -60,8 +81,22 @@ const HeaderBar: React.FC = () => {
     });
   };
 
+  const handleLoginClick = () => {
+    setAuthStep("login");
+    setAuthOpen(true);
+  };
+
+  const handleRegisterClick = () => {
+    setAuthStep("register");
+    setAuthOpen(true);
+  };
+
   const menuItems = [
-    { key: "1", label: <Link to="/">Trang chủ</Link>, icon: <HomeOutlined /> },
+    {
+      key: "1",
+      label: <Link to="/">Trang chủ</Link>,
+      icon: <HomeOutlined />,
+    },
     {
       key: "2",
       label: <Link to="/tournaments">Giải đấu</Link>,
@@ -92,13 +127,19 @@ const HeaderBar: React.FC = () => {
   const userMenuItems: MenuItemType[] = [
     {
       key: "profile",
-      label: <Link to="/profile">Hồ sơ</Link>,
+      label: <Link to="/profile">Hồ sơ cá nhân</Link>,
       icon: <ProfileOutlined />,
+    },
+    {
+      key: "settings",
+      label: <Link to="/settings">Cài đặt</Link>,
+      icon: <SettingOutlined />,
     },
     { type: "divider" },
     {
       key: "logout",
-      label: <span style={{ color: "#ff4d4f" }}>Đăng xuất</span>,
+      label: <span>Đăng xuất</span>,
+      icon: <LogoutOutlined />,
       onClick: handleLogout,
     },
   ];
@@ -115,18 +156,26 @@ const HeaderBar: React.FC = () => {
   };
 
   const getUserAvatar = () => {
-    if (user?.avatar) return <Avatar size="small" src={user.avatar} />;
+    if (user?.avatar) return <Avatar size={32} src={user.avatar} />;
     if (user?.username)
       return (
-        <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
+        <Avatar
+          size={32}
+          style={{
+            background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+            fontWeight: 600,
+          }}
+        >
           {user.username.charAt(0).toUpperCase()}
         </Avatar>
       );
     return (
       <Avatar
-        size="small"
+        size={32}
         icon={<UserOutlined />}
-        style={{ backgroundColor: "#1890ff" }}
+        style={{
+          background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+        }}
       />
     );
   };
@@ -139,42 +188,47 @@ const HeaderBar: React.FC = () => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "0 24px",
-        background: "#f5f7fa",
-        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+        padding: "0 40px",
+        background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
         position: "sticky",
         top: 0,
         zIndex: 1000,
+        height: 70,
+        borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
       }}
     >
       {/* Logo */}
-
       <Link
         to="/"
         style={{
           display: "flex",
           alignItems: "center",
           textDecoration: "none",
+          marginRight: 40,
         }}
       >
-        <img
-          src="/logo-removebg.png"
-          alt="ESports Arena Logo"
-          style={{
-            width: 40,
-            height: 40,
-            objectFit: "contain",
-            marginRight: 12,
-          }}
-        />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img
+            src="/logo-removebg.png"
+            alt="ESports Arena Logo"
+            style={{
+              width: 42,
+              height: 42,
+              objectFit: "contain",
+              filter: "drop-shadow(0 2px 8px rgba(114, 46, 209, 0.3))",
+            }}
+          />
           <Text
             style={{
-              color: "#1890ff",
+              color: "#ffffff",
               fontWeight: "bold",
-              fontSize: 22,
+              fontSize: 24,
               letterSpacing: 0.5,
+              background: "linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
             }}
           >
             ESports Arena
@@ -182,66 +236,152 @@ const HeaderBar: React.FC = () => {
         </div>
       </Link>
 
-      {/* Menu */}
+      {/* Navigation Menu */}
       <Menu
         mode="horizontal"
         selectedKeys={getActiveKey()}
         items={menuItems}
         style={{
           flex: 1,
-          marginLeft: 32,
           background: "transparent",
           borderBottom: "none",
           fontSize: 15,
           fontWeight: 500,
+          color: "rgba(255, 255, 255, 0.8)",
         }}
-        className="custom-menu-light"
+        className="custom-header-menu"
       />
 
-      {/* User / Login */}
-      <Space>
+      {/* Right Section - Notifications & User */}
+      <Space size="middle" style={{ marginLeft: "auto" }}>
         {user ? (
-          <Dropdown
-            menu={{ items: userMenuItems }}
-            placement="bottomRight"
-            arrow
-          >
+          <>
+            {/* Notifications */}
+            <Badge count={3} size="small" offset={[-2, 2]}>
+              <Button
+                type="text"
+                icon={
+                  <BellOutlined
+                    style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.8)" }}
+                  />
+                }
+                style={{
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 8,
+                }}
+              />
+            </Badge>
+
+            {/* Messages */}
+            <Badge count={5} size="small" offset={[-2, 2]}>
+              <Button
+                type="text"
+                icon={
+                  <MessageOutlined
+                    style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.8)" }}
+                  />
+                }
+                style={{
+                  width: 40,
+                  height: 40,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 8,
+                }}
+              />
+            </Badge>
+
+            {/* User Profile Dropdown */}
+            <Dropdown
+              menu={{
+                items: userMenuItems,
+                style: {
+                  background: "#1a1a2e",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 12,
+                  padding: 8,
+                },
+              }}
+              placement="bottomRight"
+              arrow={{ pointAtCenter: true }}
+            >
+              <Button
+                type="text"
+                style={{
+                  color: "#ffffff",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 10,
+                  padding: "8px 12px",
+                  height: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  transition: "all 0.3s ease",
+                }}
+                className="user-profile-button"
+              >
+                {getUserAvatar()}
+                <div style={{ textAlign: "left" }}>
+                  <Text
+                    style={{ color: "#ffffff", fontWeight: 600, fontSize: 14 }}
+                  >
+                    {getDisplayName()}
+                  </Text>
+                  <br />
+                  <Text
+                    style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 12 }}
+                  >
+                    Thành viên
+                  </Text>
+                </div>
+              </Button>
+            </Dropdown>
+          </>
+        ) : (
+          <Space size="small">
             <Button
-              type="text"
+              type="default"
+              icon={<LoginOutlined />}
+              onClick={handleLoginClick}
               style={{
-                color: "#333",
-                background: "#fff",
-                border: "1px solid #d9d9d9",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                color: "rgba(255, 255, 255, 0.9)",
                 borderRadius: 8,
+                fontWeight: 500,
                 padding: "8px 16px",
-                height: "auto",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
+                height: 40,
               }}
             >
-              {getUserAvatar()}
-              <Text style={{ color: "#333", fontWeight: 500 }}>
-                {getDisplayName()}
-              </Text>
+              Đăng nhập
             </Button>
-          </Dropdown>
-        ) : (
-          <Button
-            type="primary"
-            onClick={() => setAuthOpen(true)}
-            style={{
-              background: "linear-gradient(45deg, #1890ff, #2f54eb)",
-              border: "none",
-              borderRadius: 8,
-              fontWeight: 600,
-              padding: "8px 20px",
-              height: "auto",
-              boxShadow: "0 2px 6px rgba(24, 144, 255, 0.3)",
-            }}
-          >
-            Đăng nhập / Đăng ký
-          </Button>
+            <Button
+              type="primary"
+              icon={<UserAddOutlined />}
+              onClick={handleRegisterClick}
+              style={{
+                background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 600,
+                padding: "8px 20px",
+                height: 40,
+                boxShadow: "0 4px 12px rgba(114, 46, 209, 0.4)",
+              }}
+            >
+              Đăng ký
+            </Button>
+          </Space>
         )}
       </Space>
 
@@ -254,32 +394,8 @@ const HeaderBar: React.FC = () => {
           if (userData.user) setUser(userData.user);
           setAuthOpen(false);
         }}
+        initialStep={authStep}
       />
-
-      <style>
-        {`
-          .custom-menu-light .ant-menu-item {
-            margin: 0 8px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-          }
-
-          .custom-menu-light .ant-menu-item:hover {
-            background: #e6f7ff !important;
-            color: #1890ff !important;
-          }
-
-          .custom-menu-light .ant-menu-item-selected {
-            background: #bae7ff !important;
-            color: #1890ff !important;
-          }
-
-          .ant-dropdown-menu {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          }
-        `}
-      </style>
     </Header>
   );
 };

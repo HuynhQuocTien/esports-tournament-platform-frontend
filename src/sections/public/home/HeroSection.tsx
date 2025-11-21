@@ -6,7 +6,6 @@ import {
   RocketOutlined,
 } from "@ant-design/icons";
 import DecryptedText from "../../../components/Textanimate/DecryptedText";
-
 const { Title, Paragraph } = Typography;
 
 export const HeroSection: React.FC = () => {
@@ -46,14 +45,9 @@ export const HeroSection: React.FC = () => {
             textShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
           }}
         >
-          <div style={{ marginTop: "2rem" }}>
-            <DecryptedText
-              text="GIẢI ĐẤU ESPORTS CHAMPIONSHIP 2025"
-              animateOn="view"
-              revealDirection="center"
-              sequential={true}
-              speed={50}
-            />
+          <div style={{ marginTop: '1rem' }}>
+            GIẢI ĐẤU ESPORTS CHAMPIONSHIP 2025
+
           </div>
         </Title>
 

@@ -1,190 +1,164 @@
 import { tournamentService } from "../../services/tournamentService";
 import React, { useState } from "react";
-import "./tournament.css";
+import { TournamentFormatValues, type TournamentFormat } from "@/common/types/tournament";
+import { Form, Input, Select, InputNumber, DatePicker, Button, message, Card, notification } from "antd";
+import dayjs from "dayjs";
+
 
 export const CreateTournamentPage: React.FC = () => {
-  const [form, setForm] = useState({
-    name: "",
-    game: "",
-    format: "",
-    maxTeams: 1,
-    startDate: Date.now().toString(),
-    endDate: Date.now().toString(),
-  });
+    const [loading, setLoading] = useState(false);
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState(false);
+    const [form] = Form.useForm();
 
-  // ---------------- VALIDATION ----------------
-  const validate = () => {
-    const newErrors: { [key: string]: string } = {};
+    const tournamentFormatOptions = TournamentFormatValues.map(v => ({
+        value: v as TournamentFormat,
+        label: v.replaceAll("_", " ")
+    }));
 
-    if (!form.name.trim()) newErrors.name = "Tên giải đấu là bắt buộc.";
-    if (!form.game.trim()) newErrors.game = "Vui lòng nhập game.";
-    if (!form.format) newErrors.format = "Vui lòng chọn thể thức.";
-    if (!form.maxTeams || Number(form.maxTeams) <= 1)
-      newErrors.maxTeams = "Số đội phải lớn hơn 1.";
-    if (!form.startDate)
-      newErrors.registrationStart = "Vui lòng chọn thời gian mở đăng ký.";
-    if (!form.endDate)
-      newErrors.registrationEnd = "Vui lòng chọn thời gian đóng đăng ký.";
-    if (!form.startDate) newErrors.startDate = "Vui lòng chọn ngày bắt đầu.";
+    const changeTime = (value: any) => {
+        if (!value) return "";
+        return dayjs(value).format("YYYY-MM-DD HH:mm:ss");
+    };
 
-    return newErrors;
-  };
+    const onFinish = async (values: any) => {
+        try {
+            setLoading(true);
 
-  // -------------- HANDLE CHANGE ----------------
-  const handleChange = (field: string, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+            const payload = {
+                ...values,
+                registrationStart: changeTime(values.registrationStart),
+                registrationEnd: changeTime(values.registrationEnd),
+                startDate: changeTime(values.registrationStart),
+            };
 
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
+            const res = await tournamentService.create(payload);
+            console.log("Tournament created:", res.data);
 
-  const inputClass = (field: string) =>
-    `w-full p-3 rounded bg-white text-black placeholder-gray-400
-         border ${errors[field] ? "border-red-500" : "border-gray-300"}
-        `;
+            notification.success({
+                message: "Tạo giải đấu thành công",
+                description: `Giải đấu "${res.data.name}" đã được tạo thành công.`,
+            });
+        } catch (err) {
+            notification.error({
+                message: "Tạo giải đấu thất bại",
+                description: "Đã có lỗi xảy ra khi tạo giải đấu. Vui lòng thử lại.",
+            });
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  // ---------------- SUBMIT ----------------
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = validate();
+    return (
+        <Card title="Tạo Giải Đấu" style={{ maxWidth: 800, margin: "30px auto" }}>
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+            <Form
+                layout="vertical"
+                form={form}
+                onFinish={onFinish}
+                initialValues={{
+                    maxTeams: 1,
+                    registrationStart: dayjs(),
+                    registrationEnd: dayjs(),
+                }}
+            >
 
-    try {
-      setLoading(true);
-      // const res = await tournamentService.create(form);
-      console.log("Tournament created:", form);
-      alert("Tạo giải đấu thành công!");
-    } catch (err) {
-      alert("Có lỗi xảy ra khi tạo giải đấu.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+                {/* NAME */}
+                <Form.Item
+                    label="Tên giải đấu"
+                    name="name"
+                    rules={[{ required: true, message: "Tên giải đấu là bắt buộc" }]}
+                >
+                    <Input placeholder="Nhập tên giải đấu" />
+                </Form.Item>
 
-  return (
-    <div className="max-w-3xl mx-auto bg-white shadow-md p-4 mt-8 rounded">
-      <h1 className="text-2xl font-semibold mb-4">Tạo Giải Đấu</h1>
+                {/* PHONE */}
+                {/* <Form.Item
+                    label="Số điện thoại"
+                    name="phone"
+                    rules={[{ required: true, message: "Số điện thoại là bắt buộc" }]}
+                >
+                    <Input placeholder="Nhập số điện thoại" />
+                </Form.Item> */}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* NAME */}
-        <div>
-          <label className="block mb-1 font-medium text-left">
-            Tên giải đấu
-          </label>
-          <input
-            type="text"
-            className={inputClass("name")}
-            value={form.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1 text-left">{errors.name}</p>
-          )}
-        </div>
+                {/* ADDRESS */}
+                {/* <Form.Item
+                    label="Địa chỉ"
+                    name="address"
+                    rules={[{ required: true, message: "Địa chỉ là bắt buộc" }]}
+                >
+                    <Input placeholder="Nhập địa chỉ tổ chức" />
+                </Form.Item> */}
 
-        {/* GAME */}
-        <div>
-          <label className="block mb-1 font-medium text-left">Game</label>
-          <input
-            type="text"
-            className={inputClass("game")}
-            value={form.game}
-            onChange={(e) => handleChange("game", e.target.value)}
-          />
-          {errors.game && (
-            <p className="text-red-500 text-sm mt-1 text-left">{errors.game}</p>
-          )}
-        </div>
+                {/* GAME */}
+                <Form.Item
+                    label="Game"
+                    name="game"
+                    rules={[{ required: true, message: "Vui lòng nhập game" }]}
+                >
+                    <Input placeholder="Ví dụ: Liên Minh, Valorant, CS2 ..." />
+                </Form.Item>
 
-        {/* FORMAT */}
-        <div>
-          <label className="block mb-1 font-medium text-left">Thể thức</label>
-          <select
-            className={inputClass("format")}
-            value={form.format}
-            onChange={(e) => handleChange("format", e.target.value)}
-          >
-            <option value="">-- Chọn thể thức --</option>
-            <option value="single">Single Elimination</option>
-            <option value="double">Double Elimination</option>
-            <option value="round_robin">Round Robin</option>
-            <option value="group">Group + Knockout</option>
-          </select>
-          {errors.format && (
-            <p className="text-red-500 text-sm mt-1">{errors.format}</p>
-          )}
-        </div>
+                {/* FORMAT */}
+                <Form.Item
+                    label="Thể thức thi đấu"
+                    name="format"
+                    rules={[{ required: true, message: "Chọn thể thức thi đấu" }]}
+                >
+                    <Select
+                        placeholder="-- Chọn thể thức --"
+                        options={tournamentFormatOptions}
+                    />
+                </Form.Item>
 
-        {/* MAX TEAMS */}
-        <div>
-          <label className="block mb-1 font-medium text-left">
-            Số đội tối đa
-          </label>
-          <input
-            type="number"
-            className={inputClass("maxTeams")}
-            value={form.maxTeams}
-            onChange={(e) => handleChange("maxTeams", e.target.value)}
-            min={1}
-          />
-          {errors.maxTeams && (
-            <p className="text-red-500 text-sm mt-1 text-left">
-              {errors.maxTeams}
-            </p>
-          )}
-        </div>
+                {/* MAX TEAMS */}
+                <Form.Item
+                    label="Số đội tối đa"
+                    name="maxTeams"
+                    rules={[{ required: true, message: "Phải lớn hơn 1" }]}
+                >
+                    <InputNumber min={2} style={{ width: "100%" }} />
+                </Form.Item>
 
-        {/* START DATE */}
-        <div>
-          <label className="block mb-1 font-medium text-left">
-            Ngày bắt đầu
-          </label>
-          <input
-            type="datetime-local"
-            className={inputClass("startDate")}
-            value={form.startDate}
-            onChange={(e) => handleChange("startDate", e.target.value)}
-          />
-          {errors.startDate && (
-            <p className="text-red-500 text-sm mt-1 text-left">
-              {errors.startDate}
-            </p>
-          )}
-        </div>
+                {/* REGISTRATION START */}
+                <Form.Item
+                    label="Ngày bắt đầu đăng ký"
+                    name="registrationStart"
+                    rules={[{ required: true, message: "Chọn thời gian" }]}
+                >
+                    <DatePicker
+                        showTime
+                        format="YYYY-MM-DD HH:mm"
+                        style={{ width: "100%" }}
+                    />
+                </Form.Item>
 
-        {/* End date */}
-        <div>
-          <label className="block mb-1 font-medium text-left">
-            Ngày kết thúc
-          </label>
-          <input
-            type="datetime-local"
-            className={inputClass("endDate")}
-            value={form.endDate}
-            onChange={(e) => handleChange("endDate", e.target.value)}
-          />
-          {errors.endDate && (
-            <p className="text-red-500 text-sm">{errors.endDate}</p>
-          )}
-        </div>
+                {/* REGISTRATION END */}
+                <Form.Item
+                    label="Ngày kết thúc đăng ký"
+                    name="registrationEnd"
+                    rules={[{ required: true, message: "Chọn thời gian" }]}
+                >
+                    <DatePicker
+                        showTime
+                        format="YYYY-MM-DD HH:mm"
+                        style={{ width: "100%" }}
+                    />
+                </Form.Item>
 
-        {/* SUBMIT */}
-        <button
-          disabled={loading}
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          {loading ? "Đang tạo..." : "Tạo giải đấu"}
-        </button>
-      </form>
-    </div>
-  );
+                {/* SUBMIT */}
+                <Form.Item>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={loading}
+                        block
+                    >
+                        Tạo giải đấu
+                    </Button>
+                </Form.Item>
+
+            </Form>
+        </Card>
+    );
 };

@@ -1,12 +1,20 @@
 import React from "react";
-import { Layout, Button, Avatar, Dropdown, Space, Typography, Badge } from "antd";
+import {
+  Layout,
+  Button,
+  Avatar,
+  Dropdown,
+  Space,
+  Typography,
+  Badge,
+} from "antd";
 import type { MenuProps } from "antd";
-import { 
-  LogoutOutlined, 
-  UserOutlined, 
-  BellOutlined, 
+import {
+  LogoutOutlined,
+  UserOutlined,
+  BellOutlined,
   SettingOutlined,
-  DownOutlined 
+  DownOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -23,24 +31,24 @@ const AdminHeader: React.FC = () => {
     window.location.href = "/";
   };
 
-  const userMenuItems: MenuProps['items'] = [
+  const userMenuItems: MenuProps["items"] = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <UserOutlined />,
-      label: 'Hồ sơ cá nhân',
+      label: "Hồ sơ cá nhân",
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: 'Cài đặt',
+      label: "Cài đặt",
     },
     {
-      type: 'divider' as const,
+      type: "divider" as const,
     },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: 'Đăng xuất',
+      label: "Đăng xuất",
       onClick: handleLogout,
     },
   ];
@@ -61,14 +69,16 @@ const AdminHeader: React.FC = () => {
     >
       {/* Page Title */}
       <div>
-        <Text style={{ 
-          color: "#ffffff", 
-          fontSize: 20, 
-          fontWeight: 600,
-          background: "linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Text
+          style={{
+            color: "#ffffff",
+            fontSize: 20,
+            fontWeight: 600,
+            background: "linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           Bảng điều khiển quản trị
         </Text>
       </div>
@@ -79,7 +89,11 @@ const AdminHeader: React.FC = () => {
         <Badge count={5} size="small" offset={[-2, 2]}>
           <Button
             type="text"
-            icon={<BellOutlined style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.8)" }} />}
+            icon={
+              <BellOutlined
+                style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.8)" }}
+              />
+            }
             style={{
               width: 40,
               height: 40,
@@ -119,9 +133,9 @@ const AdminHeader: React.FC = () => {
               gap: 10,
             }}
           >
-            <Avatar 
+            <Avatar
               size={32}
-              style={{ 
+              style={{
                 background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
                 fontWeight: 600,
               }}
@@ -129,14 +143,23 @@ const AdminHeader: React.FC = () => {
               {user?.username?.charAt(0).toUpperCase() || "A"}
             </Avatar>
             <div style={{ textAlign: "left" }}>
-              <Text style={{ color: "#ffffff", fontWeight: 600, fontSize: 14, display: "block" }}>
+              <Text
+                style={{
+                  color: "#ffffff",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  display: "block",
+                }}
+              >
                 {user?.username || "Admin"}
               </Text>
               <Text style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 12 }}>
                 Quản trị viên
               </Text>
             </div>
-            <DownOutlined style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 12 }} />
+            <DownOutlined
+              style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 12 }}
+            />
           </Button>
         </Dropdown>
       </Space>

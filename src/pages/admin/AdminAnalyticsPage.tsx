@@ -1,31 +1,31 @@
 import React from "react";
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Typography, 
-  Statistic, 
-  Select, 
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Statistic,
+  Select,
   DatePicker,
   Space,
   Progress,
   List,
-  Tag
+  Tag,
 } from "antd";
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
   Cell,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
 import {
   UserOutlined,
@@ -78,14 +78,24 @@ export const AdminAnalyticsPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: 24,
+        }}
+      >
         <div>
-          <Title level={2} style={{ 
-            margin: 0,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             📊 Thống kê & Báo cáo
           </Title>
           <Text type="secondary">Phân tích hiệu suất và xu hướng hệ thống</Text>
@@ -108,13 +118,22 @@ export const AdminAnalyticsPage: React.FC = () => {
             <Statistic
               title="Tổng doanh thu"
               value={300000000}
-              formatter={value => `${Number(value).toLocaleString()} VNĐ`}
+              formatter={(value) => `${Number(value).toLocaleString()} VNĐ`}
               prefix={<DollarOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: "#52c41a" }}
             />
-            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <RiseOutlined style={{ color: '#52c41a', fontSize: 12 }} />
-              <Text style={{ color: '#52c41a', fontSize: 12 }}>+25% so với tháng trước</Text>
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <RiseOutlined style={{ color: "#52c41a", fontSize: 12 }} />
+              <Text style={{ color: "#52c41a", fontSize: 12 }}>
+                +25% so với tháng trước
+              </Text>
             </div>
           </Card>
         </Col>
@@ -124,11 +143,20 @@ export const AdminAnalyticsPage: React.FC = () => {
               title="Người dùng hoạt động"
               value={1250}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
-            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <RiseOutlined style={{ color: '#52c41a', fontSize: 12 }} />
-              <Text style={{ color: '#52c41a', fontSize: 12 }}>+15% so với tháng trước</Text>
+            <div
+              style={{
+                marginTop: 8,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <RiseOutlined style={{ color: "#52c41a", fontSize: 12 }} />
+              <Text style={{ color: "#52c41a", fontSize: 12 }}>
+                +15% so với tháng trước
+              </Text>
             </div>
           </Card>
         </Col>
@@ -138,10 +166,12 @@ export const AdminAnalyticsPage: React.FC = () => {
               title="Giải đấu đang chạy"
               value={8}
               prefix={<TrophyOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: "#faad14" }}
             />
             <div style={{ marginTop: 8 }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>12 giải đã hoàn thành</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                12 giải đã hoàn thành
+              </Text>
             </div>
           </Card>
         </Col>
@@ -152,7 +182,7 @@ export const AdminAnalyticsPage: React.FC = () => {
               value={85}
               suffix="%"
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: "#ff4d4f" }}
             />
             <div style={{ marginTop: 8 }}>
               <Progress percent={85} size="small" strokeColor="#ff4d4f" />
@@ -179,19 +209,26 @@ export const AdminAnalyticsPage: React.FC = () => {
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [
-                    name === 'revenue' ? `${Number(value).toLocaleString()} VNĐ` : value,
-                    name === 'revenue' ? 'Doanh thu' : 'Giải đấu'
+                    name === "revenue"
+                      ? `${Number(value).toLocaleString()} VNĐ`
+                      : value,
+                    name === "revenue" ? "Doanh thu" : "Giải đấu",
                   ]}
                 />
                 <Legend />
-                <Bar yAxisId="left" dataKey="revenue" fill="#1890ff" name="Doanh thu" />
-                <Line 
-                  yAxisId="right" 
-                  type="monotone" 
-                  dataKey="tournaments" 
-                  stroke="#52c41a" 
+                <Bar
+                  yAxisId="left"
+                  dataKey="revenue"
+                  fill="#1890ff"
+                  name="Doanh thu"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="tournaments"
+                  stroke="#52c41a"
                   strokeWidth={2}
                   name="Giải đấu"
                 />
@@ -224,7 +261,7 @@ export const AdminAnalyticsPage: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => [`${value}%`, 'Tỷ lệ']} />
+                <Tooltip formatter={(value) => [`${value}%`, "Tỷ lệ"]} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -250,17 +287,17 @@ export const AdminAnalyticsPage: React.FC = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="newUsers" 
-                  stroke="#1890ff" 
+                <Line
+                  type="monotone"
+                  dataKey="newUsers"
+                  stroke="#1890ff"
                   strokeWidth={2}
                   name="Người dùng mới"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="activeUsers" 
-                  stroke="#52c41a" 
+                <Line
+                  type="monotone"
+                  dataKey="activeUsers"
+                  stroke="#52c41a"
                   strokeWidth={2}
                   name="Người dùng hoạt động"
                 />
@@ -282,21 +319,39 @@ export const AdminAnalyticsPage: React.FC = () => {
               dataSource={topPerformers}
               renderItem={(item) => (
                 <List.Item>
-                  <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
                     <div style={{ flex: 1 }}>
-                      <Text strong style={{ display: 'block' }}>{item.name}</Text>
+                      <Text strong style={{ display: "block" }}>
+                        {item.name}
+                      </Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        {item.matches} trận • {item.revenue.toLocaleString()} VNĐ
+                        {item.matches} trận • {item.revenue.toLocaleString()}{" "}
+                        VNĐ
                       </Text>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <Progress 
-                        percent={item.winRate} 
-                        size="small" 
+                    <div style={{ textAlign: "right" }}>
+                      <Progress
+                        percent={item.winRate}
+                        size="small"
                         style={{ width: 100 }}
-                        strokeColor={item.winRate >= 80 ? '#52c41a' : item.winRate >= 70 ? '#faad14' : '#ff4d4f'}
+                        strokeColor={
+                          item.winRate >= 80
+                            ? "#52c41a"
+                            : item.winRate >= 70
+                              ? "#faad14"
+                              : "#ff4d4f"
+                        }
                       />
-                      <Text style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
+                      <Text
+                        style={{ fontSize: 12, display: "block", marginTop: 4 }}
+                      >
                         {item.winRate}% thắng
                       </Text>
                     </div>
@@ -319,23 +374,41 @@ export const AdminAnalyticsPage: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
+            <Space direction="vertical" style={{ width: "100%" }} size="large">
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <Text>Uptime Server</Text>
                   <Text strong>99.8%</Text>
                 </div>
                 <Progress percent={99.8} strokeColor="#52c41a" />
               </div>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <Text>Thời gian phản hồi</Text>
                   <Text strong>120ms</Text>
                 </div>
                 <Progress percent={85} strokeColor="#1890ff" />
               </div>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 8,
+                  }}
+                >
                   <Text>Dung lượng lưu trữ</Text>
                   <Text strong>65%</Text>
                 </div>
@@ -354,8 +427,15 @@ export const AdminAnalyticsPage: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <div style={{ fontSize: 48, fontWeight: 'bold', color: '#1890ff', marginBottom: 8 }}>
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <div
+                style={{
+                  fontSize: 48,
+                  fontWeight: "bold",
+                  color: "#1890ff",
+                  marginBottom: 8,
+                }}
+              >
                 4.2%
               </div>
               <Text type="secondary">Tỷ lệ chuyển đổi trung bình</Text>
@@ -378,14 +458,20 @@ export const AdminAnalyticsPage: React.FC = () => {
             <List
               size="small"
               dataSource={[
-                { season: 'Mùa xuân', growth: '+35%', color: 'green' },
-                { season: 'Mùa hè', growth: '+45%', color: 'orange' },
-                { season: 'Mùa thu', growth: '+25%', color: 'gold' },
-                { season: 'Mùa đông', growth: '+15%', color: 'blue' },
+                { season: "Mùa xuân", growth: "+35%", color: "green" },
+                { season: "Mùa hè", growth: "+45%", color: "orange" },
+                { season: "Mùa thu", growth: "+25%", color: "gold" },
+                { season: "Mùa đông", growth: "+15%", color: "blue" },
               ]}
               renderItem={(item) => (
                 <List.Item>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
                     <Text>{item.season}</Text>
                     <Tag color={item.color}>{item.growth}</Tag>
                   </div>

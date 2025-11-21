@@ -19,45 +19,45 @@ const AdminSidebar: React.FC = () => {
   const location = useLocation();
 
   const items = [
-    { 
-      key: "/admin", 
-      icon: <DashboardOutlined style={{ fontSize: 16 }} />, 
-      label: "Tổng quan" 
+    {
+      key: "/admin",
+      icon: <DashboardOutlined style={{ fontSize: 16 }} />,
+      label: "Tổng quan",
     },
-    { 
-      key: "/admin/tournaments", 
-      icon: <TrophyOutlined style={{ fontSize: 16 }} />, 
-      label: "Quản lý giải đấu" 
+    {
+      key: "/admin/tournaments",
+      icon: <TrophyOutlined style={{ fontSize: 16 }} />,
+      label: "Quản lý giải đấu",
     },
-    { 
-      key: "/admin/teams", 
-      icon: <TeamOutlined style={{ fontSize: 16 }} />, 
-      label: "Quản lý đội" 
+    {
+      key: "/admin/teams",
+      icon: <TeamOutlined style={{ fontSize: 16 }} />,
+      label: "Quản lý đội",
     },
-    { 
-      key: "/admin/ranking", 
-      icon: <CrownOutlined style={{ fontSize: 16 }} />, 
-      label: "Bảng xếp hạng" 
+    {
+      key: "/admin/ranking",
+      icon: <CrownOutlined style={{ fontSize: 16 }} />,
+      label: "Bảng xếp hạng",
     },
-    { 
-      key: "/admin/users", 
-      icon: <UserOutlined style={{ fontSize: 16 }} />, 
-      label: "Quản lý người dùng" 
+    {
+      key: "/admin/users",
+      icon: <UserOutlined style={{ fontSize: 16 }} />,
+      label: "Quản lý người dùng",
     },
-    { 
-      key: "/admin/permissions", 
-      icon: <KeyOutlined style={{ fontSize: 16 }} />, 
-      label: "Phân quyền hệ thống" 
+    {
+      key: "/admin/permissions",
+      icon: <KeyOutlined style={{ fontSize: 16 }} />,
+      label: "Phân quyền hệ thống",
     },
-    { 
-      key: "/admin/analytics", 
-      icon: <BarChartOutlined style={{ fontSize: 16 }} />, 
-      label: "Thống kê & Báo cáo" 
+    {
+      key: "/admin/analytics",
+      icon: <BarChartOutlined style={{ fontSize: 16 }} />,
+      label: "Thống kê & Báo cáo",
     },
-    { 
-      key: "/admin/settings", 
-      icon: <SettingOutlined style={{ fontSize: 16 }} />, 
-      label: "Cài đặt hệ thống" 
+    {
+      key: "/admin/settings",
+      icon: <SettingOutlined style={{ fontSize: 16 }} />,
+      label: "Cài đặt hệ thống",
     },
   ];
 
@@ -65,12 +65,14 @@ const AdminSidebar: React.FC = () => {
     <div style={{ padding: "20px 0" }}>
       {/* Sidebar Header */}
       <div style={{ padding: "0 24px 20px 24px", textAlign: "center" }}>
-        <div style={{ 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center",
-          marginBottom: 12 
-        }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 12,
+          }}
+        >
           <img
             src="/logo-removebg.png"
             alt="ESports Arena Logo"
@@ -82,22 +84,26 @@ const AdminSidebar: React.FC = () => {
             }}
           />
         </div>
-        <Text style={{ 
-          color: "#ffffff", 
-          fontSize: 16, 
-          fontWeight: 600,
-          background: "linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Text
+          style={{
+            color: "#ffffff",
+            fontSize: 16,
+            fontWeight: 600,
+            background: "linear-gradient(135deg, #ffffff 0%, #a8a8a8 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           ESports Arena
         </Text>
-        <div style={{ 
-          background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
-          height: 2,
-          marginTop: 8,
-          borderRadius: 1,
-        }} />
+        <div
+          style={{
+            background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+            height: 2,
+            marginTop: 8,
+            borderRadius: 1,
+          }}
+        />
       </div>
 
       <Menu

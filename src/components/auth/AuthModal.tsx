@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Card, Typography } from "antd";
 import type { AuthStep } from "../../common/types/common";
-import { ForgotPasswordForm, LoginForm, RegisterForm, SetupPasswordForm, VerifyOtpForm } from "./forms";
+import {
+  ForgotPasswordForm,
+  LoginForm,
+  RegisterForm,
+  SetupPasswordForm,
+  VerifyOtpForm,
+} from "./forms";
 
 const { Title } = Typography;
 
@@ -32,7 +38,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       register: "Đăng ký tài khoản",
       forgotPassword: "Quên mật khẩu",
       verifyOtp: "Xác minh OTP",
-      setupPassword: "Đặt mật khẩu mới"
+      setupPassword: "Đặt mật khẩu mới",
     };
     return titles[step];
   };
@@ -68,7 +74,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       centered
       width={420}
       styles={{
-        body: { padding: 0 }
+        body: { padding: 0 },
       }}
       getContainer={false}
     >
@@ -82,7 +88,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       >
         {/* Header with Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 16,
+            }}
+          >
             <img
               src="/logo-removebg.png"
               alt="ESports Arena Logo"
@@ -102,7 +115,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   fontSize: 24,
                   letterSpacing: 0.5,
                   margin: 0,
-                  background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+                  background:
+                    "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                 }}
@@ -111,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </Title>
             </div>
           </div>
-          
+
           <Title level={3} style={{ margin: 0, color: "#1a1a1a" }}>
             {getStepTitle()}
           </Title>

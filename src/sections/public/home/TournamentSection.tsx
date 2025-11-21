@@ -2,7 +2,12 @@ import React from "react";
 import { Row, Col, Card, Typography, Tag, Button, Space } from "antd";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-import { EyeOutlined, TeamOutlined, DollarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  TeamOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -18,7 +23,7 @@ const tournaments = [
     prize: "500M VNĐ",
     teams: 32,
     city: "Hồ Chí Minh",
-    game: "Valorant"
+    game: "Valorant",
   },
   {
     id: 2,
@@ -31,7 +36,7 @@ const tournaments = [
     prize: "300M VNĐ",
     teams: 16,
     city: "Hà Nội",
-    game: "League of Legends"
+    game: "League of Legends",
   },
   {
     id: 3,
@@ -44,24 +49,60 @@ const tournaments = [
     prize: "200M VNĐ",
     teams: 24,
     city: "Đà Nẵng",
-    game: "CS2"
+    game: "CS2",
   },
 ];
 
 const getStatusTag = (status: string) => {
   if (status === "Đang diễn ra")
-    return <Tag color="red" style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}>🔥 Đang diễn ra</Tag>;
+    return (
+      <Tag
+        color="red"
+        style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}
+      >
+        🔥 Đang diễn ra
+      </Tag>
+    );
   if (status === "Sắp diễn ra")
-    return <Tag color="orange" style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}>⏰ Sắp diễn ra</Tag>;
+    return (
+      <Tag
+        color="orange"
+        style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}
+      >
+        ⏰ Sắp diễn ra
+      </Tag>
+    );
   if (status === "Đăng ký mở")
-    return <Tag color="green" style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}>🎯 Đăng ký mở</Tag>;
+    return (
+      <Tag
+        color="green"
+        style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}
+      >
+        🎯 Đăng ký mở
+      </Tag>
+    );
   return <Tag>{status}</Tag>;
 };
 
 export const TournamentSection: React.FC = () => {
   return (
-    <section style={{ marginBottom: 60, background: "var(--ant-color-bg-container)", border: "1px solid var(--ant-color-border-secondary)", padding: 32, borderRadius: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+    <section
+      style={{
+        marginBottom: 60,
+        background: "var(--ant-color-bg-container)",
+        border: "1px solid var(--ant-color-border-secondary)",
+        padding: 32,
+        borderRadius: 16,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
         <div>
           <Title level={2} style={{ color: "#1a1a1a", margin: 0 }}>
             GIẢI ĐẤU NỔI BẬT
@@ -71,10 +112,10 @@ export const TournamentSection: React.FC = () => {
           </Text>
         </div>
         <Link to="/tournaments">
-          <Button 
-            type="link" 
-            style={{ 
-              color: "#722ed1", 
+          <Button
+            type="link"
+            style={{
+              color: "#722ed1",
               fontSize: "16px",
               fontWeight: 600,
             }}
@@ -90,19 +131,21 @@ export const TournamentSection: React.FC = () => {
             <Card
               cover={
                 <div style={{ position: "relative" }}>
-                  <img 
-                    alt={t.title} 
-                    src={t.img} 
-                    style={{ 
-                      height: "180px", 
+                  <img
+                    alt={t.title}
+                    src={t.img}
+                    style={{
+                      height: "180px",
                       objectFit: "cover",
-                    }} 
+                    }}
                   />
-                  <div style={{ 
-                    position: "absolute", 
-                    top: "12px", 
-                    left: "12px" 
-                  }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      left: "12px",
+                    }}
+                  >
                     {getStatusTag(t.status)}
                   </div>
                 </div>
@@ -120,50 +163,79 @@ export const TournamentSection: React.FC = () => {
               bodyStyle={{ padding: "20px" }}
               hoverable
             >
-              <Title level={4} style={{ color: "#1a1a1a", marginBottom: "8px" }}>
+              <Title
+                level={4}
+                style={{ color: "#1a1a1a", marginBottom: "8px" }}
+              >
                 {t.title}
               </Title>
-              <Text style={{ color: "#666666", display: "block", marginBottom: "16px" }}>
+              <Text
+                style={{
+                  color: "#666666",
+                  display: "block",
+                  marginBottom: "16px",
+                }}
+              >
                 {t.desc}
               </Text>
-              
-              <Space direction="vertical" style={{ width: "100%", marginBottom: "20px" }} size={8}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+              <Space
+                direction="vertical"
+                style={{ width: "100%", marginBottom: "20px" }}
+                size={8}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <Space>
                     <DollarOutlined style={{ color: "#faad14" }} />
-                    <Text style={{ color: "#faad14", fontWeight: 600 }}>🏆 {t.prize}</Text>
+                    <Text style={{ color: "#faad14", fontWeight: 600 }}>
+                      🏆 {t.prize}
+                    </Text>
                   </Space>
                   <Space>
                     <TeamOutlined style={{ color: "#1890ff" }} />
                     <Text style={{ color: "#666666" }}>{t.teams} đội</Text>
                   </Space>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <Space>
                     <EnvironmentOutlined style={{ color: "#52c41a" }} />
                     <Text style={{ color: "#666666" }}>{t.city}</Text>
                   </Space>
-                  <Text style={{ color: "#999999", fontSize: "12px" }}>{t.date}</Text>
+                  <Text style={{ color: "#999999", fontSize: "12px" }}>
+                    {t.date}
+                  </Text>
                 </div>
               </Space>
 
               <div style={{ display: "flex", gap: "8px" }}>
-                <Button 
-                  style={{ 
+                <Button
+                  style={{
                     flex: 1,
                     background: "transparent",
                     border: "1px solid #d9d9d9",
-                    color: "#666666"
+                    color: "#666666",
                   }}
                 >
                   Xem kết quả
                 </Button>
-                <Button 
-                  type="primary" 
-                  style={{ 
+                <Button
+                  type="primary"
+                  style={{
                     flex: 1,
                     background: "#722ed1",
-                    border: "none"
+                    border: "none",
                   }}
                   icon={<EyeOutlined />}
                 >
@@ -176,8 +248,8 @@ export const TournamentSection: React.FC = () => {
       </Row>
 
       <div style={{ textAlign: "center", marginTop: "32px" }}>
-        <Button 
-          type="primary" 
+        <Button
+          type="primary"
           size="large"
           style={{
             height: "48px",

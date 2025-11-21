@@ -1,33 +1,38 @@
 import React from "react";
 import { Row, Col, Card, Typography } from "antd";
-import { TeamOutlined, TrophyOutlined, FireOutlined, CalendarOutlined } from "@ant-design/icons";
+import {
+  TeamOutlined,
+  TrophyOutlined,
+  FireOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
 const stats = [
-  { 
-    number: "500+", 
+  {
+    number: "500+",
     text: "Đội tham gia",
     icon: <TeamOutlined style={{ fontSize: "2rem", color: "#1890ff" }} />,
-    color: "#1890ff"
+    color: "#1890ff",
   },
-  { 
-    number: "1B VNĐ", 
+  {
+    number: "1B VNĐ",
     text: "Tổng giải thưởng",
     icon: <TrophyOutlined style={{ fontSize: "2rem", color: "#faad14" }} />,
-    color: "#faad14"
+    color: "#faad14",
   },
-  { 
-    number: "15", 
+  {
+    number: "15",
     text: "Game Title",
     icon: <FireOutlined style={{ fontSize: "2rem", color: "#ff4d4f" }} />,
-    color: "#ff4d4f"
+    color: "#ff4d4f",
   },
-  { 
-    number: "30", 
+  {
+    number: "30",
     text: "Ngày thi đấu",
     icon: <CalendarOutlined style={{ fontSize: "2rem", color: "#52c41a" }} />,
-    color: "#52c41a"
+    color: "#52c41a",
   },
 ];
 
@@ -51,12 +56,10 @@ export const StatsSection: React.FC = () => {
             bodyStyle={{ padding: 0 }}
             hoverable
           >
-            <div style={{ marginBottom: "16px" }}>
-              {s.icon}
-            </div>
-            <Title 
-              level={1} 
-              style={{ 
+            <div style={{ marginBottom: "16px" }}>{s.icon}</div>
+            <Title
+              level={1}
+              style={{
                 color: s.color,
                 margin: "8px 0",
                 fontSize: "2.2rem",
@@ -65,8 +68,8 @@ export const StatsSection: React.FC = () => {
             >
               {s.number}
             </Title>
-            <Text 
-              style={{ 
+            <Text
+              style={{
                 color: "#666666",
                 fontSize: "14px",
                 fontWeight: 500,

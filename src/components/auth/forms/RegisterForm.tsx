@@ -21,7 +21,7 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
       setLoading(true);
       await register(values);
       message.success(
-        "Đăng ký thành công! Vui lòng kiểm tra email để nhận OTP."
+        "Đăng ký thành công! Vui lòng kiểm tra email để nhận OTP.",
       );
       onSwitch("verifyOtp");
     } catch (error) {
@@ -36,33 +36,33 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
   return (
     <div>
       <Form layout="vertical" onFinish={onFinish} size="large">
-        <Form.Item 
-          name="email" 
-          rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+        <Form.Item
+          name="email"
+          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
         >
-          <Input 
-            prefix={<MailOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Email" 
+          <Input
+            prefix={<MailOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Email"
             style={{ borderRadius: 8, height: 48 }}
           />
         </Form.Item>
-        
+
         <Form.Item
           name="username"
-          rules={[{ required: true, message: 'Vui lòng nhập tên hiển thị!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên hiển thị!" }]}
         >
-          <Input 
-            prefix={<UserOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Tên hiển thị" 
+          <Input
+            prefix={<UserOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Tên hiển thị"
             style={{ borderRadius: 8, height: 48 }}
           />
         </Form.Item>
-        
+
         <Form.Item style={{ marginBottom: 16 }}>
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            block 
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
             loading={loading}
             style={{
               height: 48,
@@ -78,18 +78,18 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch }) => {
         </Form.Item>
       </Form>
 
-      <Divider style={{ margin: '20px 0', color: '#d9d9d9' }}>
-        <Text type="secondary" style={{ fontSize: 14 }}>Hoặc</Text>
+      <Divider style={{ margin: "20px 0", color: "#d9d9d9" }}>
+        <Text type="secondary" style={{ fontSize: 14 }}>
+          Hoặc
+        </Text>
       </Divider>
 
-      <div style={{ textAlign: 'center' }}>
-        <Text style={{ color: '#666', marginRight: 8 }}>
-          Đã có tài khoản?
-        </Text>
-        <Text 
-          style={{ 
-            color: "#722ed1", 
-            cursor: 'pointer',
+      <div style={{ textAlign: "center" }}>
+        <Text style={{ color: "#666", marginRight: 8 }}>Đã có tài khoản?</Text>
+        <Text
+          style={{
+            color: "#722ed1",
+            cursor: "pointer",
             fontWeight: 600,
           }}
           onClick={() => onSwitch("login")}

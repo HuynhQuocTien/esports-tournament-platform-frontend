@@ -1,30 +1,28 @@
 import React, { useState } from "react";
-import { 
-  Card, 
-  Form, 
-  Input, 
-  Button, 
-  Switch, 
-  Typography, 
-  Row, 
-  Col, 
-  Select, 
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Switch,
+  Typography,
+  Row,
+  Col,
+  Select,
   Divider,
   Space,
   Upload,
   message,
   Tabs,
-  Alert
+  Alert,
 } from "antd";
-import { 
+import {
   SaveOutlined,
   UploadOutlined,
-  NotificationOutlined,
   SecurityScanOutlined,
   GlobalOutlined,
   DatabaseOutlined,
-  MailOutlined,
-  BellOutlined
+  BellOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -46,7 +44,7 @@ export const AdminSettingsPage: React.FC = () => {
 
   const tabItems = [
     {
-      key: 'general',
+      key: "general",
       label: (
         <span>
           <GlobalOutlined />
@@ -54,7 +52,7 @@ export const AdminSettingsPage: React.FC = () => {
         </span>
       ),
       children: (
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
           <Card title="Thông tin hệ thống">
             <Form layout="vertical">
               <Row gutter={[16, 16]}>
@@ -80,8 +78,8 @@ export const AdminSettingsPage: React.FC = () => {
                 </Col>
                 <Col xs={24}>
                   <Form.Item label="Mô tả hệ thống" name="description">
-                    <TextArea 
-                      rows={4} 
+                    <TextArea
+                      rows={4}
                       placeholder="Mô tả về hệ thống quản lý giải đấu Esports..."
                     />
                   </Form.Item>
@@ -125,7 +123,7 @@ export const AdminSettingsPage: React.FC = () => {
       ),
     },
     {
-      key: 'notifications',
+      key: "notifications",
       label: (
         <span>
           <BellOutlined />
@@ -134,8 +132,14 @@ export const AdminSettingsPage: React.FC = () => {
       ),
       children: (
         <Card title="Cài đặt thông báo">
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div>
                 <Text strong>Thông báo email</Text>
                 <div>
@@ -147,9 +151,15 @@ export const AdminSettingsPage: React.FC = () => {
               <Switch defaultChecked />
             </div>
 
-            <Divider style={{ margin: '16px 0' }} />
+            <Divider style={{ margin: "16px 0" }} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div>
                 <Text strong>Thông báo đẩy</Text>
                 <div>
@@ -161,9 +171,15 @@ export const AdminSettingsPage: React.FC = () => {
               <Switch defaultChecked />
             </div>
 
-            <Divider style={{ margin: '16px 0' }} />
+            <Divider style={{ margin: "16px 0" }} />
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <div>
                 <Text strong>Thông báo SMS</Text>
                 <div>
@@ -175,15 +191,15 @@ export const AdminSettingsPage: React.FC = () => {
               <Switch />
             </div>
 
-            <Divider style={{ margin: '16px 0' }} />
+            <Divider style={{ margin: "16px 0" }} />
 
             <Form layout="vertical">
               <Form.Item label="Email thông báo" name="notificationEmail">
                 <Input placeholder="notifications@esports.vn" />
               </Form.Item>
               <Form.Item label="Mẫu thông báo" name="notificationTemplate">
-                <TextArea 
-                  rows={4} 
+                <TextArea
+                  rows={4}
                   placeholder="Nhập mẫu thông báo mặc định..."
                 />
               </Form.Item>
@@ -193,7 +209,7 @@ export const AdminSettingsPage: React.FC = () => {
       ),
     },
     {
-      key: 'security',
+      key: "security",
       label: (
         <span>
           <SecurityScanOutlined />
@@ -201,10 +217,16 @@ export const AdminSettingsPage: React.FC = () => {
         </span>
       ),
       children: (
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
           <Card title="Cài đặt bảo mật">
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Space direction="vertical" style={{ width: "100%" }} size="middle">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div>
                   <Text strong>Xác thực 2 yếu tố</Text>
                   <div>
@@ -216,9 +238,15 @@ export const AdminSettingsPage: React.FC = () => {
                 <Switch />
               </div>
 
-              <Divider style={{ margin: '16px 0' }} />
+              <Divider style={{ margin: "16px 0" }} />
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div>
                   <Text strong>Giới hạn đăng nhập</Text>
                   <div>
@@ -230,17 +258,23 @@ export const AdminSettingsPage: React.FC = () => {
                 <Switch defaultChecked />
               </div>
 
-              <Divider style={{ margin: '16px 0' }} />
+              <Divider style={{ margin: "16px 0" }} />
 
               <Form layout="vertical">
                 <Row gutter={[16, 16]}>
                   <Col xs={24} md={12}>
-                    <Form.Item label="Thời gian hết hạn session (phút)" name="sessionTimeout">
+                    <Form.Item
+                      label="Thời gian hết hạn session (phút)"
+                      name="sessionTimeout"
+                    >
                       <Input type="number" defaultValue="30" />
                     </Form.Item>
                   </Col>
                   <Col xs={24} md={12}>
-                    <Form.Item label="Độ dài mật khẩu tối thiểu" name="minPasswordLength">
+                    <Form.Item
+                      label="Độ dài mật khẩu tối thiểu"
+                      name="minPasswordLength"
+                    >
                       <Input type="number" defaultValue="8" />
                     </Form.Item>
                   </Col>
@@ -270,7 +304,7 @@ export const AdminSettingsPage: React.FC = () => {
       ),
     },
     {
-      key: 'backup',
+      key: "backup",
       label: (
         <span>
           <DatabaseOutlined />
@@ -278,10 +312,16 @@ export const AdminSettingsPage: React.FC = () => {
         </span>
       ),
       children: (
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
+        <Space direction="vertical" style={{ width: "100%" }} size="large">
           <Card title="Sao lưu dữ liệu">
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Space direction="vertical" style={{ width: "100%" }} size="middle">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div>
                   <Text strong>Sao lưu tự động</Text>
                   <div>
@@ -293,7 +333,7 @@ export const AdminSettingsPage: React.FC = () => {
                 <Switch defaultChecked />
               </div>
 
-              <Divider style={{ margin: '16px 0' }} />
+              <Divider style={{ margin: "16px 0" }} />
 
               <Form layout="vertical">
                 <Row gutter={[16, 16]}>
@@ -318,22 +358,20 @@ export const AdminSettingsPage: React.FC = () => {
                 <Button type="primary" icon={<UploadOutlined />}>
                   Sao lưu ngay
                 </Button>
-                <Button>
-                  Tải bản sao lưu
-                </Button>
+                <Button>Tải bản sao lưu</Button>
               </Space>
             </Space>
           </Card>
 
           <Card title="Phục hồi dữ liệu">
-            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+            <Space direction="vertical" style={{ width: "100%" }} size="middle">
               <Alert
                 message="Cảnh báo quan trọng"
                 description="Phục hồi dữ liệu sẽ ghi đè lên dữ liệu hiện tại. Hãy đảm bảo đã sao lưu trước khi thực hiện."
                 type="error"
                 showIcon
               />
-              
+
               <Upload>
                 <Button icon={<UploadOutlined />}>Chọn file phục hồi</Button>
               </Upload>
@@ -351,12 +389,15 @@ export const AdminSettingsPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
-        <Title level={2} style={{ 
-          margin: 0,
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Title
+          level={2}
+          style={{
+            margin: 0,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           ⚙️ Cài đặt hệ thống
         </Title>
         <Text type="secondary">Quản lý cấu hình và tùy chỉnh hệ thống</Text>
@@ -376,19 +417,25 @@ export const AdminSettingsPage: React.FC = () => {
           dateFormat: "dd/MM/yyyy",
         }}
       >
-        <Tabs 
+        <Tabs
           items={tabItems}
           tabPosition="left"
           style={{
-            background: 'white',
+            background: "white",
             padding: 24,
             borderRadius: 16,
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
           }}
         />
 
-        <div style={{ marginTop: 24, textAlign: 'right' }}>
-          <Button type="primary" htmlType="submit" icon={<SaveOutlined />} size="large" loading={loading}>
+        <div style={{ marginTop: 24, textAlign: "right" }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<SaveOutlined />}
+            size="large"
+            loading={loading}
+          >
             Lưu cài đặt
           </Button>
         </div>

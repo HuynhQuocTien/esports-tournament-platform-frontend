@@ -1,4 +1,10 @@
-import type { ForgotRequest, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from "../common/interfaces/auth";
+import type {
+  ForgotRequest,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from "../common/interfaces/auth";
 import api from "./api";
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
@@ -13,7 +19,9 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   return res.data;
 };
 
-export const register = async (data: RegisterRequest): Promise<RegisterResponse> => {
+export const register = async (
+  data: RegisterRequest,
+): Promise<RegisterResponse> => {
   const res = await api.post<RegisterResponse>("/auth/register", data);
   return res.data;
 };
@@ -23,7 +31,7 @@ export const refreshToken = async () => {
   if (!refresh_token) throw new Error("No refresh token found");
 
   const res = await api.post("/auth/refresh", {
-    refresh_token
+    refresh_token,
   });
 
   const { access_token, refresh_token: newRefresh } = res.data;
@@ -42,7 +50,7 @@ export const forgotPassword = async (data: ForgotRequest): Promise<void> => {
 export const resetPassword = async (
   email: string,
   otp: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<void> => {
   await api.post("/auth/reset-password", { email, otp, newPassword });
 };
@@ -51,19 +59,16 @@ export const verifyOTP = async (email: string, otp: string): Promise<void> => {
   await api.post("/auth/verify-otp", { email, otp });
 };
 
-
 export const logout = (): void => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   window.location.href = "/login";
 };
 
-
 export const getProfile = async () => {
   const res = await api.get("/auth/me");
   return res.data;
 };
-
 
 export const isAuthenticated = (): boolean => {
   return !!localStorage.getItem("access_token");

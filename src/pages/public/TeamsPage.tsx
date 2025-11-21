@@ -1,11 +1,11 @@
 import React from "react";
 import { Card, List, Avatar, Typography, Row, Col, Tag, Statistic } from "antd";
-import { 
-  TeamOutlined, 
-  UserOutlined, 
+import {
+  TeamOutlined,
+  UserOutlined,
   TrophyOutlined,
   CrownOutlined,
-  StarOutlined
+  StarOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
@@ -19,7 +19,7 @@ const mockTeams = [
     wins: 12,
     losses: 3,
     rating: 1850,
-    status: "active"
+    status: "active",
   },
   {
     id: "team-2",
@@ -29,7 +29,7 @@ const mockTeams = [
     wins: 8,
     losses: 7,
     rating: 1620,
-    status: "active"
+    status: "active",
   },
   {
     id: "team-3",
@@ -39,7 +39,7 @@ const mockTeams = [
     wins: 15,
     losses: 2,
     rating: 1950,
-    status: "champion"
+    status: "champion",
   },
   {
     id: "team-4",
@@ -49,7 +49,7 @@ const mockTeams = [
     wins: 5,
     losses: 10,
     rating: 1450,
-    status: "active"
+    status: "active",
   },
 ];
 
@@ -64,10 +64,11 @@ export const TeamsPage: React.FC = () => {
     const statusConfig = {
       active: { color: "blue", text: "Đang thi đấu" },
       champion: { color: "gold", text: "Vô địch" },
-      inactive: { color: "default", text: "Không hoạt động" }
+      inactive: { color: "default", text: "Không hoạt động" },
     };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
+
+    const config =
+      statusConfig[status as keyof typeof statusConfig] || statusConfig.active;
     return <Tag color={config.color}>{config.text}</Tag>;
   };
 
@@ -102,7 +103,10 @@ export const TeamsPage: React.FC = () => {
           <Card>
             <Statistic
               title="Tổng số tuyển thủ"
-              value={mockTeams.reduce((acc, team) => acc + team.members.length, 0)}
+              value={mockTeams.reduce(
+                (acc, team) => acc + team.members.length,
+                0,
+              )}
               prefix={<UserOutlined style={{ color: SUCCESS_COLOR }} />}
               valueStyle={{ color: SUCCESS_COLOR }}
             />
@@ -112,7 +116,9 @@ export const TeamsPage: React.FC = () => {
           <Card>
             <Statistic
               title="Đội vô địch"
-              value={mockTeams.filter(team => team.status === "champion").length}
+              value={
+                mockTeams.filter((team) => team.status === "champion").length
+              }
               prefix={<CrownOutlined style={{ color: WARNING_COLOR }} />}
               valueStyle={{ color: WARNING_COLOR }}
             />
@@ -130,7 +136,15 @@ export const TeamsPage: React.FC = () => {
         }}
       >
         <div style={{ paddingBottom: 24 }}>
-          <Title level={2} style={{ margin: 0, display: "flex", alignItems: "center", gap: 12 }}>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
             <div
               style={{
                 background: "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
@@ -158,7 +172,10 @@ export const TeamsPage: React.FC = () => {
                 hoverable
                 style={{
                   borderRadius: 12,
-                  border: team.status === "champion" ? `2px solid ${WARNING_COLOR}` : "1px solid #f0f0f0",
+                  border:
+                    team.status === "champion"
+                      ? `2px solid ${WARNING_COLOR}`
+                      : "1px solid #f0f0f0",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                   transition: "all 0.3s ease",
                   background: team.status === "champion" ? "#fffbe6" : "white",
@@ -166,28 +183,50 @@ export const TeamsPage: React.FC = () => {
                 bodyStyle={{ padding: 20 }}
               >
                 {/* Team Header */}
-                <div style={{ display: "flex", alignItems: "center", marginBottom: 16, gap: 12 }}>
-                  <Avatar 
-                    src={team.logo} 
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: 16,
+                    gap: 12,
+                  }}
+                >
+                  <Avatar
+                    src={team.logo}
                     size={50}
-                    style={{ 
+                    style={{
                       border: `2px solid ${getRatingColor(team.rating)}`,
-                      boxShadow: `0 2px 8px ${getRatingColor(team.rating)}40`
+                      boxShadow: `0 2px 8px ${getRatingColor(team.rating)}40`,
                     }}
                   />
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        marginBottom: 4,
+                      }}
+                    >
                       <Text strong style={{ fontSize: 16 }}>
                         {team.name}
                       </Text>
-                      {team.status === "champion" && <CrownOutlined style={{ color: WARNING_COLOR }} />}
+                      {team.status === "champion" && (
+                        <CrownOutlined style={{ color: WARNING_COLOR }} />
+                      )}
                     </div>
                     {getStatusTag(team.status)}
                   </div>
                 </div>
 
                 {/* Team Stats */}
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: 16,
+                  }}
+                >
                   <div style={{ textAlign: "center" }}>
                     <Text strong style={{ color: SUCCESS_COLOR, fontSize: 18 }}>
                       {team.wins}
@@ -201,7 +240,13 @@ export const TeamsPage: React.FC = () => {
                     <div style={{ fontSize: 12, color: "#8c8c8c" }}>Thua</div>
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <Text strong style={{ color: getRatingColor(team.rating), fontSize: 18 }}>
+                    <Text
+                      strong
+                      style={{
+                        color: getRatingColor(team.rating),
+                        fontSize: 18,
+                      }}
+                    >
                       {team.rating}
                     </Text>
                     <div style={{ fontSize: 12, color: "#8c8c8c" }}>Điểm</div>

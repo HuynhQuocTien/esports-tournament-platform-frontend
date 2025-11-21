@@ -1,6 +1,10 @@
 import React from "react";
 import { Typography, Button, Space } from "antd";
-import { PlayCircleOutlined, CalendarOutlined, RocketOutlined } from "@ant-design/icons";
+import {
+  PlayCircleOutlined,
+  CalendarOutlined,
+  RocketOutlined,
+} from "@ant-design/icons";
 import DecryptedText from "../../../components/Textanimate/DecryptedText";
 const { Title, Paragraph } = Typography;
 
@@ -30,7 +34,7 @@ export const HeroSection: React.FC = () => {
           `,
         }}
       />
-      
+
       <div style={{ position: "relative", zIndex: 1 }}>
         <Title
           style={{
@@ -46,7 +50,7 @@ export const HeroSection: React.FC = () => {
 
           </div>
         </Title>
-        
+
         <Paragraph
           style={{
             fontSize: "1.3rem",
@@ -58,14 +62,18 @@ export const HeroSection: React.FC = () => {
             lineHeight: 1.6,
           }}
         >
-          Tham gia giải đấu esports lớn nhất năm với tổng giải thưởng lên đến 
-          <span style={{ color: "#ffd700", fontWeight: "bold", margin: "0 4px" }}>1 TỶ VNĐ</span>
+          Tham gia giải đấu esports lớn nhất năm với tổng giải thưởng lên đến
+          <span
+            style={{ color: "#ffd700", fontWeight: "bold", margin: "0 4px" }}
+          >
+            1 TỶ VNĐ
+          </span>
           và cơ hội trở thành nhà vô địch.
         </Paragraph>
-        
+
         <Space size="large" style={{ marginBottom: "2rem" }}>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             size="large"
             icon={<RocketOutlined />}
             style={{
@@ -81,7 +89,7 @@ export const HeroSection: React.FC = () => {
           >
             Đăng ký ngay
           </Button>
-          <Button 
+          <Button
             size="large"
             icon={<PlayCircleOutlined />}
             style={{
@@ -97,7 +105,7 @@ export const HeroSection: React.FC = () => {
           >
             Xem Highlight
           </Button>
-          <Button 
+          <Button
             size="large"
             icon={<CalendarOutlined />}
             style={{
@@ -130,13 +138,24 @@ export const HeroSection: React.FC = () => {
           {[
             { number: "500+", label: "Đội" },
             { number: "1B VNĐ", label: "Giải thưởng" },
-            { number: "30", label: "Ngày" }
+            { number: "30", label: "Ngày" },
           ].map((stat, index) => (
             <div key={index} style={{ textAlign: "center" }}>
-              <div style={{ color: "#ffffff", fontSize: "1.5rem", fontWeight: "bold" }}>
+              <div
+                style={{
+                  color: "#ffffff",
+                  fontSize: "1.5rem",
+                  fontWeight: "bold",
+                }}
+              >
                 {stat.number}
               </div>
-              <div style={{ color: "rgba(255, 255, 255, 0.8)", fontSize: "0.9rem" }}>
+              <div
+                style={{
+                  color: "rgba(255, 255, 255, 0.8)",
+                  fontSize: "0.9rem",
+                }}
+              >
                 {stat.label}
               </div>
             </div>

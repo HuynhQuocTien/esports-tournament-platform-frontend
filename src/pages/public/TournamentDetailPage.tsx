@@ -1,24 +1,24 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import { 
-  Card, 
-  List, 
-  Typography, 
-  Row, 
-  Col, 
-  Tag, 
-  Progress, 
+import {
+  Card,
+  List,
+  Typography,
+  Row,
+  Col,
+  Tag,
+  Progress,
   Timeline,
   Statistic,
-  Divider 
+  Divider,
 } from "antd";
-import { 
-  CalendarOutlined, 
-  TeamOutlined, 
+import {
+  CalendarOutlined,
+  TeamOutlined,
   TrophyOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text, Paragraph } = Typography;
@@ -27,7 +27,8 @@ const mockTournamentDetails = [
   {
     id: "1",
     name: "Esports Championship 2025",
-    description: "Giải đấu Esports lớn nhất năm với sự tham gia của 16 đội hàng đầu đến từ khắp khu vực. Giải đấu mang đến những trận cầu mãn nhãn và kịch tính nhất.",
+    description:
+      "Giải đấu Esports lớn nhất năm với sự tham gia của 16 đội hàng đầu đến từ khắp khu vực. Giải đấu mang đến những trận cầu mãn nhãn và kịch tính nhất.",
     game: "Valorant",
     status: "ongoing",
     startDate: "2025-10-01",
@@ -36,32 +37,38 @@ const mockTournamentDetails = [
     teams: "16/16",
     organizer: "ESL Asia",
     schedule: [
-      { 
-        match: "Team Phoenix vs Dragon Warriors", 
-        time: "2025-10-05 18:00", 
+      {
+        match: "Team Phoenix vs Dragon Warriors",
+        time: "2025-10-05 18:00",
         stage: "Bán kết",
         status: "completed",
-        score: "2-1"
+        score: "2-1",
       },
-      { 
-        match: "Thunder Storm vs Shadow Hunters", 
-        time: "2025-10-06 20:00", 
+      {
+        match: "Thunder Storm vs Shadow Hunters",
+        time: "2025-10-06 20:00",
         stage: "Bán kết",
         status: "upcoming",
-        score: null
+        score: null,
       },
-      { 
-        match: "Chung kết", 
-        time: "2025-10-12 19:00", 
+      {
+        match: "Chung kết",
+        time: "2025-10-12 19:00",
         stage: "Chung kết",
         status: "upcoming",
-        score: null
+        score: null,
       },
     ],
     participants: [
-      "Team Phoenix", "Dragon Warriors", "Thunder Storm", "Shadow Hunters",
-      "Ice Breakers", "Fire Starters", "Wind Riders", "Earth Shakers"
-    ]
+      "Team Phoenix",
+      "Dragon Warriors",
+      "Thunder Storm",
+      "Shadow Hunters",
+      "Ice Breakers",
+      "Fire Starters",
+      "Wind Riders",
+      "Earth Shakers",
+    ],
   },
 ];
 
@@ -74,7 +81,13 @@ export const TournamentDetailPage: React.FC = () => {
 
   if (!tournament) {
     return (
-      <div style={{ padding: 32, background: PAGE_BACKGROUND_COLOR, minHeight: "100vh" }}>
+      <div
+        style={{
+          padding: 32,
+          background: PAGE_BACKGROUND_COLOR,
+          minHeight: "100vh",
+        }}
+      >
         <Card>
           <Title level={3}>Không tìm thấy giải đấu</Title>
         </Card>
@@ -86,19 +99,24 @@ export const TournamentDetailPage: React.FC = () => {
     const statusConfig = {
       ongoing: { color: "blue", text: "Đang diễn ra" },
       upcoming: { color: "green", text: "Sắp diễn ra" },
-      completed: { color: "default", text: "Đã kết thúc" }
+      completed: { color: "default", text: "Đã kết thúc" },
     };
-    
-    return <Tag color={statusConfig[status as keyof typeof statusConfig]?.color}>
-      {statusConfig[status as keyof typeof statusConfig]?.text}
-    </Tag>;
+
+    return (
+      <Tag color={statusConfig[status as keyof typeof statusConfig]?.color}>
+        {statusConfig[status as keyof typeof statusConfig]?.text}
+      </Tag>
+    );
   };
 
   const getMatchStatusIcon = (status: string) => {
     switch (status) {
-      case "completed": return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
-      case "ongoing": return <PlayCircleOutlined style={{ color: "#1890ff" }} />;
-      default: return <ClockCircleOutlined style={{ color: "#faad14" }} />;
+      case "completed":
+        return <CheckCircleOutlined style={{ color: "#52c41a" }} />;
+      case "ongoing":
+        return <PlayCircleOutlined style={{ color: "#1890ff" }} />;
+      default:
+        return <ClockCircleOutlined style={{ color: "#faad14" }} />;
     }
   };
 
@@ -122,7 +140,14 @@ export const TournamentDetailPage: React.FC = () => {
       >
         <Row gutter={[24, 24]} align="middle">
           <Col xs={24} md={16}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                marginBottom: 16,
+              }}
+            >
               <TrophyOutlined style={{ fontSize: 32 }} />
               <div>
                 <Title level={2} style={{ color: "white", margin: 0 }}>
@@ -133,7 +158,13 @@ export const TournamentDetailPage: React.FC = () => {
                 </Text>
               </div>
             </div>
-            <Paragraph style={{ color: "rgba(255,255,255,0.9)", fontSize: 16, marginBottom: 0 }}>
+            <Paragraph
+              style={{
+                color: "rgba(255,255,255,0.9)",
+                fontSize: 16,
+                marginBottom: 0,
+              }}
+            >
               {tournament.description}
             </Paragraph>
           </Col>
@@ -186,12 +217,22 @@ export const TournamentDetailPage: React.FC = () => {
                   key={index}
                   dot={getMatchStatusIcon(match.status)}
                   color={
-                    match.status === "completed" ? "#52c41a" :
-                    match.status === "ongoing" ? "#1890ff" : "#faad14"
+                    match.status === "completed"
+                      ? "#52c41a"
+                      : match.status === "ongoing"
+                        ? "#1890ff"
+                        : "#faad14"
                   }
                 >
                   <div style={{ padding: "8px 0" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: 4,
+                      }}
+                    >
                       <Text strong style={{ fontSize: 14 }}>
                         {match.match}
                       </Text>
@@ -201,7 +242,10 @@ export const TournamentDetailPage: React.FC = () => {
                         </Tag>
                       )}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 12, display: "block" }}>
+                    <Text
+                      type="secondary"
+                      style={{ fontSize: 12, display: "block" }}
+                    >
                       {match.stage}
                     </Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
@@ -266,19 +310,39 @@ export const TournamentDetailPage: React.FC = () => {
         title="Tiến độ giải đấu"
       >
         <div style={{ padding: "0 16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
+            }}
+          >
             <Text>Vòng bảng</Text>
             <Text>75%</Text>
           </div>
           <Progress percent={75} strokeColor="#52c41a" />
-          
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, marginTop: 16 }}>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              marginTop: 16,
+            }}
+          >
             <Text>Vòng loại trực tiếp</Text>
             <Text>50%</Text>
           </div>
           <Progress percent={50} strokeColor="#1890ff" />
-          
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, marginTop: 16 }}>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
+              marginTop: 16,
+            }}
+          >
             <Text>Chung kết</Text>
             <Text>0%</Text>
           </div>

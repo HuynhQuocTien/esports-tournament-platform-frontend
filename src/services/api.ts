@@ -36,7 +36,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
@@ -72,7 +72,7 @@ api.interceptors.response.use(
       try {
         const res = await axios.post(
           `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/refresh`,
-          { refresh_token: refreshToken }
+          { refresh_token: refreshToken },
         );
 
         const newAccessToken = res.data?.access_token;
@@ -80,9 +80,11 @@ api.interceptors.response.use(
 
         if (newAccessToken) {
           localStorage.setItem("access_token", newAccessToken);
-          if (newRefreshToken) localStorage.setItem("refresh_token", newRefreshToken);
+          if (newRefreshToken)
+            localStorage.setItem("refresh_token", newRefreshToken);
 
-          (originalRequest.headers as any).Authorization = `Bearer ${newAccessToken}`;
+          (originalRequest.headers as any).Authorization =
+            `Bearer ${newAccessToken}`;
           processQueue(null, newAccessToken);
           return api(originalRequest);
         }
@@ -98,7 +100,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

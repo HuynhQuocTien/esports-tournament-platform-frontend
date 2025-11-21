@@ -31,7 +31,7 @@ export const HomePage: React.FC = () => {
     >
       <Layout style={{ background: PAGE_BACKGROUND_COLOR, minHeight: "100vh" }}>
         <HeroSection />
-        
+
         <Content
           style={{
             padding: "40px 80px",

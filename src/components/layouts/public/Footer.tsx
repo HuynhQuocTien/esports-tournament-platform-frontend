@@ -33,16 +33,16 @@ const Footer: React.FC = () => {
           <Col xs={24} md={8}>
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <img
-                    src="/logo-removebg.png"
-                    alt="ESports Arena Logo"
-                    style={{
-                      width: 40,
-                      height: 40,
-                      objectFit: "contain",
-                      marginRight: 12,
-                    }}
-                  />
+                <img
+                  src="/logo-removebg.png"
+                  alt="ESports Arena Logo"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    objectFit: "contain",
+                    marginRight: 12,
+                  }}
+                />
                 <Title level={3} style={{ color: "white", margin: 0 }}>
                   ESports Arena
                 </Title>

@@ -4,5 +4,3 @@ export type AuthStep =
   | "forgotPassword"
   | "verifyOtp"
   | "setupPassword";
-
-

@@ -1,48 +1,57 @@
 import React from "react";
-import { Card, List, Typography, Tag, Row, Col, Timeline, Progress } from "antd";
-import { 
-  TrophyOutlined, 
-  TeamOutlined, 
+import {
+  Card,
+  List,
+  Typography,
+  Tag,
+  Row,
+  Col,
+  Timeline,
+  Progress,
+} from "antd";
+import {
+  TrophyOutlined,
+  TeamOutlined,
   CalendarOutlined,
   FireOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
 const mockResults = [
-  { 
-    match: "Đội A vs Đội B", 
-    winner: "Đội A", 
+  {
+    match: "Đội A vs Đội B",
+    winner: "Đội A",
     score: "2 - 1",
     date: "2024-01-15",
     status: "completed",
-    highlight: true
+    highlight: true,
   },
-  { 
-    match: "Đội C vs Đội D", 
-    winner: "Đội D", 
+  {
+    match: "Đội C vs Đội D",
+    winner: "Đội D",
     score: "0 - 2",
     date: "2024-01-14",
     status: "completed",
-    highlight: false
+    highlight: false,
   },
-  { 
-    match: "Đội E vs Đội F", 
-    winner: "Đội E", 
+  {
+    match: "Đội E vs Đội F",
+    winner: "Đội E",
     score: "2 - 0",
     date: "2024-01-13",
     status: "completed",
-    highlight: true
+    highlight: true,
   },
-  { 
-    match: "Đội G vs Đội H", 
-    winner: "Hòa", 
+  {
+    match: "Đội G vs Đội H",
+    winner: "Hòa",
     score: "1 - 1",
     date: "2024-01-12",
     status: "completed",
-    highlight: false
+    highlight: false,
   },
 ];
 
@@ -61,9 +70,11 @@ const WARNING_COLOR = "#faad14";
 export const ResultsPage: React.FC = () => {
   const getStatusIcon = (status: string, winner: string) => {
     if (status === "completed") {
-      return winner === "Hòa" ? 
-        <CloseCircleOutlined style={{ color: WARNING_COLOR }} /> : 
-        <CheckCircleOutlined style={{ color: SUCCESS_COLOR }} />;
+      return winner === "Hòa" ? (
+        <CloseCircleOutlined style={{ color: WARNING_COLOR }} />
+      ) : (
+        <CheckCircleOutlined style={{ color: SUCCESS_COLOR }} />
+      );
     }
     return <CalendarOutlined style={{ color: PRIMARY_COLOR }} />;
   };
@@ -96,10 +107,19 @@ export const ResultsPage: React.FC = () => {
             }}
           >
             <div style={{ paddingBottom: 16 }}>
-              <Title level={2} style={{ margin: 0, display: "flex", alignItems: "center", gap: 12 }}>
+              <Title
+                level={2}
+                style={{
+                  margin: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
                 <div
                   style={{
-                    background: "linear-gradient(135deg, #52c41a 0%, #389e0d 100%)",
+                    background:
+                      "linear-gradient(135deg, #52c41a 0%, #389e0d 100%)",
                     width: 48,
                     height: 48,
                     borderRadius: 12,
@@ -127,10 +147,19 @@ export const ResultsPage: React.FC = () => {
                     background: item.highlight ? "#f6ffed" : "transparent",
                     borderRadius: 8,
                     marginBottom: 8,
-                    border: item.highlight ? `1px solid ${SUCCESS_COLOR}20` : "none",
+                    border: item.highlight
+                      ? `1px solid ${SUCCESS_COLOR}20`
+                      : "none",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", width: "100%", gap: 16 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      width: "100%",
+                      gap: 16,
+                    }}
+                  >
                     <div
                       style={{
                         width: 40,
@@ -146,30 +175,57 @@ export const ResultsPage: React.FC = () => {
                     >
                       {getStatusIcon(item.status, item.winner)}
                     </div>
-                    
+
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 4,
+                        }}
+                      >
                         <Text strong style={{ fontSize: 16 }}>
                           {item.match}
                         </Text>
-                        <Tag 
+                        <Tag
                           color={getStatusColor(item.status, item.winner)}
                           style={{ fontSize: 12, fontWeight: "bold" }}
                         >
                           {item.date}
                         </Tag>
                       </div>
-                      
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
                           <TrophyOutlined style={{ color: WARNING_COLOR }} />
-                          <Text strong style={{ color: getStatusColor(item.status, item.winner) }}>
-                            {item.winner === "Hòa" ? "Trận hòa" : `🏆 ${item.winner}`}
+                          <Text
+                            strong
+                            style={{
+                              color: getStatusColor(item.status, item.winner),
+                            }}
+                          >
+                            {item.winner === "Hòa"
+                              ? "Trận hòa"
+                              : `🏆 ${item.winner}`}
                           </Text>
                         </div>
                         <div
                           style={{
-                            background: "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+                            background:
+                              "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
                             color: "white",
                             padding: "4px 12px",
                             borderRadius: 12,

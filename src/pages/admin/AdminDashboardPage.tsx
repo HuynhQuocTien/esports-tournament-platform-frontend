@@ -1,26 +1,26 @@
 import React from "react";
-import { 
-  Card, 
-  Col, 
-  Row,
-  Typography, 
-  List, 
-  Tag,
-  Progress,
-  Button
-} from "antd";
-import { 
-  TrophyOutlined, 
-  TeamOutlined, 
-  UserOutlined, 
+import { Card, Col, Row, Typography, List, Tag, Progress, Button } from "antd";
+import {
+  TrophyOutlined,
+  TeamOutlined,
+  UserOutlined,
   BarChartOutlined,
   EyeOutlined,
   ArrowUpOutlined,
   CalendarOutlined,
   DollarOutlined,
-  RocketOutlined
+  RocketOutlined,
 } from "@ant-design/icons";
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
+import {
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
 
 const { Title, Text } = Typography;
 
@@ -34,29 +34,29 @@ const chartData = [
 ];
 
 const activities = [
-  { 
-    id: 1, 
-    action: "Đội Phoenix đăng ký tham gia giải Esports Cup 2025", 
+  {
+    id: 1,
+    action: "Đội Phoenix đăng ký tham gia giải Esports Cup 2025",
     time: "2 phút trước",
-    type: "success" 
+    type: "success",
   },
-  { 
-    id: 2, 
-    action: "Người dùng admin cập nhật bảng xếp hạng", 
+  {
+    id: 2,
+    action: "Người dùng admin cập nhật bảng xếp hạng",
     time: "15 phút trước",
-    type: "info" 
+    type: "info",
   },
-  { 
-    id: 3, 
-    action: "Đội Storm thắng trận với tỷ số 2-0", 
+  {
+    id: 3,
+    action: "Đội Storm thắng trận với tỷ số 2-0",
     time: "1 giờ trước",
-    type: "success" 
+    type: "success",
   },
-  { 
-    id: 4, 
-    action: "Thêm giải đấu mới: Valorant Masters", 
+  {
+    id: 4,
+    action: "Thêm giải đấu mới: Valorant Masters",
     time: "2 giờ trước",
-    type: "warning" 
+    type: "warning",
   },
 ];
 
@@ -67,7 +67,7 @@ const statsData = [
     prefix: <TrophyOutlined />,
     color: "#1890ff",
     progress: 75,
-    change: "+12%"
+    change: "+12%",
   },
   {
     title: "Đội tham gia",
@@ -75,7 +75,7 @@ const statsData = [
     prefix: <TeamOutlined />,
     color: "#52c41a",
     progress: 60,
-    change: "+8%"
+    change: "+8%",
   },
   {
     title: "Người dùng",
@@ -83,7 +83,7 @@ const statsData = [
     prefix: <UserOutlined />,
     color: "#faad14",
     progress: 85,
-    change: "+25%"
+    change: "+25%",
   },
   {
     title: "Trận đấu",
@@ -91,34 +91,43 @@ const statsData = [
     prefix: <BarChartOutlined />,
     color: "#ff4d4f",
     progress: 90,
-    change: "+15%"
-  }
+    change: "+15%",
+  },
 ];
 
 export const AdminDashboardPage: React.FC = () => {
   const getStatusTag = (type: string) => {
     const config = {
-      success: { color: 'green', text: 'Thành công' },
-      info: { color: 'blue', text: 'Thông tin' },
-      warning: { color: 'orange', text: 'Cảnh báo' }
+      success: { color: "green", text: "Thành công" },
+      info: { color: "blue", text: "Thông tin" },
+      warning: { color: "orange", text: "Cảnh báo" },
     };
     const statusConfig = config[type as keyof typeof config];
-    return <Tag color={statusConfig.color} style={{ fontSize: 10 }}>{statusConfig.text}</Tag>;
+    return (
+      <Tag color={statusConfig.color} style={{ fontSize: 10 }}>
+        {statusConfig.text}
+      </Tag>
+    );
   };
 
   return (
     <div style={{ padding: 24 }}>
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
-        <Title level={2} style={{ 
-          margin: 0,
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Title
+          level={2}
+          style={{
+            margin: 0,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           Tổng quan hệ thống
         </Title>
-        <Text type="secondary">Theo dõi hiệu suất và hoạt động của hệ thống</Text>
+        <Text type="secondary">
+          Theo dõi hiệu suất và hoạt động của hệ thống
+        </Text>
       </div>
 
       {/* Stats Cards */}
@@ -134,16 +143,45 @@ export const AdminDashboardPage: React.FC = () => {
               }}
               bodyStyle={{ padding: 20 }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: 16,
+                }}
+              >
                 <div>
-                  <Text type="secondary" style={{ fontSize: 14, fontWeight: 500 }}>{stat.title}</Text>
-                  <Title level={2} style={{ margin: "8px 0", color: stat.color, fontSize: 32 }}>
+                  <Text
+                    type="secondary"
+                    style={{ fontSize: 14, fontWeight: 500 }}
+                  >
+                    {stat.title}
+                  </Text>
+                  <Title
+                    level={2}
+                    style={{ margin: "8px 0", color: stat.color, fontSize: 32 }}
+                  >
                     {stat.value}
                   </Title>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <ArrowUpOutlined style={{ color: '#52c41a', fontSize: 12 }} />
-                    <Text style={{ color: '#52c41a', fontSize: 12, fontWeight: 500 }}>{stat.change}</Text>
-                    <Text type="secondary" style={{ fontSize: 12 }}>so với tháng trước</Text>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    <ArrowUpOutlined
+                      style={{ color: "#52c41a", fontSize: 12 }}
+                    />
+                    <Text
+                      style={{
+                        color: "#52c41a",
+                        fontSize: 12,
+                        fontWeight: 500,
+                      }}
+                    >
+                      {stat.change}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      so với tháng trước
+                    </Text>
                   </div>
                 </div>
                 <div
@@ -162,10 +200,10 @@ export const AdminDashboardPage: React.FC = () => {
                   {stat.prefix}
                 </div>
               </div>
-              <Progress 
-                percent={stat.progress} 
+              <Progress
+                percent={stat.progress}
                 strokeColor={stat.color}
-                size="small" 
+                size="small"
                 showInfo={false}
               />
             </Card>
@@ -180,7 +218,7 @@ export const AdminDashboardPage: React.FC = () => {
           <Card
             title={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <RocketOutlined style={{ color: '#1890ff' }} />
+                <RocketOutlined style={{ color: "#1890ff" }} />
                 <span>Tăng trưởng hệ thống</span>
               </div>
             }
@@ -190,7 +228,11 @@ export const AdminDashboardPage: React.FC = () => {
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               background: "white",
             }}
-            extra={<Button type="link" icon={<EyeOutlined />}>Xem chi tiết</Button>}
+            extra={
+              <Button type="link" icon={<EyeOutlined />}>
+                Xem chi tiết
+              </Button>
+            }
           >
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={chartData}>
@@ -198,28 +240,30 @@ export const AdminDashboardPage: React.FC = () => {
                 <XAxis dataKey="month" />
                 <YAxis yAxisId="left" />
                 <YAxis yAxisId="right" orientation="right" />
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [
-                    name === 'players' ? `${value} người` : `${Number(value).toLocaleString()} VNĐ`,
-                    name === 'players' ? 'Người chơi' : 'Doanh thu'
+                    name === "players"
+                      ? `${value} người`
+                      : `${Number(value).toLocaleString()} VNĐ`,
+                    name === "players" ? "Người chơi" : "Doanh thu",
                   ]}
                 />
-                <Area 
+                <Area
                   yAxisId="left"
-                  type="monotone" 
-                  dataKey="players" 
-                  stroke="#1890ff" 
-                  fill="#1890ff" 
+                  type="monotone"
+                  dataKey="players"
+                  stroke="#1890ff"
+                  fill="#1890ff"
                   fillOpacity={0.2}
                   strokeWidth={2}
                 />
-                <Line 
+                <Line
                   yAxisId="right"
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#52c41a" 
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#52c41a"
                   strokeWidth={2}
-                  dot={{ fill: '#52c41a' }}
+                  dot={{ fill: "#52c41a" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -231,7 +275,7 @@ export const AdminDashboardPage: React.FC = () => {
           <Card
             title={
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <CalendarOutlined style={{ color: '#faad14' }} />
+                <CalendarOutlined style={{ color: "#faad14" }} />
                 <span>Hoạt động gần đây</span>
               </div>
             }
@@ -240,7 +284,7 @@ export const AdminDashboardPage: React.FC = () => {
               border: "none",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
               background: "white",
-              height: '100%',
+              height: "100%",
             }}
             extra={<Button type="link">Xem tất cả</Button>}
           >
@@ -248,16 +292,27 @@ export const AdminDashboardPage: React.FC = () => {
               dataSource={activities}
               renderItem={(item) => (
                 <List.Item style={{ padding: "12px 0", border: "none" }}>
-                  <div style={{ width: '100%' }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
-                      <Text style={{ fontSize: 13, lineHeight: 1.4, flex: 1 }}>{item.action}</Text>
+                  <div style={{ width: "100%" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Text style={{ fontSize: 13, lineHeight: 1.4, flex: 1 }}>
+                        {item.action}
+                      </Text>
                       {getStatusTag(item.type)}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{item.time}</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      {item.time}
+                    </Text>
                   </div>
                 </List.Item>
               )}
-              style={{ maxHeight: 300, overflow: 'auto' }}
+              style={{ maxHeight: 300, overflow: "auto" }}
             />
           </Card>
         </Col>
@@ -274,9 +329,11 @@ export const AdminDashboardPage: React.FC = () => {
               background: "white",
             }}
           >
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <DollarOutlined style={{ fontSize: 48, color: '#52c41a', marginBottom: 16 }} />
-              <Title level={2} style={{ color: '#52c41a', margin: 0 }}>
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <DollarOutlined
+                style={{ fontSize: 48, color: "#52c41a", marginBottom: 16 }}
+              />
+              <Title level={2} style={{ color: "#52c41a", margin: 0 }}>
                 300M VNĐ
               </Title>
               <Text type="secondary">Tăng 25% so với tháng trước</Text>
@@ -293,14 +350,27 @@ export const AdminDashboardPage: React.FC = () => {
               background: "white",
             }}
           >
-            <div style={{ padding: '20px 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ padding: "20px 0" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 16,
+                }}
+              >
                 <Text>Đội hoàn thành đăng ký</Text>
                 <Text strong>85%</Text>
               </div>
               <Progress percent={85} strokeColor="#52c41a" />
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, marginTop: 20 }}>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 16,
+                  marginTop: 20,
+                }}
+              >
                 <Text>Giải đấu đang diễn ra</Text>
                 <Text strong>67%</Text>
               </div>

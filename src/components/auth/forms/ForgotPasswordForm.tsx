@@ -33,9 +33,9 @@ export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => onSwitch("login")}
           style={{ padding: 0, marginBottom: 16 }}
         >
@@ -44,22 +44,22 @@ export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
       </div>
 
       <Form layout="vertical" onFinish={onFinish} size="large">
-        <Form.Item 
-          name="email" 
-          rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+        <Form.Item
+          name="email"
+          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
         >
-          <Input 
-            prefix={<MailOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Nhập email của bạn" 
+          <Input
+            prefix={<MailOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Nhập email của bạn"
             style={{ borderRadius: 8, height: 48 }}
           />
         </Form.Item>
-        
+
         <Form.Item style={{ marginBottom: 16 }}>
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            block 
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
             loading={loading}
             style={{
               height: 48,
@@ -75,8 +75,8 @@ export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
         </Form.Item>
       </Form>
 
-      <div style={{ textAlign: 'center' }}>
-        <Text style={{ color: '#666' }}>
+      <div style={{ textAlign: "center" }}>
+        <Text style={{ color: "#666" }}>
           Chúng tôi sẽ gửi mã xác minh đến email của bạn
         </Text>
       </div>

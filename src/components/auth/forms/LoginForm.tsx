@@ -3,7 +3,10 @@ import { Button, Form, Input, Typography, message, Divider } from "antd";
 import { login } from "../../../services/authService";
 import type { AxiosError } from "axios";
 import type { AuthStep } from "../../../common/types";
-import type { LoginRequest, LoginResponse } from "../../../common/interfaces/auth";
+import type {
+  LoginRequest,
+  LoginResponse,
+} from "../../../common/interfaces/auth";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -24,7 +27,7 @@ export const LoginForm: React.FC<Props> = ({
   const onFinish = async (values: LoginRequest) => {
     try {
       setLoading(true);
-      const response : LoginResponse = await login(values);
+      const response: LoginResponse = await login(values);
       const token = response.data.access_token;
 
       if (!token) throw new Error("Không nhận được token từ máy chủ!");
@@ -43,33 +46,33 @@ export const LoginForm: React.FC<Props> = ({
   return (
     <div>
       <Form layout="vertical" onFinish={onFinish} size="large">
-        <Form.Item 
-          name="email" 
-          rules={[{ required: true, message: 'Vui lòng nhập email!' }]}
+        <Form.Item
+          name="email"
+          rules={[{ required: true, message: "Vui lòng nhập email!" }]}
         >
-          <Input 
-            prefix={<MailOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Email" 
+          <Input
+            prefix={<MailOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Email"
             style={{ borderRadius: 8, height: 48 }}
           />
         </Form.Item>
-        
+
         <Form.Item
           name="password"
-          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
         >
-          <Input.Password 
-            prefix={<LockOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Mật khẩu" 
+          <Input.Password
+            prefix={<LockOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Mật khẩu"
             style={{ borderRadius: 8, height: 48 }}
           />
         </Form.Item>
-        
+
         <Form.Item style={{ marginBottom: 16 }}>
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            block 
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
             loading={loading}
             style={{
               height: 48,
@@ -85,11 +88,11 @@ export const LoginForm: React.FC<Props> = ({
         </Form.Item>
       </Form>
 
-      <div style={{ textAlign: 'center', marginBottom: 16 }}>
-        <Text 
-          style={{ 
-            color: "#722ed1", 
-            cursor: 'pointer',
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
+        <Text
+          style={{
+            color: "#722ed1",
+            cursor: "pointer",
             fontWeight: 500,
           }}
           onClick={() => onSwitch("forgotPassword")}
@@ -98,18 +101,20 @@ export const LoginForm: React.FC<Props> = ({
         </Text>
       </div>
 
-      <Divider style={{ margin: '20px 0', color: '#d9d9d9' }}>
-        <Text type="secondary" style={{ fontSize: 14 }}>Hoặc</Text>
+      <Divider style={{ margin: "20px 0", color: "#d9d9d9" }}>
+        <Text type="secondary" style={{ fontSize: 14 }}>
+          Hoặc
+        </Text>
       </Divider>
 
-      <div style={{ textAlign: 'center' }}>
-        <Text style={{ color: '#666', marginRight: 8 }}>
+      <div style={{ textAlign: "center" }}>
+        <Text style={{ color: "#666", marginRight: 8 }}>
           Chưa có tài khoản?
         </Text>
-        <Text 
-          style={{ 
-            color: "#722ed1", 
-            cursor: 'pointer',
+        <Text
+          style={{
+            color: "#722ed1",
+            cursor: "pointer",
             fontWeight: 600,
           }}
           onClick={() => onSwitch("register")}

@@ -1,61 +1,61 @@
 import React from "react";
 import { Table, Card, Typography, Tag, Progress, Avatar, Space } from "antd";
-import { 
-  CrownOutlined, 
-  TrophyOutlined, 
+import {
+  CrownOutlined,
+  TrophyOutlined,
   TeamOutlined,
   RiseOutlined,
-  FallOutlined
+  FallOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
 export const AdminRankingPage: React.FC = () => {
   const ranking = [
-    { 
-      rank: 1, 
-      team: "Team Phoenix", 
-      points: 1500, 
+    {
+      rank: 1,
+      team: "Team Phoenix",
+      points: 1500,
       change: "up",
       wins: 12,
       losses: 2,
-      avatar: "https://picsum.photos/seed/team1/40/40"
+      avatar: "https://picsum.photos/seed/team1/40/40",
     },
-    { 
-      rank: 2, 
-      team: "Team Alpha", 
-      points: 1450, 
+    {
+      rank: 2,
+      team: "Team Alpha",
+      points: 1450,
       change: "down",
       wins: 11,
       losses: 3,
-      avatar: "https://picsum.photos/seed/team2/40/40"
+      avatar: "https://picsum.photos/seed/team2/40/40",
     },
-    { 
-      rank: 3, 
-      team: "Team Storm", 
-      points: 1420, 
+    {
+      rank: 3,
+      team: "Team Storm",
+      points: 1420,
       change: "up",
       wins: 10,
       losses: 4,
-      avatar: "https://picsum.photos/seed/team3/40/40"
+      avatar: "https://picsum.photos/seed/team3/40/40",
     },
-    { 
-      rank: 4, 
-      team: "Team Thunder", 
-      points: 1380, 
+    {
+      rank: 4,
+      team: "Team Thunder",
+      points: 1380,
       change: "up",
       wins: 9,
       losses: 5,
-      avatar: "https://picsum.photos/seed/team4/40/40"
+      avatar: "https://picsum.photos/seed/team4/40/40",
     },
-    { 
-      rank: 5, 
-      team: "Team Dragon", 
-      points: 1350, 
+    {
+      rank: 5,
+      team: "Team Dragon",
+      points: 1350,
       change: "down",
       wins: 8,
       losses: 6,
-      avatar: "https://picsum.photos/seed/team5/40/40"
+      avatar: "https://picsum.photos/seed/team5/40/40",
     },
   ];
 
@@ -65,11 +65,13 @@ export const AdminRankingPage: React.FC = () => {
       dataIndex: "rank",
       key: "rank",
       render: (rank: number) => (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: "center" }}>
           {rank === 1 ? (
-            <CrownOutlined style={{ fontSize: 20, color: '#faad14' }} />
+            <CrownOutlined style={{ fontSize: 20, color: "#faad14" }} />
           ) : (
-            <Text strong style={{ fontSize: 16 }}>#{rank}</Text>
+            <Text strong style={{ fontSize: 16 }}>
+              #{rank}
+            </Text>
           )}
         </div>
       ),
@@ -83,8 +85,12 @@ export const AdminRankingPage: React.FC = () => {
         <Space>
           <Avatar src={record.avatar} size="small" />
           <Text strong>{team}</Text>
-          {record.change === "up" && <RiseOutlined style={{ color: '#52c41a' }} />}
-          {record.change === "down" && <FallOutlined style={{ color: '#ff4d4f' }} />}
+          {record.change === "up" && (
+            <RiseOutlined style={{ color: "#52c41a" }} />
+          )}
+          {record.change === "down" && (
+            <FallOutlined style={{ color: "#ff4d4f" }} />
+          )}
         </Space>
       ),
     },
@@ -104,10 +110,16 @@ export const AdminRankingPage: React.FC = () => {
         const winRate = (record.wins / (record.wins + record.losses)) * 100;
         return (
           <div style={{ width: 120 }}>
-            <Progress 
-              percent={Math.round(winRate)} 
-              size="small" 
-              strokeColor={winRate >= 70 ? '#52c41a' : winRate >= 50 ? '#faad14' : '#ff4d4f'}
+            <Progress
+              percent={Math.round(winRate)}
+              size="small"
+              strokeColor={
+                winRate >= 70
+                  ? "#52c41a"
+                  : winRate >= 50
+                    ? "#faad14"
+                    : "#ff4d4f"
+              }
             />
           </div>
         );
@@ -118,14 +130,14 @@ export const AdminRankingPage: React.FC = () => {
       dataIndex: "points",
       key: "points",
       render: (points: number) => (
-        <Tag 
-          color="blue" 
-          style={{ 
-            fontSize: 14, 
+        <Tag
+          color="blue"
+          style={{
+            fontSize: 14,
             fontWeight: 600,
-            background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
-            border: 'none',
-            color: 'white'
+            background: "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+            border: "none",
+            color: "white",
           }}
         >
           {points}
@@ -137,12 +149,15 @@ export const AdminRankingPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ marginBottom: 24 }}>
-        <Title level={2} style={{ 
-          margin: 0,
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Title
+          level={2}
+          style={{
+            margin: 0,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           🏆 Bảng xếp hạng
         </Title>
         <Text type="secondary">Theo dõi thứ hạng và hiệu suất của các đội</Text>
@@ -174,26 +189,59 @@ export const AdminRankingPage: React.FC = () => {
             background: "white",
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-around",
+              textAlign: "center",
+            }}
+          >
             <div>
-              <TeamOutlined style={{ fontSize: 24, color: '#1890ff', marginBottom: 8 }} />
+              <TeamOutlined
+                style={{ fontSize: 24, color: "#1890ff", marginBottom: 8 }}
+              />
               <div>
-                <Text strong style={{ fontSize: 18 }}>5</Text>
-                <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>Tổng số đội</Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  5
+                </Text>
+                <Text
+                  type="secondary"
+                  style={{ display: "block", fontSize: 12 }}
+                >
+                  Tổng số đội
+                </Text>
               </div>
             </div>
             <div>
-              <TrophyOutlined style={{ fontSize: 24, color: '#faad14', marginBottom: 8 }} />
+              <TrophyOutlined
+                style={{ fontSize: 24, color: "#faad14", marginBottom: 8 }}
+              />
               <div>
-                <Text strong style={{ fontSize: 18 }}>50</Text>
-                <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>Trận đấu</Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  50
+                </Text>
+                <Text
+                  type="secondary"
+                  style={{ display: "block", fontSize: 12 }}
+                >
+                  Trận đấu
+                </Text>
               </div>
             </div>
             <div>
-              <CrownOutlined style={{ fontSize: 24, color: '#52c41a', marginBottom: 8 }} />
+              <CrownOutlined
+                style={{ fontSize: 24, color: "#52c41a", marginBottom: 8 }}
+              />
               <div>
-                <Text strong style={{ fontSize: 18 }}>75%</Text>
-                <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>Tỷ lệ hoàn thành</Text>
+                <Text strong style={{ fontSize: 18 }}>
+                  75%
+                </Text>
+                <Text
+                  type="secondary"
+                  style={{ display: "block", fontSize: 12 }}
+                >
+                  Tỷ lệ hoàn thành
+                </Text>
               </div>
             </div>
           </div>

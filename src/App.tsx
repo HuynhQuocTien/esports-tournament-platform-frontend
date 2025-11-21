@@ -31,7 +31,10 @@ const App: React.FC = () => {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<HomePage />} />
           <Route path="tournaments" element={<TournamentsPage />} />
-          <Route path="tournaments/create-league" element={<CreateTournamentPage />} />
+          <Route
+            path="tournaments/create-league"
+            element={<CreateTournamentPage />}
+          />
           <Route path="tournaments/:id" element={<TournamentDetailPage />} />
           <Route path="tournaments/mine" element={<MyTournamentPage />} />
           <Route path="results" element={<ResultsPage />} />

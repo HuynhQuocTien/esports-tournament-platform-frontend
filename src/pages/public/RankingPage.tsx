@@ -1,22 +1,71 @@
 import React from "react";
-import { Card, Table, Typography, Tag, Progress, Row, Col, Statistic } from "antd";
-import { 
-  TrophyOutlined, 
-  TeamOutlined, 
-  RiseOutlined, 
+import {
+  Card,
+  Table,
+  Typography,
+  Tag,
+  Progress,
+  Row,
+  Col,
+  Statistic,
+} from "antd";
+import {
+  TrophyOutlined,
+  TeamOutlined,
+  RiseOutlined,
   FallOutlined,
   CrownOutlined,
-  FireOutlined
+  FireOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
 const mockRanking = [
-  { key: "1", team: "Đội A", wins: 5, losses: 1, draws: 0, points: 15, form: ["W", "W", "L", "W", "W"] },
-  { key: "2", team: "Đội B", wins: 4, losses: 2, draws: 0, points: 12, form: ["W", "L", "W", "W", "L"] },
-  { key: "3", team: "Đội C", wins: 3, losses: 3, draws: 0, points: 9, form: ["L", "W", "W", "L", "L"] },
-  { key: "4", team: "Đội D", wins: 2, losses: 4, draws: 0, points: 6, form: ["L", "L", "W", "L", "W"] },
-  { key: "5", team: "Đội E", wins: 1, losses: 5, draws: 0, points: 3, form: ["L", "L", "L", "W", "L"] },
+  {
+    key: "1",
+    team: "Đội A",
+    wins: 5,
+    losses: 1,
+    draws: 0,
+    points: 15,
+    form: ["W", "W", "L", "W", "W"],
+  },
+  {
+    key: "2",
+    team: "Đội B",
+    wins: 4,
+    losses: 2,
+    draws: 0,
+    points: 12,
+    form: ["W", "L", "W", "W", "L"],
+  },
+  {
+    key: "3",
+    team: "Đội C",
+    wins: 3,
+    losses: 3,
+    draws: 0,
+    points: 9,
+    form: ["L", "W", "W", "L", "L"],
+  },
+  {
+    key: "4",
+    team: "Đội D",
+    wins: 2,
+    losses: 4,
+    draws: 0,
+    points: 6,
+    form: ["L", "L", "W", "L", "W"],
+  },
+  {
+    key: "5",
+    team: "Đội E",
+    wins: 1,
+    losses: 5,
+    draws: 0,
+    points: 3,
+    form: ["L", "L", "L", "W", "L"],
+  },
 ];
 
 const PAGE_BACKGROUND_COLOR = "#f8fafc";
@@ -106,7 +155,12 @@ export const RankingPage: React.FC = () => {
                 width: 24,
                 height: 24,
                 borderRadius: "50%",
-                background: result === "W" ? SUCCESS_COLOR : result === "L" ? "#ff4d4f" : "#faad14",
+                background:
+                  result === "W"
+                    ? SUCCESS_COLOR
+                    : result === "L"
+                      ? "#ff4d4f"
+                      : "#faad14",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -198,7 +252,15 @@ export const RankingPage: React.FC = () => {
         }}
       >
         <div style={{ padding: "16px 0 24px 0" }}>
-          <Title level={2} style={{ margin: 0, display: "flex", alignItems: "center", gap: 12 }}>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+            }}
+          >
             <div
               style={{
                 background: "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
@@ -224,7 +286,7 @@ export const RankingPage: React.FC = () => {
           columns={columns}
           pagination={false}
           rowKey="key"
-          rowClassName={(record, index) => 
+          rowClassName={(record, index) =>
             index === 0 ? "first-place-row" : index < 3 ? "top-three-row" : ""
           }
         />

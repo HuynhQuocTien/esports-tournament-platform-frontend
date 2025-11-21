@@ -8,7 +8,7 @@ import {
   Space,
   Tag,
   Statistic,
-  Badge
+  Badge,
 } from "antd";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -20,7 +20,7 @@ import {
   DollarOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  PlayCircleOutlined
+  PlayCircleOutlined,
 } from "@ant-design/icons";
 
 const { Title, Text, Paragraph } = Typography;
@@ -31,7 +31,8 @@ export const TournamentsPage: React.FC = () => {
       {
         id: uuidv4(),
         name: "Esports Championship 2025",
-        description: "Giải đấu lớn nhất năm với sự tham gia của các đội tuyển hàng đầu. Cơ hội tranh tài và giành giải thưởng hấp dẫn.",
+        description:
+          "Giải đấu lớn nhất năm với sự tham gia của các đội tuyển hàng đầu. Cơ hội tranh tài và giành giải thưởng hấp dẫn.",
         game: "Valorant",
         startDate: "20/12/2025",
         endDate: "15/01/2026",
@@ -40,12 +41,13 @@ export const TournamentsPage: React.FC = () => {
         status: "upcoming",
         imageUrl: `https://picsum.photos/seed/${uuidv4()}/600/300`,
         organizer: "ESL Asia",
-        registered: false
+        registered: false,
       },
       {
         id: uuidv4(),
         name: "Champion League Pro",
-        description: "Giải đấu chuyên nghiệp dành cho các đội tuyển LMHT. Thể hiện kỹ năng và chiến thuật đỉnh cao.",
+        description:
+          "Giải đấu chuyên nghiệp dành cho các đội tuyển LMHT. Thể hiện kỹ năng và chiến thuật đỉnh cao.",
         game: "League of Legends",
         startDate: "15/01/2026",
         endDate: "28/02/2026",
@@ -54,12 +56,13 @@ export const TournamentsPage: React.FC = () => {
         status: "registration",
         imageUrl: `https://picsum.photos/seed/${uuidv4()}/600/300`,
         organizer: "Riot Games",
-        registered: true
+        registered: true,
       },
       {
         id: uuidv4(),
         name: "Community Clash Monthly",
-        description: "Giải đấu giao hữu hàng tháng dành cho cộng đồng. Cơ hội giao lưu và học hỏi từ các streamer nổi tiếng.",
+        description:
+          "Giải đấu giao hữu hàng tháng dành cho cộng đồng. Cơ hội giao lưu và học hỏi từ các streamer nổi tiếng.",
         game: "CS:GO 2",
         startDate: "01/02/2026",
         endDate: "28/02/2026",
@@ -68,12 +71,13 @@ export const TournamentsPage: React.FC = () => {
         status: "ongoing",
         imageUrl: `https://picsum.photos/seed/${uuidv4()}/600/300`,
         organizer: "Community",
-        registered: false
+        registered: false,
       },
       {
         id: uuidv4(),
         name: "Winter Invitational 2025",
-        description: "Giải đấu mùa đông với format thi đấu độc đáo. Nhiều bất ngờ và kịch tính đang chờ đợi.",
+        description:
+          "Giải đấu mùa đông với format thi đấu độc đáo. Nhiều bất ngờ và kịch tính đang chờ đợi.",
         game: "Dota 2",
         startDate: "10/11/2025",
         endDate: "20/12/2025",
@@ -82,18 +86,34 @@ export const TournamentsPage: React.FC = () => {
         status: "completed",
         imageUrl: `https://picsum.photos/seed/${uuidv4()}/600/300`,
         organizer: "Valve",
-        registered: false
+        registered: false,
       },
     ],
-    []
+    [],
   );
 
   const getStatusConfig = (status: string) => {
     const config = {
-      upcoming: { color: "blue", text: "Sắp diễn ra", icon: <ClockCircleOutlined /> },
-      registration: { color: "green", text: "Đang đăng ký", icon: <CheckCircleOutlined /> },
-      ongoing: { color: "orange", text: "Đang diễn ra", icon: <PlayCircleOutlined /> },
-      completed: { color: "default", text: "Đã kết thúc", icon: <TrophyOutlined /> }
+      upcoming: {
+        color: "blue",
+        text: "Sắp diễn ra",
+        icon: <ClockCircleOutlined />,
+      },
+      registration: {
+        color: "green",
+        text: "Đang đăng ký",
+        icon: <CheckCircleOutlined />,
+      },
+      ongoing: {
+        color: "orange",
+        text: "Đang diễn ra",
+        icon: <PlayCircleOutlined />,
+      },
+      completed: {
+        color: "default",
+        text: "Đã kết thúc",
+        icon: <TrophyOutlined />,
+      },
     };
     return config[status as keyof typeof config] || config.upcoming;
   };
@@ -117,13 +137,16 @@ export const TournamentsPage: React.FC = () => {
     >
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <Title level={1} style={{ 
-          color: "#1a1a1a", 
-          marginBottom: 8,
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}>
+        <Title
+          level={1}
+          style={{
+            color: "#1a1a1a",
+            marginBottom: 8,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
           Giải Đấu Esports
         </Title>
         <Text type="secondary" style={{ fontSize: 18 }}>
@@ -146,7 +169,9 @@ export const TournamentsPage: React.FC = () => {
           <Card>
             <Statistic
               title="Đang diễn ra"
-              value={mockTournaments.filter(t => t.status === "ongoing").length}
+              value={
+                mockTournaments.filter((t) => t.status === "ongoing").length
+              }
               prefix={<PlayCircleOutlined style={{ color: "#52c41a" }} />}
             />
           </Card>
@@ -155,7 +180,9 @@ export const TournamentsPage: React.FC = () => {
           <Card>
             <Statistic
               title="Sắp diễn ra"
-              value={mockTournaments.filter(t => t.status === "upcoming").length}
+              value={
+                mockTournaments.filter((t) => t.status === "upcoming").length
+              }
               prefix={<ClockCircleOutlined style={{ color: "#faad14" }} />}
             />
           </Card>
@@ -164,9 +191,12 @@ export const TournamentsPage: React.FC = () => {
           <Card>
             <Statistic
               title="Tổng giải thưởng"
-              value={mockTournaments.reduce((acc, t) => acc + parseInt(t.prizePool.replace(/[$,]/g, '')), 0)}
+              value={mockTournaments.reduce(
+                (acc, t) => acc + parseInt(t.prizePool.replace(/[$,]/g, "")),
+                0,
+              )}
               prefix={<DollarOutlined style={{ color: "#ff4d4f" }} />}
-              formatter={value => `$${value.toLocaleString()}`}
+              formatter={(value) => `$${value.toLocaleString()}`}
             />
           </Card>
         </Col>
@@ -187,13 +217,13 @@ export const TournamentsPage: React.FC = () => {
                 background: "white",
                 height: "100%",
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
               }}
-              bodyStyle={{ 
+              bodyStyle={{
                 padding: 0,
                 flex: 1,
                 display: "flex",
-                flexDirection: "column"
+                flexDirection: "column",
               }}
             >
               {/* Tournament Image */}
@@ -207,42 +237,49 @@ export const TournamentsPage: React.FC = () => {
                     objectFit: "cover",
                   }}
                 />
-                <div style={{ 
-                  position: "absolute", 
-                  top: 12, 
-                  right: 12 
-                }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                  }}
+                >
                   {getStatusTag(tournament.status)}
                 </div>
               </div>
 
               {/* Tournament Content */}
-              <div style={{ 
-                padding: 20, 
-                flex: 1, 
-                display: "flex", 
-                flexDirection: "column" 
-              }}>
+              <div
+                style={{
+                  padding: 20,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 {/* Tournament Title and Status */}
                 <div style={{ marginBottom: 12 }}>
-                  <Title level={4} style={{ 
-                    margin: 0, 
-                    marginBottom: 8,
-                    lineHeight: 1.3,
-                    minHeight: 44,
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden"
-                  }}>
+                  <Title
+                    level={4}
+                    style={{
+                      margin: 0,
+                      marginBottom: 8,
+                      lineHeight: 1.3,
+                      minHeight: 44,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
                     {tournament.name}
                   </Title>
                 </div>
-                
+
                 {/* Description */}
-                <Paragraph 
-                  type="secondary" 
-                  style={{ 
+                <Paragraph
+                  type="secondary"
+                  style={{
                     margin: 0,
                     marginBottom: 16,
                     flex: 1,
@@ -251,7 +288,7 @@ export const TournamentsPage: React.FC = () => {
                     WebkitBoxOrient: "vertical",
                     overflow: "hidden",
                     lineHeight: 1.5,
-                    minHeight: 72
+                    minHeight: 72,
                   }}
                 >
                   {tournament.description}
@@ -259,30 +296,62 @@ export const TournamentsPage: React.FC = () => {
 
                 {/* Tournament Info - Fixed height section */}
                 <div style={{ marginBottom: 20 }}>
-                  <Space direction="vertical" style={{ width: "100%" }} size={12}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Space
+                    direction="vertical"
+                    style={{ width: "100%" }}
+                    size={12}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
                       <Space>
                         <TrophyOutlined style={{ color: "#faad14" }} />
-                        <Text strong style={{ fontSize: 14 }}>{tournament.game}</Text>
+                        <Text strong style={{ fontSize: 14 }}>
+                          {tournament.game}
+                        </Text>
                       </Space>
-                      <Text type="secondary" style={{ fontSize: 12 }}>{tournament.organizer}</Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        {tournament.organizer}
+                      </Text>
                     </div>
-                    
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
                       <Space>
                         <CalendarOutlined style={{ color: "#1890ff" }} />
-                        <Text type="secondary" style={{ fontSize: 12 }}>Bắt đầu: {tournament.startDate}</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Bắt đầu: {tournament.startDate}
+                        </Text>
                       </Space>
                     </div>
-                    
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
                       <Space>
                         <TeamOutlined style={{ color: "#52c41a" }} />
-                        <Text type="secondary" style={{ fontSize: 12 }}>{tournament.teams} đội</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {tournament.teams} đội
+                        </Text>
                       </Space>
                       <Space>
                         <DollarOutlined style={{ color: "#ff4d4f" }} />
-                        <Text strong style={{ fontSize: 14, color: "#ff4d4f" }}>{tournament.prizePool}</Text>
+                        <Text strong style={{ fontSize: 14, color: "#ff4d4f" }}>
+                          {tournament.prizePool}
+                        </Text>
                       </Space>
                     </div>
                   </Space>
@@ -291,17 +360,18 @@ export const TournamentsPage: React.FC = () => {
                 {/* Action Button */}
                 <div style={{ marginTop: "auto" }}>
                   <Link to={`/tournaments/${tournament.id}`}>
-                    <Button 
-                      type="primary" 
-                      block 
+                    <Button
+                      type="primary"
+                      block
                       icon={<EyeOutlined />}
                       size="large"
                       style={{
                         borderRadius: 8,
                         height: 40,
                         fontSize: 14,
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        border: "none"
+                        background:
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        border: "none",
                       }}
                     >
                       Xem chi tiết

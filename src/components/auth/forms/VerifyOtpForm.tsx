@@ -4,7 +4,7 @@ import { verifyOTP } from "../../../services/authService";
 import type { AuthStep } from "../../../common/types";
 import { KeyOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 
-const {  Text } = Typography;
+const { Text } = Typography;
 
 interface Props {
   onSwitch: (step: AuthStep) => void;
@@ -29,9 +29,9 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => onSwitch("forgotPassword")}
           style={{ padding: 0, marginBottom: 16 }}
         >
@@ -40,23 +40,23 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
       </div>
 
       <Form layout="vertical" onFinish={onFinish} size="large">
-        <Form.Item 
-          name="otp" 
-          rules={[{ required: true, message: 'Vui lòng nhập mã OTP!' }]}
+        <Form.Item
+          name="otp"
+          rules={[{ required: true, message: "Vui lòng nhập mã OTP!" }]}
         >
-          <Input 
-            prefix={<KeyOutlined style={{ color: '#722ed1' }} />}
-            placeholder="Nhập mã OTP 6 chữ số" 
+          <Input
+            prefix={<KeyOutlined style={{ color: "#722ed1" }} />}
+            placeholder="Nhập mã OTP 6 chữ số"
             style={{ borderRadius: 8, height: 48 }}
             maxLength={6}
           />
         </Form.Item>
-        
+
         <Form.Item style={{ marginBottom: 16 }}>
-          <Button 
-            type="primary" 
-            htmlType="submit" 
-            block 
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
             loading={loading}
             style={{
               height: 48,
@@ -72,8 +72,8 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
         </Form.Item>
       </Form>
 
-      <div style={{ textAlign: 'center' }}>
-        <Text style={{ color: '#666' }}>
+      <div style={{ textAlign: "center" }}>
+        <Text style={{ color: "#666" }}>
           Mã OTP đã được gửi đến email của bạn
         </Text>
       </div>

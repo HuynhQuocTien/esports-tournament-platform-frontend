@@ -14,9 +14,9 @@ export default defineConfig({
     host: true,
     port: 5173,
     allowedHosts: [
-      'hallucinative-anteriorly-myron.ngrok-free.dev', // host Ngrok
-      'localhost',
-      '127.0.0.1'
-    ]
-  }
-})
+      "hallucinative-anteriorly-myron.ngrok-free.dev", // host Ngrok
+      "localhost",
+      "127.0.0.1",
+    ],
+  },
+});

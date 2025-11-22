@@ -6,7 +6,7 @@ export const AppRouter = () => {
   return (
     <Routes>
       <Route path="/*" element={<PublicRouter />} />
-      
+
       <Route path="/admin/*" element={<AdminRouter />} />
     </Routes>
   );

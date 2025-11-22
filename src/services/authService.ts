@@ -28,17 +28,12 @@ export const register = async (
 };
 
 export const refreshToken = async () => {
-  const refresh_token = localStorage.getItem("refresh_token");
-  if (!refresh_token) throw new Error("No refresh token found");
+  const res = await api.post("/auth/refresh-token");
 
-  const res = await api.post("/auth/refresh", {
-    refresh_token,
-  });
-
-  const { access_token, refresh_token: newRefresh } = res.data;
+  const { access_token, refresh_token} = res.data;
   if (access_token) {
     localStorage.setItem("access_token", access_token);
-    if (newRefresh) localStorage.setItem("refresh_token", newRefresh);
+    if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
   }
 
   return res.data;
@@ -71,7 +66,7 @@ export const getProfile = async (): Promise<IProfile> => {
   return res.data;
 };
 
-export const updateProfile = async (data: any) => {
+export const updateProfile = async (data: any) : Promise<IProfile> => {
   const res = await api.patch("/auth/update-profile", data);
   return res.data;
 };
@@ -88,6 +83,3 @@ export const uploadAvatar = async (file: File) => {
 };
 
 
-export const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem("access_token");
-};

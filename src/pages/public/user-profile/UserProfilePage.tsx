@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Form,
@@ -21,20 +21,25 @@ import {
 } from "@ant-design/icons";
 import {
   getProfile,
+  updateProfile,
   uploadAvatar,
 } from "@/services/authService";
 import type { IProfile } from "@/common/interfaces/users";
 import type { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 import type { UserType } from "@/common/types";
 import { URL_PUBLIC_IMG } from "@/services/api";
+import { useAuth } from "@/hooks/useAuth";
+import type { ApiProfile } from "@/common/interfaces/auth";
 
 const { Title, Text } = Typography;
 
 export const UserProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const { user, setUser } = useAuth();
+  const [userInfo, setUserInfo] = useState<IProfile>();
 
   useEffect(() => {
     return () => {
@@ -43,129 +48,6 @@ export const UserProfilePage: React.FC = () => {
       }
     };
   }, [avatarUrl]);
-  const onFinish = async (values: any) => {
-    try {
-      setLoading(true);
-
-      let finalAvatarUrl = userInfo?.avatar;
-
-      if (avatarFile) {
-        try {
-          message.loading({
-            content: "Đang tải ảnh lên...",
-            key: "avatarUpload",
-            duration: 0,
-          });
-          const result = await uploadAvatar(avatarFile);
-          finalAvatarUrl = result.avatarUrl;
-          message.success({
-            content: "Tải ảnh lên thành công!",
-            key: "avatarUpload",
-          });
-          console.log("Avatar uploaded:", finalAvatarUrl);
-        } catch (error) {
-          console.error("Avatar upload error:", error);
-          message.error({
-            content: "Tải ảnh lên thất bại!",
-            key: "avatarUpload",
-          });
-          return;
-        }
-      }
-
-      const updateData: any = {
-        fullname: values.fullname,
-        email: values.email,
-        phone: values.phone,
-      };
-
-      if (finalAvatarUrl && finalAvatarUrl !== userInfo?.avatar) {
-        updateData.avatarUrl = finalAvatarUrl;
-      }
-      if (values.password) {
-        updateData.password = values.password;
-        updateData.oldPassword = values.oldPassword;
-      }
-
-      const freshUserData : IProfile = await getProfile();
-      if (freshUserData) {
-        const updatedProfile = {
-          id: freshUserData.id,
-          fullname: freshUserData.fullname ?? "",
-          email: freshUserData.email,
-          phone: freshUserData.phone ?? "",
-          userType: freshUserData.userType,
-          avatarUrl: freshUserData.avatar ?? "",
-        };
-
-        setUserInfo(updatedProfile);
-        form.setFieldsValue(updatedProfile);
-
-        if (freshUserData.avatar) {
-          setAvatarUrl(freshUserData.avatar);
-        }
-      }
-
-      setAvatarFile(null);
-
-      // Cleanup blob URL nếu có
-      if (avatarUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(avatarUrl);
-      }
-
-      message.success({
-        content: "Cập nhật thông tin thành công!",
-        key: "profileUpdate",
-      });
-    } catch (err: any) {
-      console.error(err);
-      message.error("Cập nhật thất bại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAvatarChange = (info: UploadChangeParam<UploadFile<any>>) => {
-    console.log("Upload info:", info);
-
-    const { file } = info;
-
-    if (file.status === "uploading") {
-      return;
-    }
-
-    if (file.status === "error") {
-      message.error("Tải ảnh lên thất bại");
-      return;
-    }
-
-    const selectedFile = file as unknown as File;
-    console.log("Selected file (direct):", selectedFile);
-
-    if (!selectedFile) {
-      console.warn("No file found in upload info");
-      message.error("Không thể đọc file ảnh!");
-      return;
-    }
-
-    if (!selectedFile.type?.startsWith("image/")) {
-      message.error("Vui lòng chọn file ảnh!");
-      return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (selectedFile.size > maxSize) {
-      message.error("Kích thước ảnh không được vượt quá 5MB!");
-      return;
-    }
-
-    setAvatarFile(selectedFile);
-
-    const previewUrl = URL.createObjectURL(selectedFile);
-    setAvatarUrl(previewUrl);
-  };
-
-  const [userInfo, setUserInfo] = useState<IProfile>();
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -173,12 +55,16 @@ export const UserProfilePage: React.FC = () => {
         const data = await getProfile();
         if (!data) throw new Error("No profile data");
 
-        const allowedUserTypes : UserType[] = ["ADMIN", "TEAM_MANAGER", "ORGANIZER"];
+        const allowedUserTypes: UserType[] = [
+          "ADMIN",
+          "TEAM_MANAGER",
+          "ORGANIZER",
+        ];
         const userType = allowedUserTypes.includes(data.userType as UserType)
           ? (data.userType as IProfile["userType"])
           : undefined;
 
-        const profile : IProfile = {
+        const profile: IProfile = {
           id: data.id,
           fullname: data.fullname ?? "",
           email: data.email,
@@ -188,7 +74,6 @@ export const UserProfilePage: React.FC = () => {
         };
 
         setUserInfo(profile);
-
         form.setFieldsValue(profile);
 
         if (profile.avatar) {
@@ -200,14 +85,154 @@ export const UserProfilePage: React.FC = () => {
     };
 
     fetchMe();
-  }, []);
+  }, [form]);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      console.log("Form values:", values);
+      message.loading({
+        content: "Đang xử lý...",
+        key: "profileUpdate",
+        duration: 0,
+      });
+
+      let finalAvatarUrl = userInfo?.avatar;
+
+      if (avatarFile) {
+        try {
+          const result = await uploadAvatar(avatarFile);
+          finalAvatarUrl = result.avatarUrl;
+          console.log("✅ New avatar URL from server:", finalAvatarUrl);
+        } catch (error) {
+          console.error("Avatar upload error:", error);
+          message.error({
+            content: "Tải ảnh lên thất bại!",
+            key: "uploadStatus",
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
+      const updateData: ApiProfile = {
+        name: values.fullname,
+        email: values.email,
+        phone: values.phone,
+        password: values.password || "",
+      };
+
+      if (finalAvatarUrl && finalAvatarUrl !== userInfo?.avatar) {
+        updateData.avatarUrl = finalAvatarUrl;
+      }
+      if (values.password) {
+        updateData.password = values.password;
+      }
+
+      const freshUserData: IProfile = await updateProfile(updateData);
+      console.log("✅ Fresh user data from server:", freshUserData);
+
+      if (freshUserData) {
+        const updatedProfile = {
+          id: freshUserData.id,
+          fullname: freshUserData.fullname ?? "",
+          email: freshUserData.email,
+          phone: freshUserData.phone ?? "",
+          userType: freshUserData.userType,
+          avatar: freshUserData.avatar ?? "",
+        };
+
+        setUserInfo(updatedProfile);
+        form.setFieldsValue(updatedProfile);
+
+        if (freshUserData.avatar) {
+          setAvatarUrl(freshUserData.avatar);
+        }
+
+        console.log("💾 Saving avatar to localStorage:", freshUserData.avatar);
+        localStorage.setItem("user_avatar", freshUserData.avatar || "");
+        localStorage.setItem("user_fullname", freshUserData.fullname || "");
+
+        if (user) {
+          const updatedUser = {
+            ...user,
+            avatar: freshUserData.avatar ?? "",
+            fullname: freshUserData.fullname ?? "",
+            email: freshUserData.email ?? "",
+          };
+
+          setUser(updatedUser);
+        }
+
+        window.dispatchEvent(
+          new CustomEvent("userProfileUpdated", {
+            detail: {
+              avatar: freshUserData.avatar,
+              fullname: freshUserData.fullname,
+            },
+          })
+        );
+
+        console.log("🔔 Dispatched userProfileUpdated event");
+      }
+
+      setAvatarFile(null);
+
+      if (avatarUrl && avatarUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarUrl);
+      }
+
+      message.success({
+        content: "Cập nhật thông tin thành công!",
+        key: "profileUpdate",
+      });
+    } catch (err: any) {
+      console.error("Update error:", err);
+      message.error("Cập nhật thất bại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarChange = (info: UploadChangeParam<UploadFile<any>>) => {
+    const realFile = info.file as RcFile;
+
+    if (!realFile) {
+      message.error("Không thể đọc file!");
+      return;
+    }
+
+    if (!realFile.type.startsWith("image/")) {
+      message.error("Vui lòng chọn file ảnh!");
+      return;
+    }
+
+    if (realFile.size > 5 * 1024 * 1024) {
+      message.error("Ảnh không được lớn hơn 5MB!");
+      return;
+    }
+
+    setAvatarFile(realFile);
+
+    const preview = URL.createObjectURL(realFile);
+    setAvatarUrl(preview);
+  };
 
   const beforeUpload = (file: RcFile) => {
     return false;
   };
+
   const getUserAvatar = () => {
-    if (avatarUrl) return <Avatar size={120} src={ URL_PUBLIC_IMG +avatarUrl} />;
-    
+    if (avatarUrl) {
+      const isBlob = avatarUrl.startsWith("blob:");
+      return (
+        <Avatar
+          size={120}
+          src={isBlob ? avatarUrl : URL_PUBLIC_IMG + avatarUrl}
+        />
+      );
+    }
+
     const initial = (userInfo?.fullname?.charAt(0) ?? "U").toUpperCase();
     return (
       <Avatar
@@ -233,10 +258,7 @@ export const UserProfilePage: React.FC = () => {
       <Row gutter={[32, 32]}>
         <Col xs={24} md={8}>
           <Card style={{ textAlign: "center", borderRadius: 12 }}>
-            <div style={{ marginBottom: 16 }}>
-              {/* <Avatar size={120} src={avatarUrl} icon={<UserOutlined />} /> */}
-              {getUserAvatar()}
-            </div>
+            <div style={{ marginBottom: 16 }}>{getUserAvatar()}</div>
             <Upload
               showUploadList={false}
               beforeUpload={beforeUpload}
@@ -262,22 +284,7 @@ export const UserProfilePage: React.FC = () => {
             }
             style={{ borderRadius: 12 }}
           >
-            <Form
-              form={form}
-              layout="vertical"
-              initialValues={{
-                fullname: userInfo?.fullname ?? "",
-                email: userInfo?.email ?? "",
-                phone: userInfo?.phone ?? "",
-                userType: userInfo?.userType ?? "",
-                isActive:
-                  typeof userInfo?.isActive === "boolean"
-                    ? userInfo!.isActive
-                    : true,
-              }}
-              onFinish={onFinish}
-            >
-              {/* Họ tên */}
+            <Form form={form} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 name="fullname"
                 label="Họ và tên"
@@ -286,7 +293,6 @@ export const UserProfilePage: React.FC = () => {
                 <Input prefix={<UserOutlined />} placeholder="Họ và tên" />
               </Form.Item>
 
-              {/* Email */}
               <Form.Item
                 name="email"
                 label="Email"
@@ -298,7 +304,6 @@ export const UserProfilePage: React.FC = () => {
                 <Input prefix={<MailOutlined />} placeholder="Email" />
               </Form.Item>
 
-              {/* Số điện thoại */}
               <Form.Item
                 name="phone"
                 label="Số điện thoại"
@@ -309,7 +314,6 @@ export const UserProfilePage: React.FC = () => {
                 <Input placeholder="Số điện thoại" />
               </Form.Item>
 
-              {/* UserType (Enum) */}
               <Form.Item name="userType" label="Loại tài khoản">
                 <select
                   style={{ width: "100%", padding: 8, borderRadius: 6 }}
@@ -320,7 +324,6 @@ export const UserProfilePage: React.FC = () => {
                 </select>
               </Form.Item>
 
-              {/* Mật khẩu mới (không bắt buộc) */}
               <Form.Item
                 name="oldPassword"
                 label="Mật khẩu hiện tại"
@@ -330,7 +333,6 @@ export const UserProfilePage: React.FC = () => {
                   ({ getFieldValue }) => ({
                     validator(_: any, value: string) {
                       const newPwd = getFieldValue("password");
-                      // Nếu không đổi mật khẩu thì không bắt nhập mật khẩu hiện tại
                       if (!newPwd) return Promise.resolve();
                       if (value) return Promise.resolve();
                       return Promise.reject(
@@ -354,7 +356,6 @@ export const UserProfilePage: React.FC = () => {
                 <Input.Password placeholder="Để trống nếu không muốn thay đổi" />
               </Form.Item>
 
-              {/* Xác nhận mật khẩu */}
               <Form.Item
                 name="confirmPassword"
                 label="Xác nhận mật khẩu"
@@ -364,7 +365,6 @@ export const UserProfilePage: React.FC = () => {
                   ({ getFieldValue }) => ({
                     validator(_: any, value: string) {
                       const pwd = getFieldValue("password");
-                      // nếu không nhập password thì không bắt xác nhận
                       if (!pwd && !value) {
                         return Promise.resolve();
                       }
@@ -380,6 +380,7 @@ export const UserProfilePage: React.FC = () => {
               >
                 <Input.Password placeholder="Nhập lại mật khẩu mới" />
               </Form.Item>
+
               <Form.Item>
                 <Button
                   type="primary"

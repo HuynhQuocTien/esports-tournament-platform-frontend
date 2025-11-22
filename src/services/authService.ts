@@ -1,3 +1,4 @@
+import type { IProfile } from "@/common/interfaces/users";
 import type {
   ForgotRequest,
   LoginRequest,
@@ -65,10 +66,27 @@ export const logout = (): void => {
   window.location.href = "/";
 };
 
-export const getProfile = async () => {
+export const getProfile = async (): Promise<IProfile> => {
   const res = await api.get("/auth/me");
   return res.data;
 };
+
+export const updateProfile = async (data: any) => {
+  const res = await api.patch("/auth/update-profile", data);
+  return res.data;
+};
+
+export const uploadAvatar = async (file: File) => {
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  const res = await api.post("/auth/upload-avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+  return res.data;
+};
+
 
 export const isAuthenticated = (): boolean => {
   return !!localStorage.getItem("access_token");

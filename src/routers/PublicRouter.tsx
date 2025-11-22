@@ -13,6 +13,7 @@ import { CreateTournamentPage } from "../pages/tournament/Create";
 import { UserProfilePage } from "@/pages/public/user-profile/UserProfilePage";
 import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
 import MyTournamentPage from "@/pages/tournament/MyTournamentPage";
+import { ProtectedRoute } from "./ProtectedRoute";
 
 export const PublicRouter = () => {
   return (
@@ -30,9 +31,17 @@ export const PublicRouter = () => {
         <Route path="teams" element={<TeamsPage />} />
         <Route path="ranking" element={<RankingPage />} />
         <Route path="schedule" element={<SchedulePage />} />
-        <Route path="profile" element={<UserProfilePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="my_tournaments" element={<div>My Tournaments Page</div>} />
-        <Route path="my_teams" element={<MyTeamsPage/>} />
+        <Route path="my_teams" element={<MyTeamsPage />} />
       </Route>
     </Routes>
   );

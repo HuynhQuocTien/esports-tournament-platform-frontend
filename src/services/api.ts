@@ -1,4 +1,3 @@
-// src/services/api.ts
 import axios from "axios";
 import type {
   AxiosInstance,
@@ -101,5 +100,7 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+export const URL_PUBLIC_IMG : string = import.meta.env.VITE_API_URL_PUBLIC_IMG || "http://localhost:9000/esports/";
 
 export default api;

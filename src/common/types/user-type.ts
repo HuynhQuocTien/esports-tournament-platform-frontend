@@ -1,0 +1,1 @@
+export type UserType = 'TEAM_MANAGER' | 'PLAYER' | 'ADMIN' | string;

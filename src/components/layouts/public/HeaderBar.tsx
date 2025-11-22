@@ -13,7 +13,6 @@ import {
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  UserOutlined,
   ProfileOutlined,
   TrophyOutlined,
   TeamOutlined,
@@ -31,6 +30,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { AuthModal } from "../../auth";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "@/common/interfaces/payload/jwt-payload";
+import { URL_PUBLIC_IMG } from "@/services/api";
 
 type MenuItem = {
   key: string;
@@ -78,7 +78,8 @@ const HeaderBar: React.FC = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         setUser(null);
-        message.success("Đăng xuất thành công!");
+        window.location.href = "/";
+        // message.success("Đăng xuất thành công!");
       },
     });
   };
@@ -168,31 +169,27 @@ const HeaderBar: React.FC = () => {
   };
 
   const getUserAvatar = () => {
-    if (user?.avatar) return <Avatar size={32} src={user.avatar} />;
-    if (user?.username)
-      return (
-        <Avatar
-          size={32}
-          style={{
-            background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
-            fontWeight: 600,
-          }}
-        >
-          {user.username.charAt(0).toUpperCase()}
-        </Avatar>
-      );
+    if (user?.avatar) {
+      console.log("Avatar URL:", URL_PUBLIC_IMG + user.avatar);
+
+      return <Avatar size={32} src={URL_PUBLIC_IMG + user.avatar} />;
+    }
+    console.log("User fullname avatar:", user);
+    const initial = (user?.fullname?.charAt(0) ?? "U").toUpperCase();
     return (
       <Avatar
         size={32}
-        icon={<UserOutlined />}
         style={{
           background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+          fontWeight: 600,
         }}
-      />
+      >
+        {initial}
+      </Avatar>
     );
   };
 
-  const getDisplayName = () => user?.username || "Người dùng";
+  const getDisplayName = () => user?.fullname || "Người dùng";
 
   return (
     <Header

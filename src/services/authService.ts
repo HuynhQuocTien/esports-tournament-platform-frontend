@@ -10,7 +10,7 @@ import api from "./api";
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   const res = await api.post<LoginResponse>("/auth/login", data);
 
-  const { access_token, refresh_token } = res.data.data;
+  const { access_token, refresh_token } = res.data;
   if (access_token) {
     localStorage.setItem("access_token", access_token);
     if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
@@ -62,7 +62,7 @@ export const verifyOTP = async (email: string, otp: string): Promise<void> => {
 export const logout = (): void => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
-  window.location.href = "/login";
+  window.location.href = "/";
 };
 
 export const getProfile = async () => {

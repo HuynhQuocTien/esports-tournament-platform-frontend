@@ -10,10 +10,17 @@ const { Text } = Typography;
 
 interface Props {
   onSwitch: (step: AuthStep) => void;
+  onClose: () => void;
 }
 
-export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
+export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch, onClose }) => {
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+
+  const handleClose = () => {
+    form.resetFields();
+    onClose();
+  };
 
   const onFinish = async (values: ForgotRequest) => {
     try {
@@ -43,7 +50,7 @@ export const ForgotPasswordForm: React.FC<Props> = ({ onSwitch }) => {
         </Button>
       </div>
 
-      <Form layout="vertical" onFinish={onFinish} size="large">
+      <Form form={form} layout="vertical" onFinish={onFinish} size="large">
         <Form.Item
           name="email"
           rules={[{ required: true, message: "Vui lòng nhập email!" }]}

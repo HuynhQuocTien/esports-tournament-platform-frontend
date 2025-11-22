@@ -29,6 +29,8 @@ import {
 } from "@ant-design/icons";
 import { useAuth } from "../../../hooks/useAuth";
 import { AuthModal } from "../../auth";
+import { jwtDecode } from "jwt-decode";
+import type { JwtPayload } from "@/common/interfaces/payload/jwt-payload";
 
 type MenuItem = {
   key: string;
@@ -49,7 +51,7 @@ const { Text } = Typography;
 const HeaderBar: React.FC = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [authStep, setAuthStep] = useState<"login" | "register">("login");
-  const { user, setUser } = useAuth();
+  const { user, setUser, setRole } = useAuth();
   const location = useLocation();
 
   const handleLogout = () => {
@@ -134,6 +136,16 @@ const HeaderBar: React.FC = () => {
       key: "settings",
       label: <Link to="/settings">Cài đặt</Link>,
       icon: <SettingOutlined />,
+    },
+    {
+      key: "my_tournaments",
+      label: <Link to="/my_tournaments">Giải đấu của tôi</Link>,
+      icon: <TrophyOutlined />,
+    },
+    {
+      key: "my_teams",
+      label: <Link to="/my_teams">Đội của tôi</Link>,
+      icon: <TeamOutlined />,
     },
     { type: "divider" },
     {
@@ -254,7 +266,7 @@ const HeaderBar: React.FC = () => {
 
       {/* Right Section - Notifications & User */}
       <Space size="middle" style={{ marginLeft: "auto" }}>
-        {user ? (
+        {user?.userType ? (
           <>
             {/* Notifications */}
             <Badge count={3} size="small" offset={[-2, 2]}>
@@ -388,11 +400,16 @@ const HeaderBar: React.FC = () => {
       <AuthModal
         open={authOpen}
         onClose={() => setAuthOpen(false)}
-        onLoginSuccess={(userData: any) => {
-          if (userData.token)
-            localStorage.setItem("access_token", userData.token);
-          if (userData.user) setUser(userData.user);
+        onLoginSuccess={(userData) => {
+          if (userData.access_token)
+            localStorage.setItem("access_token", userData.access_token);
+          const decoded: JwtPayload = jwtDecode(userData.access_token);
+          setUser(decoded);
+          setRole(decoded.userType === null ? "admin" : "client");
           setAuthOpen(false);
+          if (decoded.userType === null) {
+            window.location.href = "/admin";
+          }
         }}
         initialStep={authStep}
       />

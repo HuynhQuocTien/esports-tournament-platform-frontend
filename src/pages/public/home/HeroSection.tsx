@@ -118,6 +118,7 @@ export const HeroSection: React.FC = () => {
               color: "white",
               borderRadius: "8px",
             }}
+            onClick={() => (window.location.href = "/schedule")}
           >
             Lịch thi đấu
           </Button>

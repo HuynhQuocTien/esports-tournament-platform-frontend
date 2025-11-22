@@ -8,13 +8,14 @@ import {
   SetupPasswordForm,
   VerifyOtpForm,
 } from "./forms";
+import type { LoginResponse } from "@/common/interfaces/auth";
 
 const { Title } = Typography;
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  onLoginSuccess: (token: string) => void;
+  onLoginSuccess: (token: LoginResponse) => void;
   initialStep?: AuthStep;
 }
 
@@ -56,9 +57,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       case "register":
         return <RegisterForm onSwitch={setStep} onClose={onClose} />;
       case "forgotPassword":
-        return <ForgotPasswordForm onSwitch={setStep} />;
+        return <ForgotPasswordForm onSwitch={setStep} onClose={onClose} />;
       case "verifyOtp":
-        return <VerifyOtpForm onSwitch={setStep} />;
+        return <VerifyOtpForm onSwitch={setStep} onClose={onClose} />;
       case "setupPassword":
         return <SetupPasswordForm onSwitch={setStep} onClose={onClose} />;
       default:

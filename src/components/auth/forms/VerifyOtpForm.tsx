@@ -8,11 +8,17 @@ const { Text } = Typography;
 
 interface Props {
   onSwitch: (step: AuthStep) => void;
+  onClose: () => void;
 }
 
-export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
+export const VerifyOtpForm: React.FC<Props> = ({ onSwitch , onClose }) => {
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
+  const handleClose = () => {
+    form.resetFields();
+    onClose();
+  };
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
@@ -39,7 +45,7 @@ export const VerifyOtpForm: React.FC<Props> = ({ onSwitch }) => {
         </Button>
       </div>
 
-      <Form layout="vertical" onFinish={onFinish} size="large">
+      <Form form={form} layout="vertical" onFinish={onFinish} size="large">
         <Form.Item
           name="otp"
           rules={[{ required: true, message: "Vui lòng nhập mã OTP!" }]}

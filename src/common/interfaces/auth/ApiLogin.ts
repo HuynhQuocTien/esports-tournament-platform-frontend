@@ -6,8 +6,6 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse extends ApiResponse {
-  data: {
-    access_token: string;
-    refresh_token?: string;
-  };
+  access_token: string;
+  refresh_token: string;
 }

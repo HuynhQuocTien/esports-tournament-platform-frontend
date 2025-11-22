@@ -1,4 +1,4 @@
-export * from "./HomePage";
+export * from "./home/HomePage";
 export * from "./TeamsPage";
 export * from "./RankingPage";
 export * from "./ResultsPage";

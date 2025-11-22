@@ -49,10 +49,9 @@ api.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refresh_token");
       if (!refreshToken) {
-        console.warn("⚠️ Không có refresh token — cần đăng nhập lại");
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(error);
       }
 
@@ -71,7 +70,7 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/refresh`,
+          `${import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"}/auth/refresh`,
           { refresh_token: refreshToken },
         );
 
@@ -92,7 +91,7 @@ api.interceptors.response.use(
         processQueue(err, null);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

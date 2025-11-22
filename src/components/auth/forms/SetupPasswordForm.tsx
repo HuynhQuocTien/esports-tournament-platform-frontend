@@ -11,13 +11,18 @@ interface Props {
 
 export const SetupPasswordForm: React.FC<Props> = ({ onSwitch, onClose }) => {
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
+   const handleClose = () => {
+    form.resetFields();
+    onClose();
+  };
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
       await resetPassword(values.email, values.otp, values.password);
       message.success("Đặt mật khẩu mới thành công!");
-      onClose();
+      handleClose();
     } catch (error: any) {
       message.error(error.response?.data?.message || "Lỗi khi đặt mật khẩu!");
     } finally {
@@ -38,7 +43,7 @@ export const SetupPasswordForm: React.FC<Props> = ({ onSwitch, onClose }) => {
         </Button>
       </div>
 
-      <Form layout="vertical" onFinish={onFinish} size="large">
+      <Form form={form} layout="vertical" onFinish={onFinish} size="large">
         <Form.Item
           name="password"
           rules={[{ required: true, message: "Vui lòng nhập mật khẩu mới!" }]}

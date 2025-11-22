@@ -8,7 +8,7 @@ import {
   TeamsSection,
   TopPlayersSection,
   TournamentSection,
-} from "../../sections/public/home";
+} from ".";
 
 const THEME_PRIMARY_COLOR = "#722ed1";
 const PAGE_BACKGROUND_COLOR = "#f5f7fa";

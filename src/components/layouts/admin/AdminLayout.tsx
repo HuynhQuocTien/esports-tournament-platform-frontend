@@ -1,12 +1,19 @@
 import React from "react";
 import { Layout } from "antd";
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 const { Content, Sider } = Layout;
 
 const AdminLayout: React.FC = () => {
+  const { user } = useAuth();
+
+  // if (!user) return <Navigate to="/" replace />;
+
+  // if (user?.userType !== null) return <Navigate to="/" replace />;
+
   return (
     <Layout style={{ minHeight: "100vh", background: "#f5f7fa" }}>
       <Sider

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { listMine } from "../../services/tournamentService";
-import TournamentCard from "../../components/tournament/TournamentCard";
-import TournamentFilter from "../../components/tournament/TournamentFilter";
-import EmptyState from "../../components/tournament/Empty";
+import { tournamentService } from "@/services/tournamentService";
+import TournamentCard from "@/components/tournament/TournamentCard";
+import TournamentFilter from "@/components/tournament/TournamentFilter";
+import EmptyState from "@/components/tournament/Empty";
 import { Button, Row, Col } from "antd";
 
 export default function MyTournamentPage() {
@@ -11,7 +11,7 @@ export default function MyTournamentPage() {
     const [filter, setFilter] = useState("all");
 
     const fetchData = async () => {
-        const data = await listMine();
+        const data = await tournamentService.listMine();
         setTournaments(data);
     }
 

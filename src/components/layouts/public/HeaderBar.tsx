@@ -10,7 +10,7 @@ import {
   Badge,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ProfileOutlined,
   TrophyOutlined,
@@ -51,6 +51,7 @@ const HeaderBar: React.FC = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [authStep, setAuthStep] = useState<"login" | "register">("login");
   const { user, setUser, setRole } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   
   const [currentAvatar, setCurrentAvatar] = useState<string>("");
@@ -105,6 +106,7 @@ const HeaderBar: React.FC = () => {
     };
   }, []);
 
+
   const handleLogout = () => {
     Modal.confirm({
       title: "Xác nhận đăng xuất",
@@ -136,15 +138,21 @@ const HeaderBar: React.FC = () => {
     });
   };
 
+  // const handleLoginClick = () => {
+  //   setAuthStep("login");
+  //   setAuthOpen(true);
+  // };
+
   const handleLoginClick = () => {
-    setAuthStep("login");
-    setAuthOpen(true);
+    navigate("/login?step=login");
   };
 
   const handleRegisterClick = () => {
     setAuthStep("register");
     setAuthOpen(true);
   };
+
+  
 
   const menuItems = [
     {

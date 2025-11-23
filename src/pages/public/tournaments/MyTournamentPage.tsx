@@ -4,14 +4,15 @@ import TournamentCard from "@/components/tournament/TournamentCard";
 import TournamentFilter from "@/components/tournament/TournamentFilter";
 import EmptyState from "@/components/tournament/Empty";
 import { Button, Row, Col } from "antd";
+import type { ITournament } from "@/common/interfaces/tournament/tournament";
 
 export default function MyTournamentPage() {
     const currentUser = { id: 1, name: "Thuan" }; // Giả sử lấy từ context hoặc props
-    const [tournaments, setTournaments] = useState([]);
+    const [tournaments, setTournaments] =  useState<ITournament[]>([]);
     const [filter, setFilter] = useState("all");
 
     const fetchData = async () => {
-        const data = await tournamentService.listMine();
+        const {data} = await tournamentService.listMine();
         setTournaments(data);
     }
 
@@ -43,7 +44,7 @@ export default function MyTournamentPage() {
         <Button
           type="primary"
           size="large"
-          onClick={() => (window.location.href = "/tournament/create")}
+          onClick={() => (window.location.href = "create-league")}
         >
           + Tạo giải đấu
         </Button>

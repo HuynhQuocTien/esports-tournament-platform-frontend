@@ -9,10 +9,10 @@ import {
   TournamentDetailPage,
   TournamentsPage,
 } from "../pages/public";
-import { CreateTournamentPage } from "../pages/tournament/Create";
+import { CreateTournamentPage } from "../pages/public/tournaments/Create";
 import { UserProfilePage } from "@/pages/public/user-profile/UserProfilePage";
 import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
-import MyTournamentPage from "@/pages/tournament/MyTournamentPage";
+import MyTournamentPage from "@/pages/public/tournaments/MyTournamentPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 export const PublicRouter = () => {
@@ -39,8 +39,6 @@ export const PublicRouter = () => {
             </ProtectedRoute>
           }
         />
-
-        <Route path="my_tournaments" element={<div>My Tournaments Page</div>} />
         <Route path="my_teams" element={<MyTeamsPage />} />
       </Route>
     </Routes>

@@ -7,7 +7,7 @@ export const tournamentService = {
   update: (id: number, data: Partial<ITournament>) =>
     api.patch<ITournament>(`/tournaments/${id}`, data),
   getById: (id: number) => api.get(`/tournaments/${id}`),
-  listMine: () => api.get<ITournament[]>("/tournaments/mine"),
+  listMine: () => api.get<ITournament[]>("/tournaments"),
   listPublic: () => api.get("tournaments"),
   register: (tournamemtId: number, teamName?: string) =>
     api.post(`/tournaments/${tournamemtId}/register`, { team_name: teamName }),

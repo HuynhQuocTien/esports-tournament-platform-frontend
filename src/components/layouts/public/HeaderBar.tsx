@@ -139,8 +139,8 @@ const HeaderBar: React.FC = () => {
       icon: <SettingOutlined />,
     },
     {
-      key: "my_tournaments",
-      label: <Link to="/my_tournaments">Giải đấu của tôi</Link>,
+      key: "tournaments/mine",
+      label: <Link to="tournaments/mine">Giải đấu của tôi</Link>,
       icon: <TrophyOutlined />,
     },
     {

@@ -1,13 +1,13 @@
-import { tournamentService } from "../../services/tournamentService";
+import { tournamentService } from "../../../services/tournamentService";
 import React, { useState } from "react";
 import { TournamentFormatValues, type TournamentFormat } from "@/common/types/tournament";
-import { Form, Input, Select, InputNumber, DatePicker, Button, message, Card, notification } from "antd";
+import { Form, Input, Select, InputNumber, DatePicker, Button, message, Card, notification, Divider, Radio } from "antd";
 import dayjs from "dayjs";
 
 
 export const CreateTournamentPage: React.FC = () => {
     const [loading, setLoading] = useState(false);
-
+    const [matchFormat, setMatchFormat] = useState("BO1");
     const [form] = Form.useForm();
 
     const tournamentFormatOptions = TournamentFormatValues.map(v => ({
@@ -29,20 +29,27 @@ export const CreateTournamentPage: React.FC = () => {
                 registrationStart: changeTime(values.registrationStart),
                 registrationEnd: changeTime(values.registrationEnd),
                 startDate: changeTime(values.registrationStart),
+                matchFormat,
+                numberOfSets:
+                    matchFormat === "BO1" ? 1 :
+                    matchFormat === "BO3" ? 3 :
+                    matchFormat === "BO5" ? 5 :
+                    values.customSets,
             };
 
-            const res = await tournamentService.create(payload);
-            console.log("Tournament created:", res.data);
+            // const res = await tournamentService.create(payload);
+            console.log("Tournament created:", payload);
 
             notification.success({
                 message: "Tạo giải đấu thành công",
-                description: `Giải đấu "${res.data.name}" đã được tạo thành công.`,
+                // description: `Giải đấu "${res.data.name}" đã được tạo thành công.`,
             });
         } catch (err) {
             notification.error({
                 message: "Tạo giải đấu thất bại",
                 description: "Đã có lỗi xảy ra khi tạo giải đấu. Vui lòng thử lại.",
             });
+
             console.error(err);
         } finally {
             setLoading(false);
@@ -62,7 +69,6 @@ export const CreateTournamentPage: React.FC = () => {
                     registrationEnd: dayjs(),
                 }}
             >
-
                 {/* NAME */}
                 <Form.Item
                     label="Tên giải đấu"
@@ -72,6 +78,18 @@ export const CreateTournamentPage: React.FC = () => {
                     <Input placeholder="Nhập tên giải đấu" />
                 </Form.Item>
 
+                {/* DESCRIPTION */}
+                <Form.Item name="description" label="Description">
+                    <Input.TextArea placeholder="Describe your tournament..." rows={3} />
+                </Form.Item>
+
+
+                <Form.Item name="type" label="Tournament Type" rules={[{ required: true }]}>
+                    <Radio.Group>
+                        <Radio value="INDIVIDUAL">Cá nhân</Radio>
+                        <Radio value="TEAM">Team</Radio>
+                    </Radio.Group>
+                </Form.Item>
                 {/* PHONE */}
                 {/* <Form.Item
                     label="Số điện thoại"
@@ -110,6 +128,32 @@ export const CreateTournamentPage: React.FC = () => {
                         options={tournamentFormatOptions}
                     />
                 </Form.Item>
+
+                 {/* MATCH FORMAT */}
+                <Divider orientation="left">Cấu hình trận đấu (Sets)</Divider>
+
+                <Radio.Group
+                value={matchFormat}
+                onChange={(e) => setMatchFormat(e.target.value)}
+                >
+                <Radio value="BO1">Best of 1 (BO1)</Radio>
+                <Radio value="BO3">Best of 3 (BO3)</Radio>
+                <Radio value="BO5">Best of 5 (BO5)</Radio>
+                <Radio value="CUSTOM">Custom</Radio>
+                </Radio.Group>
+
+                {matchFormat === "CUSTOM" && (
+                <Form.Item
+                    name="customSets"
+                    label="Number of Sets (Custom)"
+                    rules={[{ required: true, message: "Enter number of sets" }]}
+                >
+                    <InputNumber min={1} max={15} style={{ width: 120 }} />
+                </Form.Item>
+                )}
+
+                <Divider />
+
 
                 {/* MAX TEAMS */}
                 <Form.Item

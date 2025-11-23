@@ -4,14 +4,13 @@ import {
   Menu,
   Dropdown,
   Modal,
-  message,
   Avatar,
   Space,
   Typography,
   Badge,
 } from "antd";
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ProfileOutlined,
   TrophyOutlined,
@@ -52,7 +51,61 @@ const HeaderBar: React.FC = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [authStep, setAuthStep] = useState<"login" | "register">("login");
   const { user, setUser, setRole } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
+  
+  const [currentAvatar, setCurrentAvatar] = useState<string>("");
+  const [currentFullname, setCurrentFullname] = useState<string>("");
+
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem("user_avatar");
+    const savedFullname = localStorage.getItem("user_fullname");
+    
+    if (savedAvatar) {
+      console.log("📥 Loaded avatar from localStorage:", savedAvatar);
+      setCurrentAvatar(savedAvatar);
+    }
+    if (savedFullname) {
+      setCurrentFullname(savedFullname);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.avatar) {
+      console.log("🔄 Syncing avatar from user context:", user.avatar);
+      setCurrentAvatar(user.avatar);
+    }
+    if (user?.fullname) {
+      setCurrentFullname(user.fullname);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const handleProfileUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { avatar, fullname } = customEvent.detail;
+      
+      console.log("🎉 Received profile update event!");
+      console.log("New avatar:", avatar);
+      console.log("New fullname:", fullname);
+      
+      if (avatar) {
+        setCurrentAvatar(avatar);
+        localStorage.setItem("user_avatar", avatar);
+      }
+      if (fullname) {
+        setCurrentFullname(fullname);
+        localStorage.setItem("user_fullname", fullname);
+      }
+    };
+
+    window.addEventListener("userProfileUpdated", handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener("userProfileUpdated", handleProfileUpdate);
+    };
+  }, []);
+
 
   const handleLogout = () => {
     Modal.confirm({
@@ -77,22 +130,29 @@ const HeaderBar: React.FC = () => {
       onOk: () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user_avatar");
+        localStorage.removeItem("user_fullname");
         setUser(null);
         window.location.href = "/";
-        // message.success("Đăng xuất thành công!");
       },
     });
   };
 
+  // const handleLoginClick = () => {
+  //   setAuthStep("login");
+  //   setAuthOpen(true);
+  // };
+
   const handleLoginClick = () => {
-    setAuthStep("login");
-    setAuthOpen(true);
+    navigate("/login?step=login");
   };
 
   const handleRegisterClick = () => {
     setAuthStep("register");
     setAuthOpen(true);
   };
+
+  
 
   const menuItems = [
     {
@@ -169,13 +229,26 @@ const HeaderBar: React.FC = () => {
   };
 
   const getUserAvatar = () => {
-    if (user?.avatar) {
-      console.log("Avatar URL:", URL_PUBLIC_IMG + user.avatar);
+    const avatarPath = currentAvatar || user?.avatar;
+    
+    if (avatarPath) {
+      const cacheBuster = Date.now();
+      const avatarUrl = `${URL_PUBLIC_IMG}${avatarPath}?t=${cacheBuster}`;
+      
+      console.log("🖼️ Rendering avatar:", avatarUrl);
 
-      return <Avatar size={32} src={URL_PUBLIC_IMG + user.avatar} />;
+      return (
+        <Avatar 
+          size={32} 
+          src={avatarUrl}
+          key={`avatar-${avatarPath}-${cacheBuster}`}
+        />
+      );
     }
-    console.log("User fullname avatar:", user);
-    const initial = (user?.fullname?.charAt(0) ?? "U").toUpperCase();
+    
+    const displayName = currentFullname || user?.fullname || "U";
+    const initial = displayName.charAt(0).toUpperCase();
+    
     return (
       <Avatar
         size={32}
@@ -189,7 +262,7 @@ const HeaderBar: React.FC = () => {
     );
   };
 
-  const getDisplayName = () => user?.fullname || "Người dùng";
+  const getDisplayName = () => currentFullname || user?.fullname || "Người dùng";
 
   return (
     <Header
@@ -261,7 +334,6 @@ const HeaderBar: React.FC = () => {
         className="custom-header-menu"
       />
 
-      {/* Right Section - Notifications & User */}
       <Space size="middle" style={{ marginLeft: "auto" }}>
         {user?.userType ? (
           <>

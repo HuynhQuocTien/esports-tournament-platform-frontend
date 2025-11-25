@@ -5,7 +5,7 @@ import { Form, Input, Select, InputNumber, DatePicker, Button, message, Card, no
 import dayjs from "dayjs";
 
 
-export const CreateTournamentPage: React.FC = () => {
+export const CreateTournamentPage1: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [matchFormat, setMatchFormat] = useState("BO1");
     const [form] = Form.useForm();

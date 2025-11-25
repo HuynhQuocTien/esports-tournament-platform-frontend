@@ -9,7 +9,7 @@ import {
   TournamentDetailPage,
   TournamentsPage,
 } from "../pages/public";
-import { CreateTournamentPage } from "../pages/public/tournaments/Create";
+import CreateTournamentPage from "@/pages/public/tournaments/CreateTournamentPage";
 import { UserProfilePage } from "@/pages/public/user-profile/UserProfilePage";
 import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
 import MyTournamentPage from "@/pages/public/tournaments/MyTournamentPage";

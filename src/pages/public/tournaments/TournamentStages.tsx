@@ -109,7 +109,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData }) =
 
   const handleDelete = (index: number): void => {
     const newStages = stages.filter((_, i) => i !== index);
-    updateData({stages: newStages});
+    updateData('stages', newStages);
     message.success('Đã xóa vòng đấu');
   };
 
@@ -129,7 +129,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData }) =
         newStages = [...stages, newStage];
       }
 
-      updateData({stages: newStages});
+      updateData('stages', newStages);
       setModalVisible(false);
       form.resetFields();
       message.success(editingStage ? 'Cập nhật thành công' : 'Thêm vòng đấu thành công');

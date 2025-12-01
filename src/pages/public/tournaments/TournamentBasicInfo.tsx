@@ -22,7 +22,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   const [form] = Form.useForm();
 
   const onFinish = (values: any): void => {
-    updateData(values);
+    // updateData(values);
   };
 
   const gameOptions: string[] = [

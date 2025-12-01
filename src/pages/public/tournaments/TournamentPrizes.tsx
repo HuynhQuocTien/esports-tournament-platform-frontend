@@ -109,7 +109,7 @@ const TournamentPrizes: React.FC<TournamentStepProps> = ({ data, updateData }) =
 
   const handleDelete = (index: number): void => {
     const newPrizes = prizes.filter((_, i) => i !== index);
-    updateData({ prizes: newPrizes });
+    updateData('prizes', newPrizes);
     message.success('Đã xóa giải thưởng');
   };
 
@@ -129,7 +129,7 @@ const TournamentPrizes: React.FC<TournamentStepProps> = ({ data, updateData }) =
         newPrizes = [...prizes, newPrize];
       }
 
-      updateData({ prizes: newPrizes });
+      updateData('prizes', newPrizes);
       setModalVisible(false);
       form.resetFields();
       message.success(editingPrize ? 'Cập nhật thành công' : 'Thêm giải thưởng thành công');

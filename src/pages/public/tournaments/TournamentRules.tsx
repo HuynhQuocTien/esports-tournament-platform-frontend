@@ -106,7 +106,7 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
       content: 'Bạn có chắc chắn muốn xóa quy định này?',
       onOk() {
         const newRules = rules.filter((_, i) => i !== index);
-        updateData({ rules: newRules });
+        updateData('rules', newRules);
         message.success('Đã xóa quy định');
       }
     });
@@ -131,7 +131,7 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
       // Sắp xếp theo thứ tự
       newRules.sort((a, b) => a.order - b.order);
 
-      updateData({ rules: newRules });
+      updateData('rules', newRules);
       setModalVisible(false);
       form.resetFields();
       message.success(editingRule ? 'Cập nhật thành công' : 'Thêm quy định thành công');

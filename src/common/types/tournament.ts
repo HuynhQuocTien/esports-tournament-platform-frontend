@@ -89,7 +89,9 @@ export interface TournamentData {
   registrations: TournamentRegistration[];
 }
 
+export type TournamentDataKey = keyof TournamentData;
+
 export interface TournamentStepProps {
   data: TournamentData;
-  updateData: (data: Partial<TournamentData>) => void;
+  updateData: (key: TournamentDataKey, data: any) => void;
 }

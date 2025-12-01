@@ -14,6 +14,7 @@ import { UserProfilePage } from "@/pages/public/user-profile/UserProfilePage";
 import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
 import MyTournamentPage from "@/pages/public/tournaments/MyTournamentPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import TournamentSetupPage from "@/pages/public/tournaments/TournamentSettupPage";
 
 export const PublicRouter = () => {
   return (
@@ -26,6 +27,7 @@ export const PublicRouter = () => {
           element={<CreateTournamentPage />}
         />
         <Route path="tournaments/:id" element={<TournamentDetailPage />} />
+        <Route path="tournaments/:id/setup" element={<TournamentSetupPage/>} />
         <Route path="tournaments/mine" element={<MyTournamentPage />} />
         <Route path="results" element={<ResultsPage />} />
         <Route path="teams" element={<TeamsPage />} />

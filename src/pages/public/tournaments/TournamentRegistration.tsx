@@ -23,7 +23,7 @@ const TournamentRegistration: React.FC<TournamentStepProps> = ({ data, updateDat
   const [form] = Form.useForm();
 
   const onFinish = (values: any): void => {
-    updateData({ registrations: values });
+    updateData('registrations', values );
   };
 
   return (

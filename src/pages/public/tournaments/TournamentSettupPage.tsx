@@ -10,7 +10,6 @@ import {
   Typography,
   Space,
   Steps,
-  Alert,
   Spin
 } from 'antd';
 import { 
@@ -31,9 +30,9 @@ import TournamentRegistration from './TournamentRegistration';
 import TournamentRules from './TournamentRules';
 import TournamentOverview from './TournamentOverview';
 import type {TournamentData} from '../../../common/types/tournament';
+import { tournamentService } from '@/services/tournamentService';
 
 const { Title, Text } = Typography;
-const { TabPane } = Tabs;
 const { Step } = Steps;
 
 const TournamentSetupPage: React.FC = () => {
@@ -54,10 +53,14 @@ console.log('TournamentData updated:', tournamentData);
     try {
       // Giả lập API call hoặc load từ localStorage
       await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const savedTournament = localStorage.getItem('currentTournament');
+      if (!id) {
+        message.error('ID giải đấu không hợp lệ');
+        navigate('/tournaments/create');
+        return;
+      }
+      const savedTournament = await tournamentService.getById(id);
       if (savedTournament) {
-        const parsedData = JSON.parse(savedTournament);
+        const parsedData = JSON.parse(savedTournament.data);
         
         // Đảm bảo cấu trúc data đầy đủ
         const completeData: TournamentData = {

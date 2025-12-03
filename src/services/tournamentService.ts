@@ -1,13 +1,13 @@
 import api from "./api";
-import type { ITournament } from "../common/interfaces/tournament/tournament";
+import type { TournamentBasicInfo } from "@/common/types";
 
 export const tournamentService = {
-  create: (data: Partial<ITournament>) =>
-    api.post<ITournament>("/tournaments", data),
-  update: (id: number, data: Partial<ITournament>) =>
-    api.patch<ITournament>(`/tournaments/${id}`, data),
-  getById: (id: number) => api.get(`/tournaments/${id}`),
-  listMine: () => api.get<ITournament[]>("/tournaments"),
+  create: (data: Partial<TournamentBasicInfo>) =>
+    api.post<TournamentBasicInfo>("/tournaments", data),
+  update: (id: number, data: Partial<TournamentBasicInfo>) =>
+    api.patch<TournamentBasicInfo>(`/tournaments/${id}`, data),
+  getById: (id: string) => api.get(`/tournaments/${id}`),
+  listMine: () => api.get<TournamentBasicInfo[]>("/tournaments"),
   listPublic: () => api.get("tournaments"),
   register: (tournamemtId: number, teamName?: string) =>
     api.post(`/tournaments/${tournamemtId}/register`, { team_name: teamName }),

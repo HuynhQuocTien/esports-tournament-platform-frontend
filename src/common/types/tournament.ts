@@ -20,6 +20,7 @@ export interface ITournament {
 }
 
 export interface TournamentBasicInfo {
+  id?: string;
   name?: string;
   game?: string;
   description?: string;

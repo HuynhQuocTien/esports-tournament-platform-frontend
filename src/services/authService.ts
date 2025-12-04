@@ -7,6 +7,7 @@ import type {
   RegisterResponse,
 } from "../common/interfaces/auth";
 import api from "./api";
+import type { ApiResponse } from "@/common/interfaces/ApiResponse";
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   const res = await api.post<LoginResponse>("/auth/login", data);
@@ -49,6 +50,10 @@ export const resetPassword = async (
   newPassword: string,
 ): Promise<void> => {
   await api.post("/auth/reset-password", { email, otp, newPassword });
+};
+export const sendOtp = async (email: string): Promise<ApiResponse> => {
+  const res = await api.post<ApiResponse>("/auth/send-otp", { email });
+  return res.data;
 };
 
 export const verifyOTP = async (email: string, otp: string): Promise<void> => {

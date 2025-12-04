@@ -204,8 +204,8 @@ const HeaderBar: React.FC = () => {
       icon: <TrophyOutlined />,
     },
     {
-      key: "my_teams",
-      label: <Link to="/my_teams">Đội của tôi</Link>,
+      key: "my-teams",
+      label: <Link to="/my-teams">Đội của tôi</Link>,
       icon: <TeamOutlined />,
     },
     { type: "divider" },
@@ -335,7 +335,7 @@ const HeaderBar: React.FC = () => {
       />
 
       <Space size="middle" style={{ marginLeft: "auto" }}>
-        {user?.userType ? (
+        {user?.role ? (
           <>
             {/* Notifications */}
             <Badge count={3} size="small" offset={[-2, 2]}>
@@ -474,9 +474,9 @@ const HeaderBar: React.FC = () => {
             localStorage.setItem("access_token", userData.access_token);
           const decoded: JwtPayload = jwtDecode(userData.access_token);
           setUser(decoded);
-          setRole(decoded.userType === null ? "admin" : "client");
+          setRole(decoded.role);
           setAuthOpen(false);
-          if (decoded.userType === null) {
+          if (decoded.role === "ADMIN") {
             window.location.href = "/admin";
           }
         }}

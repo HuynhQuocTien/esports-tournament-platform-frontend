@@ -1,10 +1,11 @@
+import type { Role } from "@/common/types";
 import type { ApiResponse } from "../ApiResponse";
 
 export interface RegisterRequest {
-  username: string;
   email: string;
+  fullname: string;
   password: string;
-  userType: string;
+  role: Role;
 }
 
 export interface RegisterResponse extends ApiResponse {

@@ -39,9 +39,15 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch, onClose }) => {
     try {
       setLoading(true);
       const { confirmPassword, ...payload } = values;
+       const registerData: RegisterRequest = {
+        email: payload.email,
+        fullname: payload.fullname,
+        password: payload.password,
+        role: payload.role,
+      };
       await register(payload);
       message.success("Đăng ký thành công!");
-      handleClose();
+      onSwitch("login");
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
       const errorMessage = err.response?.data?.message || "Đăng ký thất bại!";

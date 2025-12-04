@@ -46,7 +46,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const handleLoginSuccess = (response: LoginResponse) => {
     message.success("Đăng nhập thành công!");
     // Redirect to dashboard or home page
-    navigate("/dashboard");
+    navigate("/");
   };
 
   const handleClose = () => {

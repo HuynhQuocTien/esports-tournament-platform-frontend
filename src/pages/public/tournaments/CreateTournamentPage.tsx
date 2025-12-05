@@ -1,3 +1,4 @@
+// src/pages/tournaments/CreateTournamentPage.tsx
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -9,14 +10,14 @@ import {
   Row, 
   Col,
   Typography,
-  Divider,
-  InputNumber
+  Divider
 } from 'antd';
 import { 
   RocketOutlined,
+  SaveOutlined
 } from '@ant-design/icons';
-// import { useNavigate } from 'react-router-dom';
-import { tournamentService } from '@/services/tournamentService';
+import { useNavigate } from 'react-router-dom';
+
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
@@ -31,7 +32,7 @@ interface QuickTournamentForm {
 
 const CreateTournamentPage: React.FC = () => {
   const [form] = Form.useForm();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const gameOptions = [
@@ -46,23 +47,33 @@ const CreateTournamentPage: React.FC = () => {
   ];
 
   const tournamentTypes = [
-    { value: 'team', label: 'Teams' },
-    { value: 'solo', label: 'Solo' },
+    { value: 'single_elimination', label: 'Loại trực tiếp' },
+    { value: 'double_elimination', label: 'Loại kép' },
+    { value: 'round_robin', label: 'Vòng tròn' },
+    { value: 'swiss', label: 'Thụy Sĩ' }
   ];
 
   const onFinish = async (values: QuickTournamentForm) => {
     setLoading(true);
     try {
-      const res = await tournamentService.create(values);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
+      const tournamentData = {
+        ...values,
+        status: 'draft',
+        createdAt: new Date(),
+        id: `tournament-${Date.now()}`
+      };
+
+      // Save to local storage or context
+      localStorage.setItem('currentTournament', JSON.stringify(tournamentData));
       
-      message.success('Tạo giải đấu thành công! db id: ' + res.data.id);
-      // navigate(`/tournaments/${res.data.id}/setup`);
+      message.success('Tạo giải đấu thành công!');
+      navigate(`/tournaments/setup/${tournamentData.id}`);
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');
-      console.log('Error creating tournament:', error);
     } finally {
-      console.log('Tournament data:', values);
       setLoading(false);
     }
   };
@@ -86,7 +97,7 @@ const CreateTournamentPage: React.FC = () => {
               onFinish={onFinish}
               initialValues={{
                 maxTeams: 16,
-                type: 'solo'
+                type: 'single_elimination'
               }}
             >
               <Form.Item
@@ -96,7 +107,7 @@ const CreateTournamentPage: React.FC = () => {
               >
                 <Input 
                   size="large" 
-                  placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2026"
+                  placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2024"
                 />
               </Form.Item>
 
@@ -122,10 +133,10 @@ const CreateTournamentPage: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="type"
-                    label="Tham gia dưới dạng"
-                    rules={[{ required: true, message: 'Vui lòng chọn' }]}
+                    label="Thể thức"
+                    rules={[{ required: true, message: 'Vui lòng chọn thể thức' }]}
                   >
-                    <Select size="large" placeholder="Chọn loại giải đấu">
+                    <Select size="large" placeholder="Chọn thể thức">
                       {tournamentTypes.map(type => (
                         <Option key={type.value} value={type.value}>
                           {type.label}
@@ -138,25 +149,21 @@ const CreateTournamentPage: React.FC = () => {
 
               <Row gutter={16}>
                 <Col span={12}>
-                <Form.Item
-                  name="maxTeams"
-                  label="Số đội tối đa"
-                  rules={[
-                    { required: true, message: 'Vui lòng nhập số đội' },
-                    { type: 'number', min: 2, message: 'Phải có ít nhất 2 đội' }
-                  ]}
-                >
-                  <InputNumber 
-                    min={2} 
-                    max={512} 
-                    style={{ width: '100%' }}
-                    size="large"
-                    placeholder="VD: 8, 16, 32, 64..."
-                  />
-                </Form.Item>
-              </Col>
+                  <Form.Item
+                    name="maxTeams"
+                    label="Số đội tối đa"
+                    rules={[{ required: true, message: 'Vui lòng nhập số đội' }]}
+                  >
+                    <Select size="large">
+                      <Option value={8}>8 đội</Option>
+                      <Option value={16}>16 đội</Option>
+                      <Option value={32}>32 đội</Option>
+                      <Option value={64}>64 đội</Option>
+                    </Select>
+                  </Form.Item>
+                </Col>
                 
-                {/* <Col span={12}>
+                <Col span={12}>
                   <Form.Item
                     name="tournamentStart"
                     label="Ngày bắt đầu"
@@ -164,7 +171,7 @@ const CreateTournamentPage: React.FC = () => {
                   >
                     <Input type="date" size="large" />
                   </Form.Item>
-                </Col> */}
+                </Col>
               </Row>
 
               <Form.Item

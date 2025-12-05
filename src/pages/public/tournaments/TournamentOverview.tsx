@@ -15,16 +15,7 @@ import {
   WarningOutlined,
 } from '@ant-design/icons';
 import type { TournamentStepProps } from '../../../common/types/tournament'; // Dùng chung interface
-
-// SỬA: Dùng TournamentStepProps thay vì TournamentOverviewProps riêng
 const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData }) => {
-  const {
-    basicInfo = {},
-    settings = {},
-    stages = [],
-    prizes = [],
-    rules = []
-  } = data;
 
   const getStatusColor = (status?: string): string => {
     const colors: { [key: string]: string } = {
@@ -50,11 +41,10 @@ const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData })
 
   // Tính toán tiến độ hoàn thành
   const completionStats = {
-    basicInfo: Object.keys(basicInfo).length > 3 ? 100 : 0,
-    settings: Object.keys(settings).length > 3 ? 100 : 0,
-    stages: stages.length > 0 ? 100 : 0,
-    prizes: prizes.length > 0 ? 100 : 0,
-    rules: rules.length > 0 ? 100 : 0
+    basicInfo: Object.keys(data.basicInfo).length > 3 ? 100 : 0,
+    settings: Object.keys(data.settings).length > 3 ? 100 : 0,
+    stages: data.stages.length > 0 ? 100 : 0,
+    rules: data.rules.length > 0 ? 100 : 0
   };
 
   const totalCompletion = Math.round(Object.values(completionStats).reduce((a, b) => a + b, 0) / 5);
@@ -64,7 +54,6 @@ const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData })
     { key: 'basicInfo', name: 'Thông tin cơ bản', completed: completionStats.basicInfo === 100 },
     { key: 'settings', name: 'Cài đặt', completed: completionStats.settings === 100 },
     { key: 'stages', name: 'Vòng đấu', completed: completionStats.stages === 100 },
-    { key: 'prizes', name: 'Giải thưởng', completed: completionStats.prizes === 100 },
     { key: 'rules', name: 'Quy định', completed: completionStats.rules === 100 }
   ].filter(section => !section.completed);
 
@@ -98,19 +87,11 @@ const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData })
                 />
               </Col>
               
-              <Col span={8}>
-                <Statistic
-                  title="Tổng giải thưởng"
-                  value={settings.prizePool || 0}
-                  prefix="₫"
-                  valueStyle={{ color: '#cf1322' }}
-                />
-              </Col>
               
               <Col span={8}>
                 <Statistic
                   title="Số đội tối đa"
-                  value={settings.maxTeams || 0}
+                  value={data.settings.maxTeams}
                   prefix={<TeamOutlined />}
                 />
               </Col>

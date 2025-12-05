@@ -7,7 +7,6 @@ import { Button, Row, Col } from "antd";
 import type { ITournament } from "@/common/interfaces/tournament/tournament";
 
 export default function MyTournamentPage() {
-    const currentUser = { id: 1, name: "Thuan" }; // Giả sử lấy từ context hoặc props
     const [tournaments, setTournaments] =  useState<ITournament[]>([]);
     const [filter, setFilter] = useState("all");
 
@@ -62,7 +61,7 @@ export default function MyTournamentPage() {
             <Col xs={24} sm={12} md={8} key={t.id}>
               <TournamentCard
                 tournament={t}
-                onEdit={() => (window.location.href = `/tournament/edit/${t.id}`)}
+                onEdit={() => (window.location.href = `/tournaments/setup/${t.id}`)}
                 onDelete={() => console.log("delete", t.id)}
               />
             </Col>

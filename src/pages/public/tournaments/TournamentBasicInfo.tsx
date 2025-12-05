@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Form,
   Input,
@@ -22,8 +21,9 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   const [form] = Form.useForm();
 
   const onFinish = (values: any): void => {
-    // updateData(values);
+    updateData('basicInfo', values);
   };
+
 
   const gameOptions: string[] = [
     'League of Legends',
@@ -59,7 +59,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   label="Tên giải đấu"
                   rules={[{ required: true, message: 'Vui lòng nhập tên giải đấu' }]}
                 >
-                  <Input placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2024" />
+                  <Input placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2026" />
                 </Form.Item>
               </Col>
               
@@ -77,23 +77,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                 </Form.Item>
               </Col>
             </Row>
-
-            <Form.Item
-              name="description"
-              label="Mô tả giải đấu"
-            >
-              <TextArea 
-                rows={4} 
-                placeholder="Mô tả chi tiết về giải đấu, thể lệ, mục tiêu..."
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="shortDescription"
-              label="Mô tả ngắn"
-            >
-              <Input placeholder="Mô tả ngắn gọn về giải đấu" />
-            </Form.Item>
+           
           </Card>
         </Col>
 
@@ -140,12 +124,31 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
             </Form.Item>
           </Card>
         </Col>
+        <Col span={24}>
+                     <Form.Item
+              name="description"
+              label="Mô tả giải đấu"
+            >
+              <TextArea 
+                rows={4} 
+                placeholder="Mô tả chi tiết về giải đấu, thể lệ, mục tiêu..."
+              />
+            </Form.Item>
+
+            {/* <Form.Item
+              name="shortDescription"
+              label="Mô tả ngắn"
+            >
+              <Input placeholder="Mô tả ngắn gọn về giải đấu" />
+            </Form.Item> */}
+        </Col>
 
         <Col span={24}>
           <Button type="primary" htmlType="submit">
             Lưu và tiếp tục
           </Button>
         </Col>
+        
       </Row>
     </Form>
   );

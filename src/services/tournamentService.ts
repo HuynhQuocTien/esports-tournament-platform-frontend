@@ -1,5 +1,5 @@
 import api from "./api";
-import type { TournamentBasicInfo } from "@/common/types";
+import type { PublishTournamentRequest, TournamentApiResponse, TournamentBasicInfo, TournamentData } from "@/common/types";
 
 export const tournamentService = {
   create: (data: Partial<TournamentBasicInfo>) =>
@@ -18,4 +18,15 @@ export const tournamentService = {
     api.patch(`tournaments/matches/${matchId}/score`, { scoreA, scoreB }),
   standings: (tournamentId: number) =>
     api.get(`/tournaments/${tournamentId}/standings`),
+  getForSetup: async (id: string) => {
+    const res = await api.get(`/tournaments/setup/${id}`)
+    return res.data;
+  },
+    
+  updateTournamentSection: (id: string, section: keyof TournamentData, data: any): Promise<TournamentApiResponse> =>
+    api.patch(`/tournaments/${id}/${section}`),
+  saveDraft: (id: string) =>
+    api.patch(`tournaments/${id}/draft`),
+  publishTournament: (id: string, data: PublishTournamentRequest) =>
+    api.patch(`/tournaments/${id}/publish`)
 };

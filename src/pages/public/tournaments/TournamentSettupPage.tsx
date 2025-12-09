@@ -30,6 +30,7 @@ import TournamentStages from './TournamentStages';
 import TournamentRegistration from './TournamentRegistration';
 import TournamentRules from './TournamentRules';
 import TournamentOverview from './TournamentOverview';
+import TournamentBasicInfo from './TournamentBasicInfo';
 import { tournamentService } from '@/services/tournamentService';
 import type { 
   TournamentData, 
@@ -37,7 +38,6 @@ import type {
   TournamentApiResponse,
   PublishTournamentRequest 
 } from '../../../common/types/tournament';
-import TournamentBasicInfo from './TournamentBasicInfo';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -136,7 +136,7 @@ const TournamentSetupPage: React.FC = () => {
     } catch (error) {
       message.error('Không tìm thấy dữ liệu giải đấu');
       console.error('Error loading tournament:', error);
-      navigate('/tournaments/create');
+      // navigate('/tournaments/create');
     } finally {
       setInitialLoading(false);
     }

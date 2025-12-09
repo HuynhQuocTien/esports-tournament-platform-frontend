@@ -8,21 +8,60 @@ import {
   Row,
   Col,
   Card,
+  message,
 } from 'antd';
 import {
   UploadOutlined
 } from '@ant-design/icons';
-import type { TournamentStepProps } from '../../../common/types/tournament';
+import type { TournamentBasicInfo, TournamentStepProps } from '../../../common/types/tournament';
 import type { UploadProps } from 'antd';
-
+import { tournamentService } from '@/services/tournamentService';
+import dayjs from 'dayjs';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 const { Option } = Select;
 const { TextArea } = Input;
 const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }) => {
   const [form] = Form.useForm();
-
-  const onFinish = (values: any): void => {
-    updateData('basicInfo', values);
+  const { id } = useParams<{ id: string }>();
+  const [transformedData, setTransformedData] = useState({});
+    useEffect(() => {
+    if (data?.basicInfo) {
+      const formValues = {
+        ...data.basicInfo,
+        // Convert string dates to Dayjs objects
+        registrationStart: dayjs(data.basicInfo.registrationStart),
+        registrationEnd: dayjs(data.basicInfo.registrationEnd) ,
+        tournamentStart: dayjs(data.basicInfo.tournamentStart) ,
+      };
+      form.setFieldsValue(formValues);
+    }
+  }, [data, form]);
+  console.log(data.basicInfo);
+  const onFinish = async (values: TournamentBasicInfo) => {
+   
+    values.registrationStart = dayjs(values.registrationStart).toISOString();
+    values.registrationEnd = dayjs(values.tournamentEnd).toISOString();
+    values.tournamentStart = dayjs(values.tournamentStart).toISOString();
+    console.log(values);
+    if(id) {
+      try {
+        const res = await tournamentService.update(id, values);
+        if(!res) return;
+        message.success("Cập nhật thông tin thành công!");
+        updateData('basicInfo', values);
+      } catch (error) {
+        message.error("Có lỗi khi cập nhật giải đấu. " + error);
+      } 
+    } else {
+      message.error("Không tìm thấy id!");
+    }
+  
   };
+
+  // const handleChangeDate(values: any){
+
+  // }
 
 
   const gameOptions: string[] = [
@@ -41,13 +80,12 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     listType: "picture" as const,
     maxCount: 1
   };
-
   return (
     <Form
       form={form}
       layout="vertical"
       onFinish={onFinish}
-      initialValues={data.basicInfo || {}}
+      // initialValues={data.basicInfo || {}}
     >
       <Row gutter={[24, 16]}>
         <Col span={24}>
@@ -83,13 +121,13 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
 
         <Col span={12}>
           <Card title="Hình ảnh" size="small">
-            <Form.Item name="logo" label="Logo giải đấu">
+            <Form.Item name="logoUrl" label="Logo giải đấu">
               <Upload {...uploadProps}>
                 <Button icon={<UploadOutlined />}>Tải lên logo</Button>
               </Upload>
             </Form.Item>
 
-            <Form.Item name="banner" label="Banner giải đấu">
+            <Form.Item name="bannerUrl" label="Banner giải đấu">
               <Upload {...uploadProps}>
                 <Button icon={<UploadOutlined />}>Tải lên banner</Button>
               </Upload>
@@ -104,7 +142,10 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
               label="Bắt đầu đăng ký"
               rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}
             >
-              <DatePicker showTime style={{ width: '100%' }} />
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
             </Form.Item>
 
             <Form.Item
@@ -112,7 +153,10 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
               label="Kết thúc đăng ký"
               rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}
             >
-              <DatePicker showTime style={{ width: '100%' }} />
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }} 
+              />
             </Form.Item>
 
             <Form.Item
@@ -120,7 +164,12 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
               label="Bắt đầu giải đấu"
               rules={[{ required: true, message: 'Vui lòng chọn thời gian' }]}
             >
-              <DatePicker showTime style={{ width: '100%' }} />
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }} 
+               
+              />
+
             </Form.Item>
           </Card>
         </Col>

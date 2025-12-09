@@ -4,7 +4,7 @@ import type { PublishTournamentRequest, TournamentApiResponse, TournamentBasicIn
 export const tournamentService = {
   create: (data: Partial<TournamentBasicInfo>) =>
     api.post<TournamentBasicInfo>("/tournaments", data),
-  update: (id: number, data: Partial<TournamentBasicInfo>) =>
+  update: (id: string, data: Partial<TournamentBasicInfo>) =>
     api.patch<TournamentBasicInfo>(`/tournaments/${id}`, data),
   getById: (id: string) => api.get(`/tournaments/${id}`),
   listMine: () => api.get<TournamentBasicInfo[]>("/tournaments"),

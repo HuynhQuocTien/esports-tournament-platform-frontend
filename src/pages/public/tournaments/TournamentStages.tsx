@@ -133,6 +133,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData }) =
       setModalVisible(false);
       form.resetFields();
       message.success(editingStage ? 'Cập nhật thành công' : 'Thêm vòng đấu thành công');
+      console.log(values);
     });
   };
 

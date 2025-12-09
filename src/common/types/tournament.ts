@@ -1,3 +1,4 @@
+
 export const TournamentFormatValues = [
   "SINGLE_ELIMINATION",
   "DOUBLE_ELIMINATION",
@@ -15,10 +16,10 @@ export interface TournamentBasicInfo {
   description?: string;
   logoUrl?: string;
   bannerUrl?: string;
-  registrationStart?: string;
+  registrationStart?:  string;
   registrationEnd?: string;
-  tournamentStart?: string;
-  tournamentEnd?: string;
+  tournamentStart?:  string;
+  tournamentEnd?:  string;
 }
 
 export interface TournamentSetting {

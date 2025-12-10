@@ -49,6 +49,7 @@ export interface TournamentStage {
   startDate?: string;
   endDate?: string;
   tournamentId?: string;
+  
 }
 
 export interface TournamentPrize {

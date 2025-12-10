@@ -28,5 +28,13 @@ export const tournamentService = {
   saveDraft: (id: string) =>
     api.patch(`tournaments/${id}/draft`),
   publishTournament: (id: string, data: PublishTournamentRequest) =>
-    api.patch(`/tournaments/${id}/publish`)
+    api.patch(`/tournaments/${id}/publish`),
+  async uploadImage(file: File, type: 'logo' | 'banner'): Promise<{ url: string}> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+
+    const res = await api.post(`tournament/upload`, formData);
+    return res.data;
+  }
 };

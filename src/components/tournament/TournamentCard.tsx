@@ -20,7 +20,7 @@ export default function TournamentCard({ tournament, onEdit, onDelete }: Props) 
             cover={
                 <img
                     alt={tournament.name}
-                    src={tournament.image || "/default-tournament.png"}
+                    src={tournament.bannerUrl || "/default-tournament.png"}
                     style = {{ height: 200, objectFit: "cover" }}
                 />
             }
@@ -33,7 +33,7 @@ export default function TournamentCard({ tournament, onEdit, onDelete }: Props) 
             <Card.Meta
                 avatar={
                     <Avatar
-                        src={tournament.avatarUrl || "/default-avatar.png"}
+                        src={tournament.logoUrl || "/default-avatar.png"}
                         size={60}
                     />
                 }

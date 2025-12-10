@@ -3,7 +3,6 @@ import {
   Form,
   Input,
   Select,
-  Upload,
   Button,
   Row,
   Col,
@@ -13,16 +12,10 @@ import {
   message,
   Typography,
   Switch,
-  Radio
 } from 'antd';
-import {
-  UploadOutlined
-} from '@ant-design/icons';
 import type { TournamentStepProps } from '../../../common/types/tournament';
-import { TournamentFormatValues } from '../../../common/types/tournament';
 
 const { Option } = Select;
-const { TextArea } = Input;
 const { Text } = Typography;
 
 const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateData }) => {
@@ -30,78 +23,19 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
 
   // Reset form khi data thay đổi
   useEffect(() => {
-    if (data.basicInfo && Object.keys(data.basicInfo).length > 0) {
-      form.setFieldsValue(data.basicInfo);
+    if (data.settings && Object.keys(data.settings).length > 0) {
+      form.setFieldsValue(data.settings);
     }
-  }, [data.basicInfo, form]);
+  }, [data.settings, form]);
 
   const onFinish = (values: any): void => {
     console.log('Form values:', values);
-    updateData('basicInfo', { ...data.basicInfo, ...values });
-    message.success('Đã lưu thông tin cơ bản');
+    updateData('settings', { ...data.settings, ...values });
+    message.success('Đã lưu cài đặt giải đấu');
   };
 
-  const tournamentFormatOptions = [
-    { 
-      value: 'SINGLE_ELIMINATION', 
-      label: 'Loại trực tiếp (Single Elimination)',
-      description: 'Đội thua bị loại ngay lập tức'
-    },
-    { 
-      value: 'DOUBLE_ELIMINATION', 
-      label: 'Loại kép (Double Elimination)',
-      description: 'Đội thua được thi đấu thêm một cơ hội'
-    },
-    { 
-      value: 'ROUND_ROBIN', 
-      label: 'Vòng tròn (Round Robin)',
-      description: 'Tất cả đội đấu với nhau'
-    },
-    { 
-      value: 'SWISS_SYSTEM', 
-      label: 'Hệ Thụy Sĩ (Swiss System)',
-      description: 'Đội có cùng thành tích đấu với nhau'
-    },
-    { 
-      value: 'GROUP_STAGE', 
-      label: 'Vòng bảng + Playoffs',
-      description: 'Chia bảng đấu vòng tròn sau đó đấu loại trực tiếp'
-    },
-    { 
-      value: 'HYBRID', 
-      label: 'Kết hợp (Hybrid)',
-      description: 'Kết hợp nhiều thể thức'
-    }
-  ];
-
-  const visibilityOptions = [
-    { 
-      value: 'PUBLIC', 
-      label: 'Công khai',
-      description: 'Hiển thị công khai cho mọi người'
-    },
-    { 
-      value: 'PRIVATE', 
-      label: 'Riêng tư',
-      description: 'Chỉ người được mời mới có thể tham gia'
-    },
-    { 
-      value: 'INVITE_ONLY', 
-      label: 'Chỉ mời',
-      description: 'Chỉ tham gia khi có lời mời'
-    }
-  ];
-
-  const gameOptions = [
-    'League of Legends',
-    'Valorant', 
-    'Counter-Strike 2',
-    'Dota 2',
-    'PUBG',
-    'Mobile Legends',
-    'Free Fire',
-    'Other'
-  ];
+  // Lấy tournamentFormat từ data.basicInfo (nếu có)
+  const tournamentFormat = data.basicInfo || 'SINGLE_ELIMINATION';
 
   return (
     <div>
@@ -110,239 +44,200 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
         layout="vertical"
         onFinish={onFinish}
         initialValues={{
-          type: 'SINGLE_ELIMINATION',
-          maxTeams: 16,
-          minTeamSize: 1,
-          maxTeamSize: 5,
-          allowIndividual: false,
-          visibility: 'PUBLIC',
+          // Cài đặt đăng ký
+          allowTeamRegistration: true,
+          requireApproval: false,
+          
+          // Cài đặt trận đấu
           allowDraws: false,
-          ...data.basicInfo
+          defaultBestOf: 1,
+          autoSchedule: false,
+          defaultMatchTime: 30,
+          
+          // Cài đặt thông báo
+          notifyMatchStart: true,
+          notifyRegistration: true,
+          notifyResults: true,
+          
+          ...data.settings
         }}
       >
         <Row gutter={[24, 16]}>
-          {/* Thông tin cơ bản */}
-          <Col span={24}>
-            <Card title="Thông tin cơ bản" size="small">
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="name"
-                    label="Tên giải đấu"
-                    rules={[{ required: true, message: 'Vui lòng nhập tên giải đấu' }]}
-                  >
-                    <Input placeholder="Nhập tên giải đấu" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="game"
-                    label="Game"
-                    rules={[{ required: true, message: 'Vui lòng chọn game' }]}
-                  >
-                    <Select placeholder="Chọn game">
-                      {gameOptions.map(game => (
-                        <Option key={game} value={game}>{game}</Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          {/* Cài đặt thể thức và đội */}
+          {/* CÀI ĐẶT ĐĂNG KÝ */}
           <Col span={12}>
-            <Card title="Thể thức giải đấu" size="small">
+            <Card title="Cài đặt đăng ký" size="small">
               <Form.Item
-                name="type"
-                label="Thể thức"
-                rules={[{ required: true, message: 'Vui lòng chọn thể thức' }]}
-              >
-                <Select placeholder="Chọn thể thức">
-                  {tournamentFormatOptions.map(format => (
-                    <Option key={format.value} value={format.value}>
-                      <div>
-                        <div><strong>{format.label}</strong></div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          {format.description}
-                        </div>
-                      </div>
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="maxTeams"
-                label="Số đội tối đa"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số đội' },
-                  { type: 'number', min: 2, max: 512, message: 'Số đội phải từ 2 đến 512' }
-                ]}
-              >
-                <InputNumber 
-                  min={2} 
-                  max={512} 
-                  style={{ width: '100%' }} 
-                  placeholder="VD: 8, 16, 32"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="allowIndividual"
-                label="Cho phép cá nhân tham gia"
+                name="allowTeamRegistration"
+                label="Cho phép đăng ký đội"
                 valuePropName="checked"
+                tooltip="Cho phép các đội đăng ký tham gia giải đấu"
               >
                 <Switch />
               </Form.Item>
 
+              <Form.Item
+                name="requireApproval"
+                label="Yêu cầu phê duyệt đăng ký"
+                valuePropName="checked"
+                tooltip="Các đội đăng ký cần được phê duyệt trước khi tham gia"
+              >
+                <Switch />
+              </Form.Item>
+
+              {/* <div style={{ marginTop: 16 }}>
+                <Text type="secondary">
+                  <small>
+                    Thể thức giải đấu: <strong>
+                      {tournamentFormat === 'SINGLE_ELIMINATION' && 'Loại trực tiếp'}
+                      {tournamentFormat === 'DOUBLE_ELIMINATION' && 'Loại kép'}
+                      {tournamentFormat === 'ROUND_ROBIN' && 'Vòng tròn'}
+                      {tournamentFormat === 'SWISS_SYSTEM' && 'Hệ Thụy Sĩ'}
+                      {tournamentFormat === 'GROUP_STAGE' && 'Vòng bảng + Playoffs'}
+                      {tournamentFormat === 'HYBRID' && 'Kết hợp'}
+                    </strong>
+                  </small>
+                </Text>
+              </div> */}
+            </Card>
+          </Col>
+
+          {/* CÀI ĐẶT TRẬN ĐẤU */}
+          <Col span={12}>
+            <Card title="Cài đặt trận đấu" size="small">
               <Form.Item
                 name="allowDraws"
                 label="Cho phép kết quả hòa"
                 valuePropName="checked"
+                tooltip="Cho phép các trận đấu kết thúc với tỷ số hòa"
               >
                 <Switch />
               </Form.Item>
-            </Card>
-          </Col>
 
-          {/* Cài đặt đội */}
-          <Col span={12}>
-            <Card title="Cài đặt đội" size="small">
               <Row gutter={16}>
                 <Col span={12}>
                   <Form.Item
-                    name="minTeamSize"
-                    label="Số thành viên tối thiểu"
-                    rules={[
-                      { required: true, message: 'Vui lòng nhập số thành viên' },
-                      { type: 'number', min: 1, max: 50, message: 'Số thành viên phải từ 1 đến 50' }
-                    ]}
+                    name="defaultBestOf"
+                    label="Thể thức mặc định"
+                    tooltip="Số trận thắng cần thiết để chiến thắng loạt đấu"
                   >
-                    <InputNumber 
-                      min={1} 
-                      max={50} 
-                      style={{ width: '100%' }} 
-                    />
+                    <Select style={{ width: '100%' }}>
+                      <Option value={1}>BO1</Option>
+                      <Option value={2}>BO2</Option>
+                      <Option value={3}>BO3</Option>
+                      <Option value={5}>BO5</Option>
+                      <Option value={7}>BO7</Option>
+                    </Select>
                   </Form.Item>
                 </Col>
                 <Col span={12}>
                   <Form.Item
-                    name="maxTeamSize"
-                    label="Số thành viên tối đa"
-                    rules={[
-                      { required: true, message: 'Vui lòng nhập số thành viên' },
-                      { type: 'number', min: 1, max: 50, message: 'Số thành viên phải từ 1 đến 50' }
-                    ]}
+                    name="defaultMatchTime"
+                    label="Thời gian trận (phút)"
+                    tooltip="Thời gian dự kiến cho mỗi trận đấu"
                   >
                     <InputNumber 
-                      min={1} 
-                      max={50} 
+                      min={5}
+                      max={180}
                       style={{ width: '100%' }} 
+                      placeholder="VD: 30"
                     />
                   </Form.Item>
                 </Col>
               </Row>
-              
-              <div style={{ marginBottom: 16 }}>
-                <Text type="secondary">
-                  <small>Lưu ý: Đội phải có ít nhất Min thành viên và nhiều nhất Max thành viên</small>
-                </Text>
-              </div>
 
               <Form.Item
-                name="visibility"
-                label="Chế độ hiển thị"
-                rules={[{ required: true, message: 'Vui lòng chọn chế độ hiển thị' }]}
-              >
-                <Radio.Group style={{ width: '100%' }}>
-                  {visibilityOptions.map(option => (
-                    <Radio key={option.value} value={option.value} style={{ display: 'block', marginBottom: 8 }}>
-                      <div>
-                        <div><strong>{option.label}</strong></div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>
-                          {option.description}
-                        </div>
-                      </div>
-                    </Radio>
-                  ))}
-                </Radio.Group>
-              </Form.Item>
-            </Card>
-          </Col>
-
-          {/* Phí và giải thưởng */}
-          {/* <Col span={12}>
-            <Card title="Phí đăng ký và giải thưởng" size="small">
-              <Form.Item
-                name="registrationFee"
-                label="Phí đăng ký (VNĐ)"
-              >
-                <InputNumber 
-                  min={0}
-                  style={{ width: '100%' }} 
-                  placeholder="Nhập số tiền phí đăng ký"
-                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="prizePool"
-                label="Tổng giải thưởng (VNĐ)"
-              >
-                <InputNumber 
-                  min={0}
-                  style={{ width: '100%' }} 
-                  placeholder="Nhập tổng giải thưởng"
-                  formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value!.replace(/\$\s?|(,*)/g, '')}
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="prizeGuaranteed"
-                label="Giải thưởng đảm bảo"
+                name="autoSchedule"
+                label="Tự động lên lịch"
                 valuePropName="checked"
+                tooltip="Tự động sắp xếp lịch thi đấu cho các trận"
               >
                 <Switch />
               </Form.Item>
             </Card>
-          </Col> */}
+          </Col>
 
-          {/* Cài đặt trận đấu */}
-          <Col span={12}>
-            <Card title="Cài đặt trận đấu mặc định" size="small">
-              <Form.Item
-                name="defaultBestOf"
-                label="Thể thức (Best Of)"
-                tooltip="Số trận thắng cần thiết để chiến thắng loạt đấu"
-              >
-                <Select placeholder="Chọn thể thức">
-                  <Option value={1}>BO1 (1 trận thắng)</Option>
-                  <Option value={2}>BO2 (2 trận thắng)</Option>
-                  <Option value={3}>BO3 (3 trận thắng)</Option>
-                  <Option value={5}>BO5 (5 trận thắng)</Option>
-                  <Option value={7}>BO7 (7 trận thắng)</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item
-                name="defaultMatchTime"
-                label="Thời gian mỗi trận (phút)"
-                tooltip="Thời gian dự kiến cho mỗi trận đấu"
-              >
-                <InputNumber 
-                  min={5}
-                  max={180}
-                  style={{ width: '100%' }} 
-                  placeholder="VD: 30, 45, 60"
-                />
-              </Form.Item>
+          {/* CÀI ĐẶT THÔNG BÁO */}
+          <Col span={24}>
+            <Card title="Cài đặt thông báo" size="small">
+              <Row gutter={[24, 16]}>
+                <Col span={8}>
+                  <Form.Item
+                    name="notifyMatchStart"
+                    label="Thông báo khi trận đấu bắt đầu"
+                    valuePropName="checked"
+                    tooltip="Gửi thông báo khi trận đấu sắp bắt đầu"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="notifyRegistration"
+                    label="Thông báo đăng ký"
+                    valuePropName="checked"
+                    tooltip="Thông báo khi có đội đăng ký mới"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Form.Item
+                    name="notifyResults"
+                    label="Thông báo kết quả"
+                    valuePropName="checked"
+                    tooltip="Thông báo khi có kết quả trận đấu mới"
+                  >
+                    <Switch />
+                  </Form.Item>
+                </Col>
+              </Row>
+              
+              <div style={{ marginTop: 16 }}>
+                <Text type="secondary">
+                  <small>Thông báo sẽ được gửi cho quản trị viên và người tham gia giải đấu</small>
+                </Text>
+              </div>
             </Card>
           </Col>
-          {/* Nút lưu */}
+
+          {/* CÀI ĐẶT BỔ SUNG */}
+          <Col span={24}>
+            <Card title="Cài đặt bổ sung" size="small">
+              <Row gutter={[24, 16]}>
+                <Col span={12}>
+                  <Form.Item
+                    name="matchFormat"
+                    label="Định dạng trận đấu tùy chỉnh"
+                    tooltip="Các tùy chỉnh đặc biệt cho định dạng trận đấu (JSON)"
+                  >
+                    <Input.TextArea 
+                      rows={4}
+                      placeholder='VD: {"rounds": 3, "timePerRound": 300, "overtime": true}'
+                    />
+                  </Form.Item>
+                  <div style={{ marginTop: -10, marginBottom: 10 }}>
+                    <Text type="secondary">
+                      <small>Nhập dữ liệu JSON để tùy chỉnh định dạng trận đấu</small>
+                    </Text>
+                  </div>
+                </Col>
+                
+                <Col span={12}>
+                  <div style={{ padding: '8px 0' }}>
+                    <Text strong>Ghi chú về cài đặt:</Text>
+                    <ul style={{ marginTop: 8, paddingLeft: 20, color: '#666' }}>
+                      <li><small>BO (Best Of): Số trận thắng cần thiết để thắng loạt đấu</small></li>
+                      <li><small>Tự động lên lịch: Hệ thống sẽ tự sắp xếp lịch thi đấu dựa trên số đội</small></li>
+                      <li><small>Phê duyệt đăng ký: Quản trị viên cần duyệt từng đội đăng ký</small></li>
+                      <li><small>Định dạng JSON: Dành cho các tùy chỉnh nâng cao về trận đấu</small></li>
+                    </ul>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+          </Col>
+
+          {/* NÚT LƯU */}
           <Col span={24}>
             <Divider />
             <div style={{ textAlign: 'right' }}>

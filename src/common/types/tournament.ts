@@ -11,6 +11,7 @@ export const TournamentFormatValues = [
 export type TournamentFormat = typeof TournamentFormatValues[number];
 
 export interface TournamentBasicInfo {
+  id: string;
   name: string;
   game: string;
   description?: string;

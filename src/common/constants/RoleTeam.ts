@@ -1,11 +1,16 @@
-export type TeamRole = 'CAPTAIN' | 'PLAYER' | 'COACH' | 'SUBSTITUTE';
+import { TeamRole } from "../types/team";
 
 export const RoleTeamLabel: Record<TeamRole, string> = {
-    CAPTAIN: 'Đội trưởng',
-    PLAYER: 'Cầu thủ',
-    COACH: 'Huấn luyện viên',
-    SUBSTITUTE: 'Dự bị',
+  [TeamRole.CAPTAIN]: 'Đội trưởng',
+  [TeamRole.PLAYER]: 'Thành viên',
+  [TeamRole.SUBSTITUTE]: 'Dự bị',
+  [TeamRole.COACH]: 'Huấn luyện viên',
+  [TeamRole.MANAGER]: 'Quản lý',
+  [TeamRole.ANALYST]: 'Phân tích'
 };
 
-export const getRoleLabel = (role: TeamRole | string): string =>
-    (RoleTeamLabel as Record<string, string>)[role] ?? role;
+export const getRoleLabel = (role: TeamRole): string => {
+  return RoleTeamLabel[role] || role;
+};
+
+export type { TeamRole };

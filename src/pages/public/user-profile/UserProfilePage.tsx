@@ -26,10 +26,10 @@ import {
 } from "@/services/authService";
 import type { IProfile } from "@/common/interfaces/users";
 import type { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
-import type { UserType } from "@/common/types";
 import { URL_PUBLIC_IMG } from "@/services/api";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiProfile } from "@/common/interfaces/auth";
+import type { Role } from "@/common/types";
 
 const { Title, Text } = Typography;
 
@@ -55,12 +55,12 @@ export const UserProfilePage: React.FC = () => {
         const data = await getProfile();
         if (!data) throw new Error("No profile data");
 
-        const allowedUserTypes: UserType[] = [
+        const allowedUserTypes : Role[]= [
           "ADMIN",
           "TEAM_MANAGER",
           "ORGANIZER",
         ];
-        const userType = allowedUserTypes.includes(data.userType as UserType)
+        const userType = allowedUserTypes.includes(data.userType as Role)
           ? (data.userType as IProfile["userType"])
           : undefined;
 

@@ -137,11 +137,6 @@ const HeaderBar: React.FC = () => {
     });
   };
 
-  // const handleLoginClick = () => {
-  //   setAuthStep("login");
-  //   setAuthOpen(true);
-  // };
-
   const handleLoginClick = () => {
     navigate("/login?step=login");
   };

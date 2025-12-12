@@ -4,9 +4,22 @@ import { PublicRouter } from "./PublicRouter";
 import { AdminRouter } from "./AdminRouter";
 import LoginPage from "@/pages/auth/LoginPage";
 import { useAuth } from "@/hooks/useAuth";
+import { Spin } from "antd";
 
 export const AppRouter = () => {
   const { user } = useAuth();
+    if (user === undefined) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <Routes>

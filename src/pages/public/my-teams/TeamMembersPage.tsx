@@ -20,7 +20,6 @@ import {
   InputNumber,
   Divider,
   Popconfirm,
-  Badge,
   Progress,
   DatePicker,
   Spin,
@@ -28,7 +27,6 @@ import {
   Alert,
   Tabs,
   Switch,
-  Upload,
 } from "antd";
 import {
   PlusOutlined,
@@ -44,11 +42,7 @@ import {
   CheckOutlined,
   CloseOutlined,
   TeamOutlined,
-  UploadOutlined,
-  ReloadOutlined,
   SearchOutlined,
-  ExportOutlined,
-  ImportOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import {
@@ -84,6 +78,7 @@ export const TeamMembersPage: React.FC = () => {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [viewingMember, setViewingMember] = useState<TeamMember | null>(null);
   const [activeTab, setActiveTab] = useState("all");
+  const [checkingInGameName, setCheckingInGameName] = useState(false);
 
   const [form] = Form.useForm();
   const [addForm] = Form.useForm();
@@ -97,6 +92,7 @@ export const TeamMembersPage: React.FC = () => {
     removeMember,
     transferCaptain,
     checkPermission,
+    checkInGameNameExists,
   } = useTeamMember();
 
   // Fetch team info và members từ API
@@ -166,28 +162,102 @@ export const TeamMembersPage: React.FC = () => {
   const handleUpdate = async () => {
     try {
       const values = await form.validateFields();
-      const updatedValues = {
+
+      if (
+        values.inGameName &&
+        values.inGameName !== editingMember?.inGameName
+      ) {
+        const exists = await checkInGameNameExists(
+          teamId!,
+          values.inGameName,
+          editingMember?.id // Thêm excludeMemberId để loại trừ chính member đang edit
+        );
+        if (exists) {
+          form.setFields([
+            {
+              name: "inGameName",
+              errors: ["In-game name đã tồn tại trong đội này"],
+            },
+          ]);
+          return;
+        }
+      }
+
+      const updatedValues: any = {
         ...values,
-        joinDate: values.joinDate
-          ? values.joinDate.format("YYYY-MM-DD")
-          : editingMember?.joinDate,
+        role: values.role,
+        gameRole: values.gameRole,
+        inGameName: values.inGameName,
+        status: values.status,
+        kda: values.kda,
+        winRate: values.winRate,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
       };
 
+      if (values.joinDate) {
+        updatedValues.joinDate = values.joinDate.format("YYYY-MM-DD");
+      } else if (editingMember?.joinDate) {
+        updatedValues.joinDate = editingMember.joinDate;
+      }
+
+      if (values.isApproved !== undefined) {
+        updatedValues.isApproved = values.isApproved;
+      }
+
+      if (values.role === "CAPTAIN" && editingMember?.role !== "CAPTAIN") {
+        updatedValues.isApproved = true;
+        updatedValues.status = "active";
+        if (!updatedValues.joinDate) {
+          updatedValues.joinDate = new Date().toISOString().split("T")[0];
+        }
+      }
+
       if (editingMember && teamId) {
+        setMemberLoading(true);
         const result = await updateMember(
           teamId,
           editingMember.id,
           updatedValues
         );
+
         if (result) {
+          message.success("Cập nhật thành viên thành công");
           setIsModalOpen(false);
           setEditingMember(null);
           form.resetFields();
-          fetchTeamMembers();
+          await fetchTeamMembers();
+          await fetchTeamData();
         }
       }
-    } catch (error) {
-      console.error("Validation failed:", error);
+    } catch (error: any) {
+      console.error("Update failed:", error);
+
+      if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else if (error.message) {
+        message.error(error.message);
+      } else {
+        message.error("Cập nhật thất bại. Vui lòng thử lại.");
+      }
+
+      if (error.response?.data?.errors) {
+        const fieldErrors = error.response.data.errors;
+        const formErrors: any[] = [];
+
+        Object.keys(fieldErrors).forEach((fieldName) => {
+          formErrors.push({
+            name: fieldName,
+            errors: fieldErrors[fieldName],
+          });
+        });
+
+        if (formErrors.length > 0) {
+          form.setFields(formErrors);
+        }
+      }
+    } finally {
+      setMemberLoading(false);
     }
   };
 
@@ -224,7 +294,7 @@ export const TeamMembersPage: React.FC = () => {
     Modal.confirm({
       title: "Xác nhận xóa",
       content: `Bạn có chắc chắn muốn xóa ${
-        member.user?.fullname || member.userId
+        member.inGameName || member.id
       } khỏi đội?`,
       okText: "Xóa",
       cancelText: "Hủy",
@@ -264,7 +334,7 @@ export const TeamMembersPage: React.FC = () => {
     Modal.confirm({
       title: "Xác nhận từ chối",
       content: `Bạn có chắc chắn muốn từ chối ${
-        member.user?.fullname || member.userId
+        member.inGameName || member.id
       }?`,
       okText: "Từ chối",
       cancelText: "Hủy",
@@ -280,9 +350,36 @@ export const TeamMembersPage: React.FC = () => {
     });
   };
 
+  // Kiểm tra inGameName đã tồn tại trong đội chưa
+  const checkInGameNameAvailability = async (inGameName: string) => {
+    if (!inGameName) return true;
+
+    try {
+      setCheckingInGameName(true);
+      const exists = await checkInGameNameExists(teamId!, inGameName);
+      return !exists;
+    } catch (error) {
+      console.error("Error checking in-game name:", error);
+      return false;
+    } finally {
+      setCheckingInGameName(false);
+    }
+  };
+
   const handleAddMember = async () => {
     try {
       const values = await addForm.validateFields();
+
+      // Kiểm tra inGameName đã tồn tại chưa
+      if (values.inGameName) {
+        const isAvailable = await checkInGameNameAvailability(
+          values.inGameName
+        );
+        if (!isAvailable) {
+          message.error("In-game name đã tồn tại trong đội này");
+          return;
+        }
+      }
 
       if (teamId) {
         const result = await addMember(teamId, values);
@@ -391,24 +488,15 @@ export const TeamMembersPage: React.FC = () => {
   const columns = [
     {
       title: "Thành viên",
-      dataIndex: "user",
-      key: "user",
-      render: (user: any, record: TeamMember) => (
+      dataIndex: "inGameName",
+      key: "inGameName",
+      render: (inGameName: string, record: TeamMember) => (
         <Space>
-          <Avatar
-            src={record.avatarUrl || user?.avatarUrl}
-            size="large"
-            icon={<UserOutlined />}
-          />
+          <Avatar src={record.avatarUrl} size="large" icon={<UserOutlined />} />
           <div>
             <Text strong style={{ fontSize: 14, display: "block" }}>
-              {user?.fullname || record.userId}
+              {inGameName || record.id}
             </Text>
-            {record.inGameName && (
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                IG: {record.inGameName}
-              </Text>
-            )}
             <div
               style={{
                 display: "flex",
@@ -426,7 +514,7 @@ export const TeamMembersPage: React.FC = () => {
       ),
     },
     {
-      title: "Vai trò",
+      title: "Vai trò trong game",
       dataIndex: "gameRole",
       key: "gameRole",
       render: (gameRole: string) =>
@@ -543,9 +631,7 @@ export const TeamMembersPage: React.FC = () => {
 
               <Popconfirm
                 title="Xác nhận xóa"
-                description={`Xóa ${
-                  record.user?.fullname || record.userId
-                } khỏi đội?`}
+                description={`Xóa ${record.inGameName || record.id} khỏi đội?`}
                 onConfirm={() => handleDelete(record)}
                 okText="Xóa"
                 cancelText="Hủy"
@@ -610,7 +696,7 @@ export const TeamMembersPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      {/* Header with Back Button */}
+      {/* Header với nút quay lại */}
       <div
         style={{
           display: "flex",
@@ -674,7 +760,7 @@ export const TeamMembersPage: React.FC = () => {
         </Space>
       </div>
 
-      {/* Permission Alert */}
+      {/* Thông báo quyền hạn */}
       {!hasPermission && (
         <Alert
           message="Quyền hạn hạn chế"
@@ -685,7 +771,7 @@ export const TeamMembersPage: React.FC = () => {
         />
       )}
 
-      {/* Team Info Card */}
+      {/* Thông tin đội */}
       <Card
         style={{
           borderRadius: 16,
@@ -802,7 +888,7 @@ export const TeamMembersPage: React.FC = () => {
         </Row>
       </Card>
 
-      {/* Tabs và Members Table */}
+      {/* Tabs và bảng thành viên */}
       <Card
         style={{
           borderRadius: 16,
@@ -886,7 +972,7 @@ export const TeamMembersPage: React.FC = () => {
         )}
       </Card>
 
-      {/* Edit Member Modal */}
+      {/* Modal chỉnh sửa thành viên */}
       <Modal
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -945,8 +1031,27 @@ export const TeamMembersPage: React.FC = () => {
 
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item name="inGameName" label="Tên trong game">
-                  <Input placeholder="Tên trong game" size="large" />
+                <Form.Item
+                  name="inGameName"
+                  label="Tên trong game"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập tên trong game!",
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="Tên trong game"
+                    size="large"
+                    suffix={
+                      checkingInGameName ? (
+                        <Spin size="small" />
+                      ) : (
+                        <SearchOutlined />
+                      )
+                    }
+                  />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -1058,7 +1163,7 @@ export const TeamMembersPage: React.FC = () => {
         )}
       </Modal>
 
-      {/* Add Member Modal */}
+      {/* Modal thêm thành viên */}
       <Modal
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1080,34 +1185,52 @@ export const TeamMembersPage: React.FC = () => {
         <Form form={addForm} layout="vertical" style={{ marginTop: 20 }}>
           <Alert
             type="warning"
-            message="Kiểm tra trước khi thêm"
-            description="Hệ thống sẽ kiểm tra xem người này đã có trong đội khác chưa."
+            message="Lưu ý khi thêm thành viên"
+            description="In-game name không được trùng với thành viên khác trong cùng game"
             style={{ marginBottom: 16 }}
             showIcon
           />
 
           <Form.Item
-            name="userId"
-            label="ID Người dùng"
+            name="inGameName"
+            label="Tên trong game *"
             rules={[
-              { required: true, message: "Vui lòng nhập ID người dùng!" },
+              { required: true, message: "Vui lòng nhập tên trong game!" },
+              {
+                validator: async (_, value) => {
+                  if (value) {
+                    const isAvailable = await checkInGameNameAvailability(
+                      value
+                    );
+                    if (!isAvailable) {
+                      return Promise.reject(
+                        "In-game name đã tồn tại trong đội này"
+                      );
+                    }
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
-            help="Nhập ID người dùng từ hệ thống"
+            validateTrigger="onBlur"
+            help="Tên này sẽ được hiển thị trong game và giải đấu"
           >
-            <Input placeholder="Nhập ID người dùng" size="large" />
+            <Input
+              placeholder="Nhập tên trong game"
+              size="large"
+              suffix={checkingInGameName ? <Spin size="small" /> : null}
+            />
           </Form.Item>
 
           <Form.Item
             name="role"
-            label="Vai trò trong đội"
+            label="Vai trò trong đội *"
             rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
           >
             <Select
               placeholder="Chọn vai trò"
               size="large"
-              options={roleOptions.filter(
-                (option) => option.value !== "CAPTAIN"
-              )}
+              options={roleOptions}
             />
           </Form.Item>
 
@@ -1115,19 +1238,12 @@ export const TeamMembersPage: React.FC = () => {
             <Input placeholder="VD: Duelist, Support, Carry..." size="large" />
           </Form.Item>
 
-          <Form.Item name="inGameName" label="Tên trong game">
-            <Input placeholder="Tên trong game" size="large" />
-          </Form.Item>
-
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="email"
-                label="Email"
-                rules={[
-                  { required: true, message: "Vui lòng nhập email!" },
-                  { type: "email", message: "Email không hợp lệ!" },
-                ]}
+                label="Email liên hệ"
+                rules={[{ type: "email", message: "Email không hợp lệ!" }]}
               >
                 <Input
                   prefix={<MailOutlined />}
@@ -1155,10 +1271,49 @@ export const TeamMembersPage: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="kda"
+                label="KDA (tuỳ chọn)"
+                rules={[
+                  {
+                    pattern: /^\d+\/\d+\/\d+$/,
+                    message: "Định dạng: kills/deaths/assists",
+                  },
+                ]}
+              >
+                <Input placeholder="0/0/0" size="large" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="winRate"
+                label="Tỷ lệ thắng (%)"
+                rules={[
+                  {
+                    type: "number",
+                    min: 0,
+                    max: 100,
+                    message: "Tỷ lệ thắng từ 0-100%",
+                  },
+                ]}
+              >
+                <InputNumber
+                  placeholder="0"
+                  style={{ width: "100%" }}
+                  min={0}
+                  max={100}
+                  size="large"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
 
-      {/* Transfer Captain Modal */}
+      {/* Modal chuyển đội trưởng */}
       <Modal
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1204,11 +1359,8 @@ export const TeamMembersPage: React.FC = () => {
                 .map((member) => (
                   <Option key={member.id} value={member.id}>
                     <Space>
-                      <Avatar
-                        size="small"
-                        src={member.avatarUrl || member.user?.avatarUrl}
-                      />
-                      <span>{member.user?.fullname || member.userId}</span>
+                      <Avatar size="small" src={member.avatarUrl} />
+                      <span>{member.inGameName || member.id}</span>
                       {member.gameRole && <Tag>{member.gameRole}</Tag>}
                     </Space>
                   </Option>
@@ -1218,7 +1370,7 @@ export const TeamMembersPage: React.FC = () => {
         </Form>
       </Modal>
 
-      {/* View Member Modal */}
+      {/* Modal xem chi tiết thành viên */}
       {viewingMember && (
         <Modal
           title={
@@ -1252,11 +1404,11 @@ export const TeamMembersPage: React.FC = () => {
             <div style={{ textAlign: "center", marginBottom: 24 }}>
               <Avatar
                 size={80}
-                src={viewingMember.avatarUrl || viewingMember.user?.avatarUrl}
+                src={viewingMember.avatarUrl}
                 icon={<UserOutlined />}
               />
               <Title level={4} style={{ marginTop: 16, marginBottom: 4 }}>
-                {viewingMember.user?.fullname || viewingMember.userId}
+                {viewingMember.inGameName || viewingMember.id}
               </Title>
               <Space>
                 {getRoleTag(viewingMember.role)}
@@ -1311,9 +1463,7 @@ export const TeamMembersPage: React.FC = () => {
               <Col span={12}>
                 <div>
                   <Text strong>Email: </Text>
-                  <Text>
-                    {viewingMember.email || viewingMember.user?.email || "N/A"}
-                  </Text>
+                  <Text>{viewingMember.email || "N/A"}</Text>
                 </div>
               </Col>
               <Col span={12}>
@@ -1335,23 +1485,12 @@ export const TeamMembersPage: React.FC = () => {
               </Text>
             </div>
 
-            {viewingMember.user && (
-              <>
-                <Divider />
-                <div>
-                  <Text strong>Thông tin người dùng:</Text>
-                  <div style={{ marginTop: 8 }}>
-                    <Text type="secondary">ID: {viewingMember.user.id}</Text>
-                    <br />
-                    {viewingMember.user.fullname && (
-                      <Text type="secondary">
-                        Họ tên: {viewingMember.user.fullname}
-                      </Text>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+            <Divider />
+
+            <div>
+              <Text strong>ID thành viên: </Text>
+              <Text type="secondary">{viewingMember.id}</Text>
+            </div>
           </div>
         </Modal>
       )}

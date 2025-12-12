@@ -18,7 +18,6 @@ export const useTeamMember = () => {
     } catch (err: any) {
       setError(err.message);
 
-      // Xử lý trường hợp thành viên đã có trong đội khác
       if (err.message.includes('đã là thành viên của đội khác')) {
         Modal.confirm({
           title: 'Thành viên đã có trong đội khác',
@@ -128,7 +127,6 @@ export const useTeamMember = () => {
     } catch (err: any) {
       setError(err.message);
 
-      // Xử lý trường hợp đội trưởng không thể rời đội
       if (err.message.includes('Đội trưởng không thể rời đội')) {
         Modal.warning({
           title: 'Không thể rời đội',
@@ -144,17 +142,21 @@ export const useTeamMember = () => {
     }
   }, []);
 
-  const transferCaptain = useCallback(async (teamId: string, newCaptainId: string): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-
+  const transferCaptain = useCallback(async (
+    teamId: string,
+    newCaptainId: string
+  ): Promise<boolean> => {
     try {
+      setLoading(true);
+      setError(null);
+
       await teamMemberService.transferCaptain(teamId, newCaptainId);
-      message.success('Chuyển quyền đội trưởng thành công!');
+      message.success('Chuyển quyền đội trưởng thành công');
       return true;
-    } catch (err: any) {
-      setError(err.message);
-      message.error(err.message);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Chuyển quyền đội trưởng thất bại';
+      message.error(errorMessage);
+      setError(errorMessage);
       return false;
     } finally {
       setLoading(false);
@@ -165,6 +167,35 @@ export const useTeamMember = () => {
     try {
       return await teamMemberService.checkTeamPermission(teamId);
     } catch (err) {
+      return false;
+    }
+  }, []);
+
+  const getTeamStats = useCallback(async (teamId: string) => {
+    try {
+      setLoading(true);
+      return await teamMemberService.getTeamStats(teamId);
+    } catch (error) {
+      console.error('Error fetching team stats:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const checkInGameNameExists = useCallback(async (
+    teamId: string,
+    inGameName: string,
+    excludeMemberId?: string
+  ): Promise<boolean> => {
+    try {
+      return await teamMemberService.checkInGameNameExists(
+        teamId,
+        inGameName,
+        excludeMemberId
+      );
+    } catch (error) {
+      console.error('Error checking in-game name:', error);
       return false;
     }
   }, []);
@@ -180,5 +211,6 @@ export const useTeamMember = () => {
     leaveTeam,
     transferCaptain,
     checkPermission,
+    checkInGameNameExists,
   };
 };

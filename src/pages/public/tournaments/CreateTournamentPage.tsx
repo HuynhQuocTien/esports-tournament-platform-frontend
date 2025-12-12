@@ -12,15 +12,12 @@ import {
   Divider,
   InputNumber,
   DatePicker,
-  Upload
 } from 'antd';
 import { 
   RocketOutlined,
-  UploadOutlined
 } from '@ant-design/icons';
 // import { useNavigate } from 'react-router-dom';
 import { tournamentService } from '@/services/tournamentService';
-import dayjs, { Dayjs } from 'dayjs';
 import type { TournamentBasicInfo } from '@/common/types';
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -72,9 +69,10 @@ const CreateTournamentPage: React.FC = () => {
     try {
       // Chuyển đổi dữ liệu ngày tháng thành ISO string
 
-      // const res = await tournamentService.create(values);
-      console.log(values);
-      message.success('Tạo giải đấu thành công!');
+      const res = await tournamentService.create(values);
+      if (res)
+        message.success('Tạo giải đấu thành công!');
+      
       // navigate(`/tournaments/setup/${res.data.id}`);
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');

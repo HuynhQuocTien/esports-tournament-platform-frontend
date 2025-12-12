@@ -1,3 +1,6 @@
+import type { UploadFile } from "antd";
+import type dayjs from "dayjs";
+import type { Dayjs } from "dayjs";
 
 export const TournamentFormatValues = [
   "SINGLE_ELIMINATION",
@@ -17,10 +20,13 @@ export interface TournamentBasicInfo {
   description?: string;
   logoUrl?: string;
   bannerUrl?: string;
-  registrationStart?:  string;
-  registrationEnd?: string;
-  tournamentStart?:  string;
-  tournamentEnd?:  string;
+  registrationStart?:  Dayjs;
+  registrationEnd?: Dayjs;
+  tournamentStart?:  Dayjs;
+  tournamentEnd?:  Dayjs;
+  maxTeams: number;
+  type: string;
+  format: string;
 }
 
 export interface TournamentSetting {
@@ -97,10 +103,10 @@ export interface CreateTournamentRequest {
   description?: string;
   logoUrl?: string;
   bannerUrl?: string;
-  registrationStart?: string;
-  registrationEnd?: string;
-  tournamentStart?: string;
-  tournamentEnd?: string;
+  registrationStart?: Dayjs;
+  registrationEnd?: Dayjs;
+  tournamentStart?: Dayjs;
+  tournamentEnd?: Dayjs;
 
   // SETTINGS
   type: TournamentFormat;
@@ -141,6 +147,20 @@ export interface TournamentStepProps {
   data: TournamentData;
   updateData: (key: TournamentDataKey, data: any) => void;
 }
+
+export interface UploadState {
+  logoFile?: UploadFile;
+  bannerFile?: UploadFile;
+  logoUploading: boolean;
+  bannerUploading: boolean;
+}
+
+export interface FormBasicInfo extends Omit<TournamentBasicInfo, 'registrationStart' | 'registrationEnd' | 'tournamentStart'> {
+  registrationStart?: dayjs.Dayjs;
+  registrationEnd?: dayjs.Dayjs;
+  tournamentStart?: dayjs.Dayjs;
+}
+
 
 // API Response
 export interface TournamentApiResponse {

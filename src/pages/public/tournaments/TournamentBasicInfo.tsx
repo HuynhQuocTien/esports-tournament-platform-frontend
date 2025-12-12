@@ -1,7 +1,6 @@
 import {
   Form,
   Input,
-  Select,
   DatePicker,
   Upload,
   Button,
@@ -12,30 +11,35 @@ import {
   Spin,
   Space,
   Avatar,
+  Select,
+  InputNumber,
 } from 'antd';
 import {
   UploadOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
 import type { TournamentBasicInfo, TournamentStepProps } from '../../../common/types/tournament';
-import type { UploadProps, UploadFile } from 'antd';
+import type { UploadProps, UploadFile } from 'antd'; // Gộp các import type
 import { tournamentService } from '@/services/tournamentService';
-import { fileService } from '@/services/fileService'; // Thêm service file
+import { fileService } from '@/services/fileService';
 import dayjs from 'dayjs';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import type { RcFile } from 'antd/es/upload';
 import type { getGameByValue } from '@/components/tournament/games';
 import GameSelect from '@/components/tournament/GameSelect';
+import type { UploadState, FormBasicInfo} from '../../../common/types/tournament';
+import { Option } from 'antd/es/mentions';
 
 const { TextArea } = Input;
 
-interface UploadState {
-  logoFile?: UploadFile;
-  bannerFile?: UploadFile;
-  logoUploading: boolean;
-  bannerUploading: boolean;
-}
+const tournamentFormat = [
+  { value: 'SINGLE_ELIMINATION', label: 'Loại trực tiếp' },
+  { value: 'DOUBLE_ELIMINATION', label: 'Loại đấu đôi' },
+];
+const tournamentTypes = [
+  { value: 'team', label: 'Teams' },
+  { value: 'solo', label: 'Solo' },
+];
 
 const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }) => {
   const [form] = Form.useForm();
@@ -46,16 +50,25 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   });
   const [loading, setLoading] = useState(false);
   const [selectedGame, setSelectedGame] = useState<ReturnType<typeof getGameByValue>>();
-
+  console.log(data.basicInfo);
   useEffect(() => {
     if (data?.basicInfo) {
-      const formValues = {
+      const formValues: Partial<FormBasicInfo> = {
         ...data.basicInfo,
-        // Convert string dates to Dayjs objects
-        registrationStart: dayjs(data.basicInfo.registrationStart),
-        registrationEnd: dayjs(data.basicInfo.registrationEnd),
-        tournamentStart: dayjs(data.basicInfo.tournamentStart),
       };
+      
+      if (data.basicInfo.registrationStart) {
+        formValues.registrationStart = dayjs(data.basicInfo.registrationStart);
+      }
+    
+      if (data.basicInfo.registrationEnd) {
+        formValues.registrationEnd = dayjs(data.basicInfo.registrationEnd);
+      }
+    
+      if (data.basicInfo.tournamentStart) {
+        formValues.tournamentStart = dayjs(data.basicInfo.tournamentStart);
+      }
+      
       form.setFieldsValue(formValues);
 
       // Set initial file list for display
@@ -82,6 +95,13 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
           } as UploadFile,
         }));
       }
+    } else {
+      // Reset form nếu không có data
+      form.resetFields();
+      setUploadState({
+        logoUploading: false,
+        bannerUploading: false,
+      });
     }
   }, [data, form]);
 
@@ -103,7 +123,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       }
       
       // 2. Lấy signed URL cho file vừa upload
-      const signedUrlResult = await fileService.getSignedUrl(uploadResult.filename);
+      const publicUrl = await fileService.getPublicUrl(uploadResult.filename);
       
       if (type === 'logo') {
         setUploadState(prev => ({ ...prev, logoUploading: false }));
@@ -111,7 +131,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
         setUploadState(prev => ({ ...prev, bannerUploading: false }));
       }
 
-      return signedUrlResult.signedUrl;
+      return publicUrl.publicUrl;
     } catch (error) {
       if (type === 'logo') {
         setUploadState(prev => ({ ...prev, logoUploading: false }));
@@ -125,7 +145,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   // Handle logo upload
   const handleLogoUpload: UploadProps['customRequest'] = async (options) => {
     const { file, onSuccess, onError } = options;
-    console.log(options);
     try {
       const signedUrl = await uploadImage(file as File, 'logo');
       
@@ -136,7 +155,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       setUploadState(prev => ({
         ...prev,
         logoFile: {
-          // uid: file.uid,
           name: (file as File).name,
           status: 'done',
           url: signedUrl,
@@ -165,7 +183,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       setUploadState(prev => ({
         ...prev,
         bannerFile: {
-          // uid: file.uid,
           name: (file as File).name,
           status: 'done',
           url: signedUrl,
@@ -202,7 +219,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   };
 
   // Validate file before upload
-  const beforeUpload = (file: RcFile, type: 'logo' | 'banner'): boolean => {
+  const beforeUpload = (file: File, type: 'logo' | 'banner'): boolean => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
       message.error(`Vui lòng chọn file ảnh cho ${type === 'logo' ? 'logo' : 'banner'}!`);
@@ -217,17 +234,27 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     return true;
   };
 
-  const onFinish = async (values: TournamentBasicInfo) => {
+  const onFinish = async (values: FormBasicInfo) => {
     setLoading(true);
     
     try {
       // Convert dates to ISO string
-      const processedValues = {
+      const processedValues: Partial<TournamentBasicInfo> = {
         ...values,
-        registrationStart: dayjs(values.registrationStart).toISOString(),
-        registrationEnd: dayjs(values.registrationEnd).toISOString(),
-        tournamentStart: dayjs(values.tournamentStart).toISOString(),
       };
+
+      // Chỉ chuyển đổi nếu có giá trị
+      if (values.registrationStart) {
+        processedValues.registrationStart = dayjs(values.registrationStart);
+      }
+      
+      if (values.registrationEnd) {
+        processedValues.registrationEnd = dayjs(values.registrationEnd);
+      }
+      
+      if (values.tournamentStart) {
+        processedValues.tournamentStart = dayjs(values.tournamentStart);
+      }
 
       // Ensure logoUrl and bannerUrl are included
       const formValues = form.getFieldsValue();
@@ -254,17 +281,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  const gameOptions: string[] = [
-    'League of Legends',
-    'Valorant',
-    'Counter-Strike 2',
-    'Dota 2',
-    'PUBG',
-    'Mobile Legends',
-    'Free Fire',
-    'Other'
-  ];
-
   // Upload props for logo
   const logoUploadProps: UploadProps = {
     accept: 'image/*',
@@ -273,7 +289,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     fileList: uploadState.logoFile ? [uploadState.logoFile] : [],
     customRequest: handleLogoUpload,
     onChange: handleLogoChange,
-    beforeUpload: (file) => beforeUpload(file, 'logo'),
+    beforeUpload: (file) => beforeUpload(file as File, 'logo'),
     onRemove: () => {
       form.setFieldsValue({ logoUrl: '' });
       return true;
@@ -293,7 +309,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     fileList: uploadState.bannerFile ? [uploadState.bannerFile] : [],
     customRequest: handleBannerUpload,
     onChange: handleBannerChange,
-    beforeUpload: (file) => beforeUpload(file, 'banner'),
+    beforeUpload: (file) => beforeUpload(file as File, 'banner'),
     onRemove: () => {
       form.setFieldsValue({ bannerUrl: '' });
       return true;
@@ -370,47 +386,53 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
               </Row>
             </Card>
           </Col>
-
           <Col span={12}>
-            <Card title="Hình ảnh" size="small">
-              <Form.Item name="logoUrl" label="Logo giải đấu" hidden>
-                <Input type="hidden" />
-              </Form.Item>
-              
-              <Form.Item label="Logo giải đấu">
-                <Upload {...logoUploadProps}>
-                  <Button 
-                    icon={uploadState.logoUploading ? <LoadingOutlined /> : <UploadOutlined />}
-                    disabled={uploadState.logoUploading}
+            <Card title="Thể thức" size="small">
+              <Form.Item
+                    name="format"
+                    label="Thể thức giải đấu"
+                    rules={[{ required: true, message: 'Vui lòng chọn' }]}
                   >
-                    {uploadState.logoUploading ? 'Đang tải lên...' : 'Tải lên logo'}
-                  </Button>
-                </Upload>
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                  Kích thước tối đa: 5MB. Định dạng: JPG, PNG, GIF, SVG
-                </div>
-              </Form.Item>
+                    <Select size="large" placeholder="Chọn thể thức giải đấu">
+                      {tournamentFormat.map(type => (
+                        <Option key={type.value} value={type.value}>
+                          {type.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
 
-              <Form.Item name="bannerUrl" label="Banner giải đấu" hidden>
-                <Input type="hidden" />
-              </Form.Item>
-
-              <Form.Item label="Banner giải đấu">
-                <Upload {...bannerUploadProps}>
-                  <Button 
-                    icon={uploadState.bannerUploading ? <LoadingOutlined /> : <UploadOutlined />}
-                    disabled={uploadState.bannerUploading}
+             <Form.Item
+                    name="type"
+                    label="Tham gia dưới dạng"
+                    rules={[{ required: true, message: 'Vui lòng chọn' }]}
                   >
-                    {uploadState.bannerUploading ? 'Đang tải lên...' : 'Tải lên banner'}
-                  </Button>
-                </Upload>
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                  Kích thước tối đa: 5MB. Định dạng: JPG, PNG, GIF
-                </div>
+                    <Select size="large" placeholder="Chọn loại giải đấu">
+                      {tournamentTypes.map(type => (
+                        <Option key={type.value} value={type.value}>
+                          {type.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                   <Form.Item
+                name="maxTeams"
+                label="Số đội/thí sinh tối đa"
+                rules={[
+                  { required: true, message: 'Vui lòng nhập số lượng' },
+                  { type: 'number', min: 2, message: 'Phải có ít nhất 2' }
+                ]}
+              >
+                <InputNumber
+                  min={2} 
+                  max={512} 
+                  style={{ width: '100%' }}
+                  size="large"
+                  // placeholder="VD: 8, 16, 32, 64..."
+                />
               </Form.Item>
             </Card>
           </Col>
-
           <Col span={12}>
             <Card title="Thời gian" size="small">
               <Form.Item
@@ -448,6 +470,47 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   format="DD/MM/YYYY HH:mm"
                 />
               </Form.Item>
+            </Card>
+          </Col>
+
+          <Col span={12}>
+            
+            <Card title="Hình ảnh" size="small">
+                   <Form.Item name="logoUrl" label="Logo giải đấu" hidden>
+                <Input type="hidden" />
+              </Form.Item>
+              
+              <Form.Item label="Logo giải đấu">
+                <Upload {...logoUploadProps}>
+                  <Button 
+                    icon={uploadState.logoUploading ? <LoadingOutlined /> : <UploadOutlined />}
+                    disabled={uploadState.logoUploading}
+                  >
+                    {uploadState.logoUploading ? 'Đang tải lên...' : 'Tải lên logo'}
+                  </Button>
+                </Upload>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  Kích thước tối đa: 5MB. Định dạng: JPG, PNG, GIF, SVG
+                </div>
+              </Form.Item>
+
+                <Form.Item name="bannerUrl" label="Banner giải đấu" hidden>
+                <Input type="hidden" />
+              </Form.Item>
+
+              <Form.Item label="Banner giải đấu">
+                <Upload {...bannerUploadProps}>
+                  <Button 
+                    icon={uploadState.bannerUploading ? <LoadingOutlined /> : <UploadOutlined />}
+                    disabled={uploadState.bannerUploading}
+                  >
+                    {uploadState.bannerUploading ? 'Đang tải lên...' : 'Tải lên banner'}
+                  </Button>
+                </Upload>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                  Kích thước tối đa: 5MB. Định dạng: JPG, PNG, GIF
+                </div>
+              </Form.Item>   
             </Card>
           </Col>
           

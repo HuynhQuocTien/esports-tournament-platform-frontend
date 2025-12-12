@@ -36,5 +36,7 @@ export const tournamentService = {
 
     const res = await api.post(`tournament/upload`, formData);
     return res.data;
-  }
+  },
+
+  getFeature: () =>  api.get(`/tournaments/featured`)
 };

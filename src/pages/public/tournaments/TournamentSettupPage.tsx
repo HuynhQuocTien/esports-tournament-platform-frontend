@@ -38,10 +38,10 @@ import type {
   TournamentApiResponse,
   PublishTournamentRequest 
 } from '../../../common/types/tournament';
+import { Dayjs } from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
-const { TabPane } = Tabs;
 const { confirm } = Modal;
 
 const TournamentSetupPage: React.FC = () => {
@@ -62,13 +62,14 @@ const TournamentSetupPage: React.FC = () => {
       // Create new tournament
       setTournamentData({
         basicInfo: {
+          id: '',
           name: '',
           game: '',
           description: '',
-          registrationStart: '',
-          registrationEnd: '',
-          tournamentStart: '',
-          tournamentEnd: '',
+          registrationStart: new Dayjs(),
+          registrationEnd: new Dayjs(),
+          tournamentStart: new Dayjs(),
+          tournamentEnd: new Dayjs(),
         },
         settings: {
           type: 'SINGLE_ELIMINATION',
@@ -103,6 +104,7 @@ const TournamentSetupPage: React.FC = () => {
       console.log("data: ", data);
       const mappedData: TournamentData = {
         basicInfo: {
+          id: data.id,
           name: data.name,
           game: data.game,
           description: data.description || '',
@@ -112,6 +114,9 @@ const TournamentSetupPage: React.FC = () => {
           registrationEnd: data.registrationEnd || '',
           tournamentStart: data.tournamentStart || '',
           tournamentEnd: data.tournamentEnd || '',
+          maxTeams: data.maxTeams,
+          format: data.format,
+          type: data.type
         },
         settings: {
           type: data.type as any,
@@ -303,7 +308,6 @@ const TournamentSetupPage: React.FC = () => {
     if (id && !isProcessing) {
       setLoading(true);
       try {
-        // Giả định API call thành công
         // await tournamentService.updateTournamentSection(id, key, data);
         
         // KHÔNG reset hasUnsavedChanges ở đây vì người dùng có thể tiếp tục thay đổi

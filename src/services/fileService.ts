@@ -8,6 +8,10 @@ export interface SignedUrlResponse {
   signedUrl: string;
 }
 
+export interface PublicUrlResponse {
+  publicUrl: string;
+}
+
 export const fileService = {
     async upload(file: File): Promise<UploadResponse> {
     const formData = new FormData();
@@ -24,6 +28,11 @@ export const fileService = {
   
   async getSignedUrl(filename: string): Promise<SignedUrlResponse> {
     const response = await api.get<SignedUrlResponse>(`/files/signed-url/${filename}`);
+    return response.data;
+  },
+
+  async getPublicUrl(filename: string): Promise<PublicUrlResponse> {
+    const response = await api.get<PublicUrlResponse>(`/files/public-url/${filename}`);
     return response.data;
   },
   

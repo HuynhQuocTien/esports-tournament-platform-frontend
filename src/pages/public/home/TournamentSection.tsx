@@ -1,60 +1,58 @@
-import React from "react";
-import { Row, Col, Card, Typography, Tag, Button, Space } from "antd";
+import React, { useState, useEffect } from "react";
+import { Row, Col, Card, Typography, Tag, Button, Space, Spin, Alert, Progress } from "antd";
 import { Link } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 import {
   EyeOutlined,
   TeamOutlined,
   DollarOutlined,
   EnvironmentOutlined,
+  CalendarOutlined,
+  FireOutlined,
+  TrophyOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import { tournamentService } from "@/services/tournamentService";
 
 const { Title, Text } = Typography;
 
-const tournaments = [
-  {
-    id: 1,
-    status: "Đang diễn ra",
-    img: `https://picsum.photos/seed/${uuidv4()}/600/400`,
-    title: "VALORANT CHAMPIONS",
-    date: "15-17 Thg 3",
-    place: "Saigon Exhibition Center",
-    desc: "Vietnam National Championship",
-    prize: "500M VNĐ",
-    teams: 32,
-    city: "Hồ Chí Minh",
-    game: "Valorant",
-  },
-  {
-    id: 2,
-    status: "Sắp diễn ra",
-    img: `https://picsum.photos/seed/${uuidv4()}/600/400`,
-    title: "LEAGUE OF LEGENDS",
-    date: "22-24 Thg 3",
-    place: "National Convention Center",
-    desc: "Spring Split Finals",
-    prize: "300M VNĐ",
-    teams: 16,
-    city: "Hà Nội",
-    game: "League of Legends",
-  },
-  {
-    id: 3,
-    status: "Đăng ký mở",
-    img: `https://picsum.photos/seed/${uuidv4()}/600/400`,
-    title: "COUNTER-STRIKE 2",
-    date: "5-7 Thg 4",
-    place: "Ariyana Convention Center",
-    desc: "Asian Championship",
-    prize: "200M VNĐ",
-    teams: 24,
-    city: "Đà Nẵng",
-    game: "CS2",
-  },
-];
+interface Tournament {
+  id: string;
+  name: string;
+  description: string;
+  game: string;
+  type: string;
+  format: string;
+  status: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  registrationStart?: string;
+  registrationEnd?: string;
+  tournamentStart?: string;
+  tournamentEnd?: string;
+  maxTeams: number;
+  registrationFee: number;
+  prizePool: number;
+  city?: string;
+  approvedTeamsCount: number;
+  registrationProgress: number;
+  registrationStatus: string;
+  timeStatus?: {
+    label: string;
+    color: string;
+    icon: string;
+  };
+  organizer?: {
+    id: string;
+    username: string;
+    email: string;
+  };
+}
 
-const getStatusTag = (status: string) => {
-  if (status === "Đang diễn ra")
+const getStatusTag = (tournament: Tournament) => {
+  const status = tournament.registrationStatus || tournament.status;
+  
+  if (status === "Đang diễn ra" || tournament.status === "LIVE") {
     return (
       <Tag
         color="red"
@@ -63,7 +61,8 @@ const getStatusTag = (status: string) => {
         🔥 Đang diễn ra
       </Tag>
     );
-  if (status === "Sắp diễn ra")
+  }
+  if (status === "Sắp diễn ra" || tournament.status === "UPCOMING") {
     return (
       <Tag
         color="orange"
@@ -72,7 +71,8 @@ const getStatusTag = (status: string) => {
         ⏰ Sắp diễn ra
       </Tag>
     );
-  if (status === "Đăng ký mở")
+  }
+  if (status === "Đăng ký mở" || tournament.status === "REGISTRATION_OPEN") {
     return (
       <Tag
         color="green"
@@ -81,10 +81,200 @@ const getStatusTag = (status: string) => {
         🎯 Đăng ký mở
       </Tag>
     );
+  }
+  if (status === "Đã kết thúc" || tournament.status === "COMPLETED") {
+    return (
+      <Tag
+        color="gray"
+        style={{ margin: 0, padding: "4px 8px", fontWeight: 600 }}
+      >
+        ✅ Đã kết thúc
+      </Tag>
+    );
+  }
   return <Tag>{status}</Tag>;
 };
 
+const formatCurrency = (amount: number): string => {
+  if (amount >= 1000000) {
+    return `${(amount / 1000000).toFixed(0)}M VNĐ`;
+  }
+  if (amount >= 1000) {
+    return `${(amount / 1000).toFixed(0)}K VNĐ`;
+  }
+  return `${amount} VNĐ`;
+};
+
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return "Chưa xác định";
+  
+  const date = new Date(dateString);
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
+const getGameIcon = (game: string): string => {
+  const icons: Record<string, string> = {
+    "CS2": "🔫",
+    "Valorant": "💥",
+    "League of Legends": "⚔️",
+    "Dota 2": "🛡️",
+    "PUBG": "🎯",
+    "Mobile Legends": "📱",
+    "Arena of Valor": "🏹",
+    "FIFA": "⚽",
+    "Call of Duty": "🎖️",
+    "Overwatch": "⚡",
+  };
+  return icons[game] || "🎮";
+};
+
 export const TournamentSection: React.FC = () => {
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchTournaments();
+  }, []);
+
+  const fetchTournaments = async () => {
+    try {
+      setLoading(true);
+      const response = await tournamentService.getFeature();
+      
+      if (response.data.success) {
+        setTournaments(response.data.data);
+      } else {
+        // Fallback to direct array if BE structure is different
+        setTournaments(response.data.data || response.data);
+      }
+    } catch (err: any) {
+      console.error("Error fetching tournaments:", err);
+      setError(err.response?.data?.message || "Không thể tải danh sách giải đấu");
+      
+      // Fallback to mock data if API fails
+      setTournaments(getMockTournaments());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback mock data in case API fails
+  const getMockTournaments = (): Tournament[] => [
+    {
+      id: "1",
+      name: "VALORANT CHAMPIONS",
+      description: "Vietnam National Championship",
+      game: "Valorant",
+      type: "SINGLE_ELIMINATION",
+      format: "BRACKET",
+      status: "LIVE",
+      bannerUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      registrationStart: "2024-03-01",
+      registrationEnd: "2024-03-14",
+      tournamentStart: "2024-03-15",
+      tournamentEnd: "2024-03-17",
+      maxTeams: 32,
+      registrationFee: 100000,
+      prizePool: 500000000,
+      city: "Hồ Chí Minh",
+      approvedTeamsCount: 28,
+      registrationProgress: 87.5,
+      registrationStatus: "Đang diễn ra",
+    },
+    {
+      id: "2",
+      name: "LEAGUE OF LEGENDS",
+      description: "Spring Split Finals",
+      game: "League of Legends",
+      type: "DOUBLE_ELIMINATION",
+      format: "BRACKET",
+      status: "UPCOMING",
+      bannerUrl: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      registrationStart: "2024-03-01",
+      registrationEnd: "2024-03-20",
+      tournamentStart: "2024-03-22",
+      tournamentEnd: "2024-03-24",
+      maxTeams: 16,
+      registrationFee: 150000,
+      prizePool: 300000000,
+      city: "Hà Nội",
+      approvedTeamsCount: 12,
+      registrationProgress: 75,
+      registrationStatus: "Sắp diễn ra",
+    },
+    {
+      id: "3",
+      name: "COUNTER-STRIKE 2",
+      description: "Asian Championship",
+      game: "CS2",
+      type: "SINGLE_ELIMINATION",
+      format: "BRACKET",
+      status: "REGISTRATION_OPEN",
+      bannerUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      registrationStart: "2024-03-01",
+      registrationEnd: "2024-04-04",
+      tournamentStart: "2024-04-05",
+      tournamentEnd: "2024-04-07",
+      maxTeams: 24,
+      registrationFee: 80000,
+      prizePool: 200000000,
+      city: "Đà Nẵng",
+      approvedTeamsCount: 18,
+      registrationProgress: 75,
+      registrationStatus: "Đăng ký mở",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <section
+        style={{
+          marginBottom: 60,
+          background: "var(--ant-color-bg-container)",
+          border: "1px solid var(--ant-color-border-secondary)",
+          padding: 32,
+          borderRadius: 16,
+          textAlign: "center",
+        }}
+      >
+        <Spin size="large" />
+        <Text style={{ display: "block", marginTop: 16, color: "#666" }}>
+          Đang tải giải đấu...
+        </Text>
+      </section>
+    );
+  }
+
+  if (error && tournaments.length === 0) {
+    return (
+      <section
+        style={{
+          marginBottom: 60,
+          background: "var(--ant-color-bg-container)",
+          border: "1px solid var(--ant-color-border-secondary)",
+          padding: 32,
+          borderRadius: 16,
+        }}
+      >
+        <Alert
+          message="Lỗi tải dữ liệu"
+          description={error}
+          type="error"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
+        <Button type="primary" onClick={fetchTournaments}>
+          Thử lại
+        </Button>
+      </section>
+    );
+  }
+
   return (
     <section
       style={{
@@ -104,11 +294,12 @@ export const TournamentSection: React.FC = () => {
         }}
       >
         <div>
-          <Title level={2} style={{ color: "#1a1a1a", margin: 0 }}>
+          <Title level={2} style={{ color: "#1a1a1a", margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+            <FireOutlined style={{ color: "#ff4d4f" }} />
             GIẢI ĐẤU NỔI BẬT
           </Title>
           <Text style={{ color: "#666666", fontSize: "16px" }}>
-            Các giải đấu esports hàng đầu với tổng giải thưởng khủng
+            Các giải đấu esports hàng đầu
           </Text>
         </div>
         <Link to="/tournaments">
@@ -125,18 +316,32 @@ export const TournamentSection: React.FC = () => {
         </Link>
       </div>
 
+      {error && (
+        <Alert
+          message="Thông báo"
+          description={`${error} (Đang hiển thị dữ liệu mẫu)`}
+          type="warning"
+          showIcon
+          style={{ marginBottom: 24 }}
+        />
+      )}
+
       <Row gutter={[24, 24]}>
-        {tournaments.map((t) => (
-          <Col xs={24} md={8} key={t.id}>
+        {tournaments.map((tournament) => (
+          <Col xs={24} md={8} key={tournament.id}>
             <Card
               cover={
                 <div style={{ position: "relative" }}>
                   <img
-                    alt={t.title}
-                    src={t.img}
+                    alt={tournament.name}
+                    src={tournament.bannerUrl || `https://picsum.photos/seed/${tournament.id}/600/400`}
                     style={{
                       height: "180px",
                       objectFit: "cover",
+                      width: "100%",
+                    }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${tournament.id}/600/400`;
                     }}
                   />
                   <div
@@ -146,7 +351,25 @@ export const TournamentSection: React.FC = () => {
                       left: "12px",
                     }}
                   >
-                    {getStatusTag(t.status)}
+                    {getStatusTag(tournament)}
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      right: "12px",
+                      background: "rgba(0,0,0,0.7)",
+                      color: "white",
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    {getGameIcon(tournament.game)} {tournament.game}
                   </div>
                 </div>
               }
@@ -167,16 +390,17 @@ export const TournamentSection: React.FC = () => {
                 level={4}
                 style={{ color: "#1a1a1a", marginBottom: "8px" }}
               >
-                {t.title}
+                {tournament.name}
               </Title>
               <Text
                 style={{
                   color: "#666666",
                   display: "block",
                   marginBottom: "16px",
+                  minHeight: "40px",
                 }}
               >
-                {t.desc}
+                {tournament.description}
               </Text>
 
               <Space
@@ -192,14 +416,16 @@ export const TournamentSection: React.FC = () => {
                   }}
                 >
                   <Space>
-                    <DollarOutlined style={{ color: "#faad14" }} />
+                    <TrophyOutlined style={{ color: "#faad14" }} />
                     <Text style={{ color: "#faad14", fontWeight: 600 }}>
-                      🏆 {t.prize}
+                      🏆 {formatCurrency(tournament.prizePool)}
                     </Text>
                   </Space>
                   <Space>
                     <TeamOutlined style={{ color: "#1890ff" }} />
-                    <Text style={{ color: "#666666" }}>{t.teams} đội</Text>
+                    <Text style={{ color: "#666666" }}>
+                      {tournament.approvedTeamsCount}/{tournament.maxTeams} đội
+                    </Text>
                   </Space>
                 </div>
                 <div
@@ -211,36 +437,90 @@ export const TournamentSection: React.FC = () => {
                 >
                   <Space>
                     <EnvironmentOutlined style={{ color: "#52c41a" }} />
-                    <Text style={{ color: "#666666" }}>{t.city}</Text>
+                    <Text style={{ color: "#666666" }}>
+                      {tournament.city || "Toàn quốc"}
+                    </Text>
                   </Space>
-                  <Text style={{ color: "#999999", fontSize: "12px" }}>
-                    {t.date}
+                  <Space>
+                    <CalendarOutlined style={{ color: "#722ed1" }} />
+                    <Text style={{ color: "#666666", fontSize: "12px" }}>
+                      {formatDate(tournament.tournamentStart)}
+                    </Text>
+                  </Space>
+                </div>
+                
+                {/* Registration Progress */}
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between",
+                    marginBottom: 4,
+                    fontSize: "12px",
+                    color: "#666",
+                  }}>
+                    <Space size={4}>
+                      <UserOutlined style={{ fontSize: "10px" }} />
+                      <Text>Tiến độ đăng ký</Text>
+                    </Space>
+                    <Text>
+                      {Math.round(tournament.registrationProgress)}%
+                    </Text>
+                  </div>
+                  <Progress
+                    percent={tournament.registrationProgress}
+                    size="small"
+                    strokeColor={
+                      tournament.registrationProgress >= 100 
+                        ? "#ff4d4f" 
+                        : "#52c41a"
+                    }
+                    showInfo={false}
+                  />
+                </div>
+                
+                {/* Registration Fee */}
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between",
+                  fontSize: "12px",
+                  color: "#666",
+                }}>
+                  <Space size={4}>
+                    <DollarOutlined style={{ fontSize: "10px" }} />
+                    <Text>Phí đăng ký:</Text>
+                  </Space>
+                  <Text style={{ fontWeight: 500 }}>
+                    {formatCurrency(tournament.registrationFee)}
                   </Text>
                 </div>
               </Space>
 
               <div style={{ display: "flex", gap: "8px" }}>
-                <Button
-                  style={{
-                    flex: 1,
-                    background: "transparent",
-                    border: "1px solid #d9d9d9",
-                    color: "#666666",
-                  }}
-                >
-                  Xem kết quả
-                </Button>
-                <Button
-                  type="primary"
-                  style={{
-                    flex: 1,
-                    background: "#722ed1",
-                    border: "none",
-                  }}
-                  icon={<EyeOutlined />}
-                >
-                  Chi tiết
-                </Button>
+                <Link to={`/tournaments/${tournament.id}/results`}>
+                  <Button
+                    style={{
+                      flex: 1,
+                      background: "transparent",
+                      border: "1px solid #d9d9d9",
+                      color: "#666666",
+                    }}
+                  >
+                    Xem kết quả
+                  </Button>
+                </Link>
+                <Link to={`/tournaments/${tournament.id}`}>
+                  <Button
+                    type="primary"
+                    style={{
+                      flex: 1,
+                      background: "#722ed1",
+                      border: "none",
+                    }}
+                    icon={<EyeOutlined />}
+                  >
+                    Chi tiết
+                  </Button>
+                </Link>
               </div>
             </Card>
           </Col>
@@ -248,22 +528,29 @@ export const TournamentSection: React.FC = () => {
       </Row>
 
       <div style={{ textAlign: "center", marginTop: "32px" }}>
-        <Button
-          type="primary"
-          size="large"
-          style={{
-            height: "48px",
-            padding: "0 40px",
-            fontSize: "16px",
-            fontWeight: 600,
-            background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
-            border: "none",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(114, 46, 209, 0.3)",
-          }}
-        >
-          Đăng ký tham gia giải đấu
-        </Button>
+        <Link to="/tournaments/create">
+          <Button
+            type="primary"
+            size="large"
+            style={{
+              height: "48px",
+              padding: "0 40px",
+              fontSize: "16px",
+              fontWeight: 600,
+              background: "linear-gradient(135deg, #722ed1 0%, #1677ff 100%)",
+              border: "none",
+              borderRadius: "8px",
+              boxShadow: "0 4px 12px rgba(114, 46, 209, 0.3)",
+            }}
+          >
+            Đăng ký tham gia giải đấu
+          </Button>
+        </Link>
+        <div style={{ marginTop: "16px" }}>
+          <Text type="secondary">
+            Đang có {tournaments.length} giải đấu nổi bật
+          </Text>
+        </div>
       </div>
     </section>
   );

@@ -27,11 +27,9 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
       form.setFieldsValue(data.settings);
     }
   }, [data.settings, form]);
-
+  console.log(data.settings);
   const onFinish = (values: any): void => {
-    console.log('Form values:', values);
     updateData('settings', { ...data.settings, ...values });
-    message.success('Đã lưu cài đặt giải đấu');
   };
 
   // Lấy tournamentFormat từ data.basicInfo (nếu có)

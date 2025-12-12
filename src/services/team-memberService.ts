@@ -1,9 +1,12 @@
+import { jwtDecode } from 'jwt-decode';
 import api from './api';
-import type { 
-  TeamMember, 
-  CreateTeamMemberDto, 
-  UpdateTeamMemberDto 
+import type {
+  TeamMember,
+  CreateTeamMemberDto,
+  UpdateTeamMemberDto,
+  TeamStats
 } from '@/common/types/team';
+import type { JwtPayload } from '@/common/interfaces/payload/jwt-payload';
 
 export class TeamMemberService {
   private baseUrl = '/teams';
@@ -90,33 +93,56 @@ export class TeamMemberService {
     try {
       const response = await api.get(`${this.baseUrl}/${teamId}`);
       const team = response.data.data;
-      
-      const currentUserId = localStorage.getItem('user_id');
-      
+
+      const token = localStorage.getItem('access_token');
+      const decoded: JwtPayload = jwtDecode(token || '');
+      const currentUserId = decoded.id;
+
       if (team.createdById === currentUserId) {
         return true;
       }
       const members = await this.getMembers(teamId);
-      const captainMember = members.find(m => 
-        m.userId === currentUserId && 
-        m.role === 'CAPTAIN' && 
+      const captainMember = members.find(m =>
+        m.userId === currentUserId &&
+        m.role === 'CAPTAIN' &&
         m.status === 'active'
       );
-      
+
       return !!captainMember;
     } catch (error) {
       return false;
     }
   }
+  async checkInGameNameExists(
+    teamId: string,
+    inGameName: string,
+    excludeMemberId?: string
+  ): Promise<boolean> {
+    try {
+      const response = await api.post(`/teams/${teamId}/members/check-in-game-name`, {
+        inGameName,
+        excludeMemberId
+      });
+      return response.data.data.exists;
+    } catch (error) {
+      console.error('Error checking in-game name:', error);
+      throw error;
+    }
+  }
+
+  async getTeamStats(teamId: string): Promise<TeamStats> {
+    const response = await api.get(`/teams/${teamId}/members/stats/team-stats`);
+    return response.data.data;
+  }
 
   private handleError(error: any, defaultMessage: string): Error {
     if (error.response) {
       const { status, data } = error.response;
-      
+
       switch (status) {
         case 400:
           const message = data.message || 'Dữ liệu không hợp lệ';
-          
+
           if (message.includes('đã là thành viên')) {
             return new Error('Người này đã là thành viên của đội khác');
           }
@@ -133,7 +159,7 @@ export class TeamMemberService {
             return new Error('Đội trưởng không thể rời đội. Vui lòng chuyển quyền đội trưởng trước');
           }
           return new Error(message);
-          
+
         case 401:
           return new Error('Bạn cần đăng nhập để thực hiện thao tác này');
         case 403:

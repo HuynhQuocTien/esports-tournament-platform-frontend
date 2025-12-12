@@ -17,7 +17,7 @@ export const AdminRouter = () => {
   return (
     <Routes>
       <Route element={
-        user?.userType === null
+        user?.role === null
       ? <AdminLayout />
       : <Navigate to="/" replace />
       }>

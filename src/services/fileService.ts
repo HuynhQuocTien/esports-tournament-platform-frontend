@@ -29,14 +29,11 @@ export const fileService = {
   
   async uploadImage(file: File, type: 'logo' | 'banner'): Promise<string> {
     try {
-      // Upload file
       const uploadResult = await this.upload(file);
       
       if (!uploadResult.filename) {
         throw new Error('Upload failed: no filename returned');
       }
-      
-      // Get signed URL
       const signedUrlResult = await this.getSignedUrl(uploadResult.filename);
       
       return signedUrlResult.signedUrl;

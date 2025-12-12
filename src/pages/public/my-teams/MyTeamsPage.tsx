@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Modal, 
-  Form, 
-  Input, 
-  message, 
-  Typography, 
-  Space, 
-  Tag, 
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  message,
+  Typography,
+  Space,
+  Tag,
   Tooltip,
   Avatar,
   Row,
@@ -20,207 +20,198 @@ import {
   Badge,
   Popconfirm,
   Progress,
-  Image
-} from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  TeamOutlined, 
+  Image,
+  Spin,
+  Empty,
+  Switch,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  TeamOutlined,
   UserOutlined,
   TrophyOutlined,
   CrownOutlined,
   EyeOutlined,
   LinkOutlined,
   MailOutlined,
-  PhoneOutlined
-} from '@ant-design/icons';
-import { Link } from 'react-router-dom';
+  PhoneOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import { useTeam } from "@/hooks/useTeam";
+import { teamService } from "@/services/teamService";
+import { gameService } from "@/services/gameService";
+import type { Team, Game } from "@/common/types/team";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface Team {
-  id: string;
-  name: string;
-  game: string;
-  gameId?: string;
-  logo?: string;
-  description?: string;
-  members: number;
-  maxMembers: number;
-  captain: string;
-  captainId?: string;
-  status: 'active' | 'inactive' | 'recruiting';
-  createdAt: string;
-  updatedAt: string;
-  avatar: string;
-  winRate: number;
-  tournamentsCount: number;
-  contactEmail?: string;
-  contactPhone?: string;
-  discordLink?: string;
-  tags?: string[];
-  isActive: boolean;
-}
-
 export const MyTeamsPage: React.FC = () => {
-  const [teams, setTeams] = useState<Team[]>([
-    {
-      id: '1',
-      name: 'Team Phoenix',
-      game: 'Valorant',
-      gameId: 'game1',
-      logo: 'https://picsum.photos/seed/team1/200/200',
-      description: 'Đội tuyển Valorant chuyên nghiệp',
-      members: 5,
-      maxMembers: 6,
-      captain: 'Nguyễn Văn A',
-      captainId: 'user1',
-      status: 'recruiting',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-20',
-      avatar: 'https://picsum.photos/seed/team1/100/100',
-      winRate: 75,
-      tournamentsCount: 8,
-      contactEmail: 'team-phoenix@esports.vn',
-      contactPhone: '+84 123 456 789',
-      discordLink: 'https://discord.gg/phoenix',
-      tags: ['Competitive', 'Professional', 'Valorant'],
-      isActive: true
-    },
-    {
-      id: '2',
-      name: 'Team Alpha',
-      game: 'League of Legends',
-      gameId: 'game2',
-      logo: 'https://picsum.photos/seed/team2/200/200',
-      description: 'Team LOL competitive',
-      members: 4,
-      maxMembers: 5,
-      captain: 'Trần Văn B',
-      captainId: 'user2',
-      status: 'active',
-      createdAt: '2024-01-10',
-      updatedAt: '2024-01-18',
-      avatar: 'https://picsum.photos/seed/team2/100/100',
-      winRate: 62,
-      tournamentsCount: 5,
-      contactEmail: 'team-alpha@esports.vn',
-      contactPhone: '+84 987 654 321',
-      discordLink: 'https://discord.gg/alpha',
-      tags: ['LOL', 'Competitive'],
-      isActive: true
-    },
-  ]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [gamesLoading, setGamesLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [searchParams, setSearchParams] = useState({
+    search: "",
+  });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [viewingTeam, setViewingTeam] = useState<Team | null>(null);
   const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
 
-  // Fetch teams from API
+  const navigate = useNavigate();
+  const { createTeam, updateTeam, deleteTeam, updateTeamStatus } = useTeam();
+
+  // Fetch games và teams từ API
   useEffect(() => {
-    // TODO: Gọi API lấy danh sách đội
-    // fetchMyTeams();
-  }, []);
+    fetchGames();
+    fetchTeams();
+  }, [pagination.page, pagination.limit, searchParams]);
 
-  const handleAdd = () => {
-    form.validateFields().then((values) => {
-      const newTeam: Team = {
-        id: Date.now().toString(),
-        ...values,
-        members: 1, // Mặc định có đội trưởng
-        winRate: 0,
-        tournamentsCount: 0,
-        createdAt: new Date().toISOString().split('T')[0],
-        updatedAt: new Date().toISOString().split('T')[0],
-        avatar: `https://picsum.photos/seed/team${Date.now()}/100/100`,
-        logo: values.logo || `https://picsum.photos/seed/team${Date.now()}/200/200`,
-        isActive: true,
-        status: 'recruiting'
-      };
-      
-      // TODO: Gọi API tạo đội
-      // await createTeam(newTeam);
-      
-      setTeams([...teams, newTeam]);
-      setIsModalOpen(false);
-      message.success('Tạo đội thành công!');
-      form.resetFields();
-    }).catch(error => {
-      console.error('Validation failed:', error);
-    });
+  const fetchGames = async () => {
+    try {
+      const gamesData = await gameService.getGames();
+      setGames(Array.isArray(gamesData) ? gamesData : []);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách game:", error);
+    } finally {
+      setGamesLoading(false);
+    }
   };
 
-  const handleView = (team: Team) => {
-    setViewingTeam(team);
-    setIsViewModalOpen(true);
+  const fetchTeams = async () => {
+    setLoading(true);
+    try {
+      const response = await teamService.getMyTeams({
+        page: pagination.page,
+        limit: pagination.limit,
+        ...searchParams,
+      });
+
+      setTeams(response.data);
+      setPagination({
+        ...pagination,
+        total: response.meta.total,
+        totalPages: response.meta.totalPages,
+      });
+    } catch (error: any) {
+      message.error(error.message || "Lấy danh sách đội thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (values: any) => {
+    setSearchParams({
+      search: values.search || "",
+    });
+    setPagination({ ...pagination, page: 1 });
+  };
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+
+      // Convert game name to gameId nếu cần
+      if (values.game) {
+        const selectedGame = games.find((g) => g.name === values.game);
+        if (selectedGame) {
+          values.gameId = selectedGame.id;
+        }
+      }
+
+      const result = await createTeam(values);
+      if (result) {
+        setIsModalOpen(false);
+        form.resetFields();
+        fetchTeams(); // Refresh danh sách
+      }
+    } catch (error) {
+      console.error("Validation failed:", error);
+    }
   };
 
   const handleEdit = (team: Team) => {
     setEditingTeam(team);
     form.setFieldsValue({
       ...team,
-      gameId: team.gameId || team.game // Map game name to gameId if needed
+      game: team.game?.name || team.gameId,
     });
     setIsModalOpen(true);
   };
 
-  const handleUpdate = () => {
-    form.validateFields().then((values) => {
-      const updatedTeam = {
-        ...values,
-        updatedAt: new Date().toISOString().split('T')[0]
-      };
-      
-      // TODO: Gọi API update team
-      // await updateTeam(editingTeam?.id!, updatedTeam);
-      
-      setTeams(teams.map(team => 
-        team.id === editingTeam?.id ? { ...team, ...updatedTeam } : team
-      ));
-      setIsModalOpen(false);
-      setEditingTeam(null);
-      message.success('Cập nhật đội thành công!');
-      form.resetFields();
-    }).catch(error => {
-      console.error('Validation failed:', error);
-    });
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleUpdate = async () => {
     try {
-      // TODO: Gọi API xóa đội
-      // await deleteTeam(id);
-      
-      setTeams(teams.filter(team => team.id !== id));
-      message.success('Xóa đội thành công!');
+      const values = await form.validateFields();
+
+      if (editingTeam) {
+        const result = await updateTeam(editingTeam.id, values);
+        if (result) {
+          setIsModalOpen(false);
+          setEditingTeam(null);
+          form.resetFields();
+          fetchTeams();
+        }
+      }
     } catch (error) {
-      message.error('Xóa đội thất bại!');
+      console.error("Validation failed:", error);
     }
   };
 
-  const handleToggleStatus = async (id: string, newStatus: Team['status']) => {
+  const handleDelete = async (id: string) => {
+    Modal.confirm({
+      title: "Xác nhận xóa",
+      content:
+        "Bạn có chắc chắn muốn xóa đội này? Hành động này không thể hoàn tác.",
+      okText: "Xóa",
+      cancelText: "Hủy",
+      okButtonProps: { danger: true },
+      async onOk() {
+        const success = await deleteTeam(id);
+        if (success) {
+          fetchTeams();
+        }
+      },
+    });
+  };
+
+  const handleView = async (team: Team) => {
     try {
-      // TODO: Gọi API thay đổi trạng thái
-      // await updateTeamStatus(id, newStatus);
-      
-      setTeams(teams.map(team => 
-        team.id === id ? { ...team, status: newStatus } : team
-      ));
-      message.success('Cập nhật trạng thái thành công!');
-    } catch (error) {
-      message.error('Cập nhật trạng thái thất bại!');
+      // Lấy thông tin chi tiết đội
+      const teamDetail = await teamService.getTeam(team.id);
+      setViewingTeam(teamDetail);
+      setIsViewModalOpen(true);
+    } catch (error: any) {
+      message.error(error.message || "Lấy thông tin đội thất bại");
+    }
+  };
+
+  const handleToggleStatus = async (id: string, newStatus: Team["status"]) => {
+    const result = await updateTeamStatus(id, newStatus);
+    if (result) {
+      fetchTeams();
     }
   };
 
   const getStatusTag = (status: string) => {
     const config = {
-      active: { color: 'green', text: 'Đang hoạt động' },
-      recruiting: { color: 'blue', text: 'Đang tuyển thành viên' },
-      inactive: { color: 'red', text: 'Ngừng hoạt động' }
+      active: { color: "green", text: "Đang hoạt động" },
+      recruiting: { color: "blue", text: "Đang tuyển thành viên" },
+      inactive: { color: "red", text: "Ngừng hoạt động" },
     };
     const statusConfig = config[status as keyof typeof config];
     return <Tag color={statusConfig.color}>{statusConfig.text}</Tag>;
@@ -228,121 +219,149 @@ export const MyTeamsPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'Đội',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Đội",
+      dataIndex: "name",
+      key: "name",
       render: (name: string, record: Team) => (
         <Space>
-          <Avatar 
-            src={record.logo || record.avatar} 
-            size="large" 
+          <Avatar
+            src={record.logo}
+            size="large"
             shape="square"
             style={{ borderRadius: 8 }}
+            icon={<TeamOutlined />}
           />
           <div>
-            <Text strong style={{ fontSize: 14, display: 'block' }}>{name}</Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>Game: {record.game}  -  </Text>
-            <Text type="secondary" style={{ fontSize: 12 }}>Đội trưởng: {record.captain}</Text>
-            {record.tags && record.tags.length > 0 && (
-              <div style={{ marginTop: 4 }}>
-                {record.tags.slice(0, 2).map((tag, index) => (
-                  <Tag key={index} color="default">
-                    {tag}
-                  </Tag>
-                ))}
-                {record.tags.length > 2 && (
-                  <Text type="secondary" style={{ fontSize: 11 }}>+{record.tags.length - 2}</Text>
-                )}
-              </div>
-            )}
+            <Text strong style={{ fontSize: 14, display: "block" }}>
+              {name}
+            </Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {record.game?.name || record.gameId}
+            </Text>
           </div>
         </Space>
       ),
     },
     {
-      title: 'Thành viên',
-      dataIndex: 'members',
-      key: 'members',
-      render: (members: number, record: Team) => (
-        <div style={{ minWidth: 120 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <Text strong>{members}/{record.maxMembers}</Text>
-            {record.status === 'recruiting' && (
-              <Badge status="processing" text="Còn chỗ" />
-            )}
+      title: "Thành viên",
+      dataIndex: "members",
+      key: "members",
+      render: (members: any[], record: Team) => {
+        const activeMembers =
+          members?.filter((m) => m.status === "active" && m.isApproved) || [];
+        return (
+          <div style={{ minWidth: 120 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 4,
+              }}
+            >
+              <Text strong>
+                {activeMembers.length}/{record.maxMembers}
+              </Text>
+              {record.status === "recruiting" && (
+                <Badge status="processing" text="Còn chỗ" />
+              )}
+            </div>
+            <Progress
+              percent={(activeMembers.length / record.maxMembers) * 100}
+              size="small"
+              showInfo={false}
+              strokeColor={
+                activeMembers.length >= record.maxMembers
+                  ? "#ff4d4f"
+                  : "#52c41a"
+              }
+            />
           </div>
-          <Progress 
-            percent={(members / record.maxMembers) * 100} 
-            size="small" 
-            showInfo={false}
-            strokeColor={members >= record.maxMembers ? '#ff4d4f' : '#52c41a'}
-          />
-        </div>
-      ),
+        );
+      },
     },
     {
-      title: 'Hiệu suất',
-      dataIndex: 'winRate',
-      key: 'winRate',
+      title: "Hiệu suất",
+      dataIndex: "winRate",
+      key: "winRate",
       render: (winRate: number) => (
-        <div style={{ textAlign: 'center' }}>
-          <Text strong style={{ 
-            fontSize: 16, 
-            color: winRate >= 70 ? '#52c41a' : winRate >= 50 ? '#faad14' : '#ff4d4f' 
-          }}>
+        <div style={{ textAlign: "center" }}>
+          <Text
+            strong
+            style={{
+              fontSize: 16,
+              color:
+                winRate >= 70
+                  ? "#52c41a"
+                  : winRate >= 50
+                  ? "#faad14"
+                  : "#ff4d4f",
+            }}
+          >
             {winRate}%
           </Text>
-          <Text type="secondary" style={{ fontSize: 11 }}>Tỷ lệ thắng</Text>
+          <Text type="secondary" style={{ fontSize: 11 }}>
+            &nbsp; Tỷ lệ thắng
+          </Text>
         </div>
       ),
     },
     {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
       render: (status: string, record: Team) => (
-        <Space direction="vertical">
-          {getStatusTag(status)}
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            {dayjs(record.updatedAt).format('DD/MM/YYYY')}
-          </Text>
+        <Space direction="vertical" align="center">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Switch
+              checked={status === "active"}
+              checkedChildren="Đang hoạt động"
+              unCheckedChildren="Ngừng hoạt động"
+              onChange={(checked) => {
+                const newStatus = checked ? "active" : "inactive";
+                handleToggleStatus(record.id, newStatus);
+              }}
+              disabled={record.isDeleted || status === "recruiting"}
+            />
+            {status === "recruiting" && (
+              <Tag color="blue" style={{ marginLeft: 8 }}>
+                Đang tuyển
+              </Tag>
+            )}
+          </div>
         </Space>
       ),
     },
     {
-      title: 'Hành động',
-      key: 'actions',
-      width: 150,
-      render: (_ : any, record: Team) => (
+      title: "Hành động",
+      key: "actions",
+      width: 180,
+      render: (_: any, record: Team) => (
         <Space>
           <Tooltip title="Xem chi tiết">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
               size="small"
               onClick={() => handleView(record)}
             />
           </Tooltip>
-          
+
           <Tooltip title="Quản lý thành viên">
             <Link to={`/team/${record.id}/members`}>
-              <Button 
-                type="text" 
-                icon={<TeamOutlined />} 
-                size="small"
-              />
+              <Button type="text" icon={<TeamOutlined />} size="small" />
             </Link>
           </Tooltip>
-          
+
           <Tooltip title="Chỉnh sửa">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
+            <Button
+              type="text"
+              icon={<EditOutlined />}
               size="small"
               onClick={() => handleEdit(record)}
+              disabled={record.isDeleted}
             />
           </Tooltip>
-          
+
           <Popconfirm
             title="Xác nhận xóa"
             description="Bạn có chắc chắn muốn xóa đội này?"
@@ -350,13 +369,15 @@ export const MyTeamsPage: React.FC = () => {
             okText="Xóa"
             cancelText="Hủy"
             okButtonProps={{ danger: true }}
+            disabled={record.isDeleted}
           >
-            <Tooltip title="Xóa">
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />} 
+            <Tooltip title={record.isDeleted ? "Đã xóa" : "Xóa"}>
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
                 size="small"
+                disabled={record.isDeleted}
               />
             </Tooltip>
           </Popconfirm>
@@ -366,30 +387,46 @@ export const MyTeamsPage: React.FC = () => {
   ];
 
   const teamStats = {
-    totalTeams: teams.length,
-    totalMembers: teams.reduce((sum, team) => sum + team.members, 0),
-    activeTeams: teams.filter(team => team.status === 'active').length,
-    recruitingTeams: teams.filter(team => team.status === 'recruiting').length,
-    avgWinRate: Math.round(teams.reduce((sum, team) => sum + team.winRate, 0) / teams.length)
+    totalTeams: pagination.total,
+    activeTeams: teams.filter((team) => team.status === "active").length,
+    recruitingTeams: teams.filter((team) => team.status === "recruiting")
+      .length,
+    avgWinRate:
+      teams.length > 0
+        ? Math.round(
+            teams.reduce((sum, team) => sum + Number(team.winRate || 0), 0) /
+              teams.length
+          )
+        : 0,
   };
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: 24,
+        }}
+      >
         <div>
-          <Title level={2} style={{ 
-            margin: 0,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}>
+          <Title
+            level={2}
+            style={{
+              margin: 0,
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
             🏃 Đội của tôi
           </Title>
           <Text type="secondary">Quản lý các đội bạn đã tạo hoặc tham gia</Text>
         </div>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
           size="large"
           onClick={() => {
             setEditingTeam(null);
@@ -401,76 +438,147 @@ export const MyTeamsPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Search Form */}
+      <Card style={{ marginBottom: 24, borderRadius: 12 }}>
+        <Form form={searchForm} layout="inline" onFinish={handleSearch}>
+          <Form.Item name="search" style={{ flex: 1 }}>
+            <Input
+              placeholder="Tìm kiếm theo tên đội hoặc mô tả..."
+              prefix={<SearchOutlined />}
+              allowClear
+            />
+          </Form.Item>
+          <Form.Item name="status">
+            <Select placeholder="Trạng thái" style={{ width: 150 }} allowClear>
+              <Option value="active">Đang hoạt động</Option>
+              <Option value="inactive">Ngừng hoạt động</Option>
+              <Option value="recruiting">Đang tuyển</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={searchLoading}>
+              Tìm kiếm
+            </Button>
+          </Form.Item>
+          <Form.Item>
+            <Button
+              onClick={() => {
+                searchForm.resetFields();
+                setSearchParams({ search: "" });
+              }}
+            >
+              Đặt lại
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+
       {/* Stats Overview */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={6}>
-          <Card style={{ borderRadius: 12, textAlign: 'center' }}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }}>
             <Statistic
               title="Tổng số đội"
               value={teamStats.totalTeams}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderRadius: 12, textAlign: 'center' }}>
-            <Statistic
-              title="Thành viên"
-              value={teamStats.totalMembers}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#52c41a' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={6}>
-          <Card style={{ borderRadius: 12, textAlign: 'center' }}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }}>
             <Statistic
               title="Đội đang hoạt động"
               value={teamStats.activeTeams}
               prefix={<CrownOutlined />}
-              valueStyle={{ color: '#faad14' }}
+              valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={6}>
-          <Card style={{ borderRadius: 12, textAlign: 'center' }}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }}>
+            <Statistic
+              title="Đội đang tuyển"
+              value={teamStats.recruitingTeams}
+              valueStyle={{ color: "#faad14" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={6}>
+          <Card style={{ borderRadius: 12, textAlign: "center" }}>
             <Statistic
               title="Tỷ lệ thắng TB"
               value={teamStats.avgWinRate}
               suffix="%"
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: "#ff4d4f" }}
             />
           </Card>
         </Col>
       </Row>
 
+      {/* Teams Table */}
       <Card
         style={{
           borderRadius: 16,
-          border: 'none',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          background: 'white',
+          border: "none",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          background: "white",
         }}
       >
-        <Table
-          dataSource={teams}
-          columns={columns}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} trong ${total} đội`,
-          }}
-        />
+        {loading ? (
+          <div style={{ textAlign: "center", padding: 40 }}>
+            <Spin size="large" />
+          </div>
+        ) : teams.length === 0 ? (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description={
+              searchParams.search
+                ? "Không tìm thấy đội phù hợp"
+                : "Bạn chưa có đội nào. Hãy tạo đội đầu tiên!"
+            }
+          >
+            {!searchParams.search && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalOpen(true)}
+              >
+                Tạo đội đầu tiên
+              </Button>
+            )}
+          </Empty>
+        ) : (
+          <Table
+            dataSource={teams}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.page,
+              pageSize: pagination.limit,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} trong ${total} đội`,
+              onChange: (page, pageSize) => {
+                setPagination({
+                  ...pagination,
+                  page,
+                  limit: pageSize,
+                });
+              },
+            }}
+          />
+        )}
       </Card>
 
       {/* Create/Edit Team Modal */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <TeamOutlined />
-            {editingTeam ? 'Chỉnh sửa đội' : 'Tạo đội mới'}
+            {editingTeam ? "Chỉnh sửa đội" : "Tạo đội mới"}
           </div>
         }
         open={isModalOpen}
@@ -480,116 +588,238 @@ export const MyTeamsPage: React.FC = () => {
           setEditingTeam(null);
           form.resetFields();
         }}
-        okText={editingTeam ? 'Cập nhật' : 'Tạo mới'}
+        okText={editingTeam ? "Cập nhật" : "Tạo mới"}
         cancelText="Hủy"
         width={600}
+        confirmLoading={loading}
       >
         <Form form={form} layout="vertical" style={{ marginTop: 20 }}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item 
-                name="name" 
-                label="Tên đội" 
-                rules={[{ required: true, message: 'Vui lòng nhập tên đội!' }]}
+              <Form.Item
+                name="name"
+                label="Tên đội"
+                rules={[
+                  { required: true, message: "Vui lòng nhập tên đội!" },
+                  { min: 3, message: "Tên đội phải có ít nhất 3 ký tự" },
+                  { max: 50, message: "Tên đội không quá 50 ký tự" },
+                ]}
               >
                 <Input placeholder="Nhập tên đội" size="large" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item 
-                name="gameId" 
-                label="Game" 
-                rules={[{ required: true, message: 'Vui lòng chọn game!' }]}
+              <Form.Item
+                name="gameId"
+                label="Game"
+                rules={[{ required: true, message: "Vui lòng chọn game!" }]}
               >
-                <Select placeholder="Chọn game" size="large">
-                  <Option value="game1">Valorant</Option>
-                  <Option value="game2">League of Legends</Option>
-                  <Option value="game3">Counter-Strike 2</Option>
-                  <Option value="game4">DOTA 2</Option>
-                  <Option value="game5">PUBG Mobile</Option>
+                <Select
+                  placeholder="Chọn game"
+                  size="large"
+                  loading={gamesLoading}
+                  showSearch
+                  optionFilterProp="children"
+                  filterOption={(input: string, option: any) => {
+                    const children = option?.children;
+                    if (typeof children === "string") {
+                      return children
+                        .toLowerCase()
+                        .includes(input.toLowerCase());
+                    }
+                    if (Array.isArray(children)) {
+                      return children.some(
+                        (child) =>
+                          typeof child === "string" &&
+                          child.toLowerCase().includes(input.toLowerCase())
+                      );
+                    }
+                    return false;
+                  }}
+                  filterSort={(optionA, optionB) => {
+                    const a = String(optionA?.children ?? "").toLowerCase();
+                    const b = String(optionB?.children ?? "").toLowerCase();
+                    return a.localeCompare(b);
+                  }}
+                  notFoundContent={
+                    <div
+                      style={{ padding: 8, textAlign: "center", color: "#999" }}
+                    >
+                      {gamesLoading ? "Đang tải..." : "Không tìm thấy game"}
+                    </div>
+                  }
+                  allowClear
+                >
+                  {Array.isArray(games) && games.length > 0 ? (
+                    games.map((game) => {
+                      return (
+                        <Option key={game.id} value={game.id}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                            }}
+                          >
+                            <img
+                              src={
+                                game.logo ||
+                                `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                  game.name
+                                )}&background=1890ff&color=fff`
+                              }
+                              alt={game.name}
+                              style={{
+                                width: 20,
+                                height: 20,
+                                borderRadius: 4,
+                                objectFit: "contain",
+                              }}
+                              onError={(e) => {
+                                (
+                                  e.target as HTMLImageElement
+                                ).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                  game.name
+                                )}&background=1890ff&color=fff`;
+                              }}
+                            />
+                            <div>
+                              <div style={{ fontWeight: 500 }}>{game.name}</div>
+                            </div>
+                          </div>
+                        </Option>
+                      );
+                    })
+                  ) : (
+                    <Option disabled value="no-games">
+                      <div style={{ textAlign: "center", color: "#999" }}>
+                        {gamesLoading
+                          ? "Đang tải danh sách game..."
+                          : "Không có game nào"}
+                      </div>
+                    </Option>
+                  )}
                 </Select>
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item 
-            name="description" 
+          <Form.Item
+            name="description"
             label="Mô tả"
+            rules={[{ max: 500, message: "Mô tả không quá 500 ký tự" }]}
           >
-            <Input.TextArea 
-              placeholder="Mô tả về đội..." 
-              rows={3} 
-              size="large" 
+            <Input.TextArea
+              placeholder="Mô tả về đội..."
+              rows={3}
+              size="large"
+              showCount
+              maxLength={500}
             />
           </Form.Item>
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item 
-                name="maxMembers" 
-                label="Số thành viên tối đa" 
-                rules={[{ required: true, message: 'Vui lòng nhập số thành viên tối đa!' }]}
+              <Form.Item
+                name="maxMembers"
+                label="Số thành viên tối đa"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập số thành viên tối đa!",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    max: 20,
+                    message: "Số thành viên từ 1 đến 20",
+                  },
+                ]}
               >
-                <InputNumber 
-                  placeholder="Nhập số thành viên tối đa" 
-                  style={{ width: '100%' }} 
-                  min={1}
-                  max={20}
+                <InputNumber
+                  placeholder="Nhập số thành viên tối đa"
+                  style={{ width: "100%" }}
                   size="large"
                 />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item 
-                name="captain" 
-                label="Đội trưởng" 
-                rules={[{ required: true, message: 'Vui lòng nhập tên đội trưởng!' }]}
-              >
-                <Input placeholder="Nhập tên đội trưởng" size="large" />
+              <Form.Item name="status" label="Trạng thái">
+                <Select placeholder="Chọn trạng thái" size="large">
+                  <Option value="active">Hoạt động</Option>
+                  <Option value="inactive">Ngừng hoạt động</Option>
+                  <Option value="recruiting">Đang tuyển</Option>
+                </Select>
               </Form.Item>
             </Col>
           </Row>
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item 
-                name="contactEmail" 
+              <Form.Item
+                name="contactEmail"
                 label="Email liên hệ"
-                rules={[{ type: 'email', message: 'Email không hợp lệ!' }]}
+                rules={[{ type: "email", message: "Email không hợp lệ!" }]}
               >
-                <Input prefix={<MailOutlined />} placeholder="Email liên hệ" size="large" />
+                <Input
+                  prefix={<MailOutlined />}
+                  placeholder="Email liên hệ"
+                  size="large"
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item 
-                name="contactPhone" 
+              <Form.Item
+                name="contactPhone"
                 label="Số điện thoại"
+                rules={[
+                  {
+                    pattern: /^[0-9+\-\s]+$/,
+                    message: "Số điện thoại không hợp lệ",
+                  },
+                ]}
               >
-                <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" size="large" />
+                <Input
+                  prefix={<PhoneOutlined />}
+                  placeholder="Số điện thoại"
+                  size="large"
+                />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item 
-            name="discordLink" 
+          <Form.Item
+            name="discordLink"
             label="Link Discord"
+            rules={[{ type: "url", message: "URL không hợp lệ!" }]}
           >
-            <Input prefix={<LinkOutlined />} placeholder="https://discord.gg/..." size="large" />
+            <Input
+              prefix={<LinkOutlined />}
+              placeholder="https://discord.gg/..."
+              size="large"
+            />
           </Form.Item>
 
-          <Form.Item 
-            name="logo" 
+          <Form.Item
+            name="logo"
             label="URL Logo"
+            rules={[{ type: "url", message: "URL không hợp lệ!" }]}
           >
             <Input placeholder="https://example.com/logo.png" size="large" />
+          </Form.Item>
+
+          <Form.Item name="tags" label="Tags (cách nhau bằng dấu phẩy)">
+            <Input
+              placeholder="Ví dụ: competitive, professional, esports"
+              size="large"
+            />
           </Form.Item>
         </Form>
       </Modal>
 
-      {/* View Team Modal */}
       <Modal
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <EyeOutlined />
             Chi tiết đội
           </div>
@@ -603,33 +833,42 @@ export const MyTeamsPage: React.FC = () => {
           <Button key="close" onClick={() => setIsViewModalOpen(false)}>
             Đóng
           </Button>,
-          <Button key="edit" type="primary" onClick={() => {
-            setIsViewModalOpen(false);
-            handleEdit(viewingTeam!);
-          }}>
+          <Button
+            key="edit"
+            type="primary"
+            onClick={() => {
+              setIsViewModalOpen(false);
+              if (viewingTeam) handleEdit(viewingTeam);
+            }}
+            disabled={viewingTeam?.isDeleted}
+          >
             Chỉnh sửa
           </Button>,
           <Link key="members" to={`/team/${viewingTeam?.id}/members`}>
             <Button type="primary" ghost>
               Quản lý thành viên
             </Button>
-          </Link>
+          </Link>,
         ]}
         width={700}
       >
         {viewingTeam && (
           <div>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <Avatar 
-                src={viewingTeam.logo || viewingTeam.avatar} 
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <Avatar
+                src={viewingTeam.logo}
                 size={100}
                 shape="square"
                 style={{ borderRadius: 12, marginBottom: 16 }}
+                icon={<TeamOutlined />}
               />
               <Title level={3}>{viewingTeam.name}</Title>
               <Space>
-                <Tag color="blue">{viewingTeam.game}</Tag>
+                <Tag color="blue">
+                  {viewingTeam.game?.name || viewingTeam.gameId}
+                </Tag>
                 {getStatusTag(viewingTeam.status)}
+                {viewingTeam.isDeleted && <Tag color="red">Đã xóa</Tag>}
               </Space>
             </div>
 
@@ -638,7 +877,11 @@ export const MyTeamsPage: React.FC = () => {
                 <Card size="small">
                   <Statistic
                     title="Thành viên"
-                    value={`${viewingTeam.members}/${viewingTeam.maxMembers}`}
+                    value={`${
+                      viewingTeam.members?.filter(
+                        (m: any) => m.status === "active" && m.isApproved
+                      ).length || 0
+                    }/${viewingTeam.maxMembers}`}
                     prefix={<UserOutlined />}
                   />
                 </Card>
@@ -649,9 +892,13 @@ export const MyTeamsPage: React.FC = () => {
                     title="Tỷ lệ thắng"
                     value={viewingTeam.winRate}
                     suffix="%"
-                    valueStyle={{ 
-                      color: viewingTeam.winRate >= 70 ? '#52c41a' : 
-                            viewingTeam.winRate >= 50 ? '#faad14' : '#ff4d4f' 
+                    valueStyle={{
+                      color:
+                        viewingTeam.winRate >= 70
+                          ? "#52c41a"
+                          : viewingTeam.winRate >= 50
+                          ? "#faad14"
+                          : "#ff4d4f",
                     }}
                   />
                 </Card>
@@ -660,15 +907,15 @@ export const MyTeamsPage: React.FC = () => {
 
             <div style={{ marginBottom: 16 }}>
               <Text strong>Mô tả:</Text>
-              <Text style={{ display: 'block', marginTop: 8 }}>
-                {viewingTeam.description || 'Chưa có mô tả'}
+              <Text style={{ display: "block", marginTop: 8 }}>
+                {viewingTeam.description || "Chưa có mô tả"}
               </Text>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <Text strong>Đội trưởng:</Text>
-              <Text style={{ display: 'block', marginTop: 4 }}>
-                {viewingTeam.captain}
+              <Text strong>Người tạo:</Text>
+              <Text style={{ display: "block", marginTop: 4 }}>
+                {viewingTeam.createdBy?.fullname || "Không xác định"}
               </Text>
             </div>
 
@@ -676,21 +923,41 @@ export const MyTeamsPage: React.FC = () => {
               <Text strong>Liên hệ:</Text>
               <div style={{ marginTop: 8 }}>
                 {viewingTeam.contactEmail && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 4,
+                    }}
+                  >
                     <MailOutlined />
                     <Text>{viewingTeam.contactEmail}</Text>
                   </div>
                 )}
                 {viewingTeam.contactPhone && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 4,
+                    }}
+                  >
                     <PhoneOutlined />
                     <Text>{viewingTeam.contactPhone}</Text>
                   </div>
                 )}
                 {viewingTeam.discordLink && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
                     <LinkOutlined />
-                    <a href={viewingTeam.discordLink} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={viewingTeam.discordLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Discord
                     </a>
                   </div>
@@ -702,7 +969,7 @@ export const MyTeamsPage: React.FC = () => {
               <div style={{ marginBottom: 16 }}>
                 <Text strong>Tags:</Text>
                 <div style={{ marginTop: 8 }}>
-                  {viewingTeam.tags.map((tag, index) => (
+                  {viewingTeam.tags.map((tag: string, index: number) => (
                     <Tag key={index} style={{ marginBottom: 4 }}>
                       {tag}
                     </Tag>
@@ -713,11 +980,13 @@ export const MyTeamsPage: React.FC = () => {
 
             <div style={{ marginTop: 16 }}>
               <Text type="secondary" style={{ fontSize: 12 }}>
-                Ngày tạo: {dayjs(viewingTeam.createdAt).format('DD/MM/YYYY HH:mm')}
+                Ngày tạo:{" "}
+                {dayjs(viewingTeam.createdAt).format("DD/MM/YYYY HH:mm")}
               </Text>
               <br />
               <Text type="secondary" style={{ fontSize: 12 }}>
-                Cập nhật: {dayjs(viewingTeam.updatedAt).format('DD/MM/YYYY HH:mm')}
+                Cập nhật:{" "}
+                {dayjs(viewingTeam.updatedAt).format("DD/MM/YYYY HH:mm")}
               </Text>
             </div>
           </div>
@@ -726,5 +995,3 @@ export const MyTeamsPage: React.FC = () => {
     </div>
   );
 };
-
-import dayjs from 'dayjs';

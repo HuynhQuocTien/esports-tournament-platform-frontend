@@ -6,16 +6,16 @@ import {
   ResultsPage,
   SchedulePage,
   TeamsPage,
-  TournamentDetailPage,
   TournamentsPage,
 } from "../pages/public";
-import CreateTournamentPage from "@/pages/public/tournaments/CreateTournamentPage";
+import CreateTournamentPage from "@/pages/organizer/CreateTournamentPage";
 import { UserProfilePage } from "@/pages/public/user-profile/UserProfilePage";
 import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
-import MyTournamentPage from "@/pages/public/tournaments/MyTournamentPage";
-import TournamentSetupPage from "@/pages/public/tournaments/TournamentSettupPage";
+import MyTournamentPage from "@/pages/organizer/MyTournamentPage";
+import TournamentSetupPage from "@/pages/organizer/TournamentSettupPage";
 import { TeamMembersPage } from "@/pages/public/my-teams/TeamMembersPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { TournamentDetailPage } from "@/pages/public/tournaments/TournamentDetail";
 export const PublicRouter = () => {
   return (
     <Routes>

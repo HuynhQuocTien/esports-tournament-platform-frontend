@@ -1,6 +1,6 @@
 import React from 'react';
 import {  Card } from 'antd';
-import type { TournamentStepProps } from '../../../common/types/tournament';
+import type { TournamentStepProps } from '@/common/types/tournament';
 import BracketGenerator from '@/components/bracket/bracket';
 
 const TournamentStages: React.FC<TournamentStepProps> = ({ data }) => {

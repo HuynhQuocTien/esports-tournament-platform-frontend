@@ -1,4 +1,3 @@
-// src/pages/tournaments/components/BracketPreview.tsx
 import React from 'react';
 import { Card, Row, Col, Tag, Empty, Timeline } from 'antd';
 import type { StageConfig } from '../../../common/types/tournament';

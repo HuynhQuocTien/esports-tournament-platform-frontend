@@ -16,7 +16,6 @@ import {
 import { 
   RocketOutlined,
 } from '@ant-design/icons';
-// import { useNavigate } from 'react-router-dom';
 import { tournamentService } from '@/services/tournamentService';
 import type { TournamentBasicInfo } from '@/common/types';
 const { Title, Text } = Typography;
@@ -40,7 +39,6 @@ interface TournamentFormData {
 
 const CreateTournamentPage: React.FC = () => {
   const [form] = Form.useForm();
-  // const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
   const gameOptions = [
@@ -67,13 +65,11 @@ const CreateTournamentPage: React.FC = () => {
   const onFinish = async (values: TournamentBasicInfo) => {
     setLoading(true);
     try {
-      // Chuyển đổi dữ liệu ngày tháng thành ISO string
 
       const res = await tournamentService.create(values);
       if (res)
         message.success('Tạo giải đấu thành công!');
       
-      // navigate(`/tournaments/setup/${res.data.id}`);
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');
       console.log('Error creating tournament:', error);

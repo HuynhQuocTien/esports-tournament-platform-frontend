@@ -1,4 +1,3 @@
-// frontend/src/routers/AdminRouter.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "../components/layouts/admin/AdminLayout";
 import {
@@ -17,7 +16,6 @@ import { Spin } from "antd";
 export const AdminRouter = () => {
   const { user } = useAuth();
   
-  // Nếu đang loading hoặc chưa xác định user
   if (user === undefined) {
     return (
       <div style={{ 

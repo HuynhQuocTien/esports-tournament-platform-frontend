@@ -21,7 +21,6 @@ const { Text } = Typography;
 const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateData }) => {
   const [form] = Form.useForm();
 
-  // Reset form khi data thay đổi
   useEffect(() => {
     if (data.settings && Object.keys(data.settings).length > 0) {
       form.setFieldsValue(data.settings);
@@ -32,7 +31,6 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
     updateData('settings', { ...data.settings, ...values });
   };
 
-  // Lấy tournamentFormat từ data.basicInfo (nếu có)
   const tournamentFormat = data.basicInfo || 'SINGLE_ELIMINATION';
 
   return (
@@ -42,17 +40,14 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
         layout="vertical"
         onFinish={onFinish}
         initialValues={{
-          // Cài đặt đăng ký
           allowTeamRegistration: true,
           requireApproval: false,
           
-          // Cài đặt trận đấu
           allowDraws: false,
           defaultBestOf: 1,
           autoSchedule: false,
           defaultMatchTime: 30,
           
-          // Cài đặt thông báo
           notifyMatchStart: true,
           notifyRegistration: true,
           notifyResults: true,
@@ -61,7 +56,6 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
         }}
       >
         <Row gutter={[24, 16]}>
-          {/* CÀI ĐẶT ĐĂNG KÝ */}
           <Col span={12}>
             <Card title="Cài đặt đăng ký" size="small">
               <Form.Item
@@ -81,25 +75,9 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
               >
                 <Switch />
               </Form.Item>
-
-              {/* <div style={{ marginTop: 16 }}>
-                <Text type="secondary">
-                  <small>
-                    Thể thức giải đấu: <strong>
-                      {tournamentFormat === 'SINGLE_ELIMINATION' && 'Loại trực tiếp'}
-                      {tournamentFormat === 'DOUBLE_ELIMINATION' && 'Loại kép'}
-                      {tournamentFormat === 'ROUND_ROBIN' && 'Vòng tròn'}
-                      {tournamentFormat === 'SWISS_SYSTEM' && 'Hệ Thụy Sĩ'}
-                      {tournamentFormat === 'GROUP_STAGE' && 'Vòng bảng + Playoffs'}
-                      {tournamentFormat === 'HYBRID' && 'Kết hợp'}
-                    </strong>
-                  </small>
-                </Text>
-              </div> */}
             </Card>
           </Col>
 
-          {/* CÀI ĐẶT TRẬN ĐẤU */}
           <Col span={12}>
             <Card title="Cài đặt trận đấu" size="small">
               <Form.Item
@@ -154,7 +132,6 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
             </Card>
           </Col>
 
-          {/* CÀI ĐẶT THÔNG BÁO */}
           <Col span={24}>
             <Card title="Cài đặt thông báo" size="small">
               <Row gutter={[24, 16]}>
@@ -198,7 +175,6 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
             </Card>
           </Col>
 
-          {/* CÀI ĐẶT BỔ SUNG */}
           <Col span={24}>
             <Card title="Cài đặt bổ sung" size="small">
               <Row gutter={[24, 16]}>
@@ -235,7 +211,6 @@ const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateDa
             </Card>
           </Col>
 
-          {/* NÚT LƯU */}
           <Col span={24}>
             <Divider />
             <div style={{ textAlign: 'right' }}>

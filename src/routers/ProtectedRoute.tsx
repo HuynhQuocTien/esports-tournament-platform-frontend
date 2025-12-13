@@ -1,4 +1,3 @@
-// frontend/src/routers/ProtectedRoute.tsx
 import React, { type FC, type ReactElement, useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { Spin } from "antd";

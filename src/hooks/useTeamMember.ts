@@ -25,8 +25,6 @@ export const useTeamMember = () => {
           okText: 'Thêm',
           cancelText: 'Hủy',
           onOk: async () => {
-            // TODO: Xử lý logic thêm thành viên có thể tham gia nhiều đội
-            // Hoặc hiển thị thông báo chi tiết hơn
           },
         });
       } else {
@@ -100,7 +98,6 @@ export const useTeamMember = () => {
     } catch (err: any) {
       setError(err.message);
 
-      // Xử lý trường hợp không thể xóa đội trưởng
       if (err.message.includes('Không thể xóa đội trưởng')) {
         Modal.warning({
           title: 'Không thể xóa đội trưởng',

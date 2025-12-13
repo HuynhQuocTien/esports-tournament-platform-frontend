@@ -82,7 +82,6 @@ export interface TournamentRule {
 
 export interface TournamentRegistration {
   id?: string;
-  // ... thêm các trường cần thiết
 }
 
 export interface TournamentData {
@@ -95,9 +94,7 @@ export interface TournamentData {
 
 export type TournamentDataKey = keyof TournamentData;
 
-// Request DTOs
 export interface CreateTournamentRequest {
-  // BASIC INFO
   name: string;
   game: string;
   description?: string;
@@ -108,7 +105,6 @@ export interface CreateTournamentRequest {
   tournamentStart?: Dayjs;
   tournamentEnd?: Dayjs;
 
-  // SETTINGS
   type: TournamentFormat;
   maxTeams: number;
   minTeamSize: number;
@@ -119,14 +115,12 @@ export interface CreateTournamentRequest {
   prizePool?: number;
   prizeGuaranteed?: boolean;
 
-  // Advanced settings
   setting?: {
     defaultBestOf?: number;
     defaultMatchTime?: number;
     allowDraws?: boolean;
   };
 
-  // SUB ENTITIES
   stages: TournamentStage[];
   rules: TournamentRule[];
   registrations?: TournamentRegistration[];
@@ -162,7 +156,6 @@ export interface FormBasicInfo extends Omit<TournamentBasicInfo, 'registrationSt
 }
 
 
-// API Response
 export interface TournamentApiResponse {
   id: string;
   name: string;
@@ -204,7 +197,6 @@ export interface TournamentApiResponse {
   rules: TournamentRule[];
 }
 
-// API Service Interface
 export interface ITournamentApiService {
   getTournament(id: string): Promise<TournamentApiResponse>;
   createTournament(data: CreateTournamentRequest): Promise<TournamentApiResponse>;
@@ -218,8 +210,6 @@ export function mapTournamentDataToApi(
   data: TournamentData,
 ): CreateTournamentRequest {
   return {
-    // id: tournamentId,
-    // BASIC INFO
     name: data.basicInfo.name,
     game: data.basicInfo.game,
     description: data.basicInfo.description ?? "",
@@ -230,7 +220,6 @@ export function mapTournamentDataToApi(
     tournamentStart: data.basicInfo.tournamentStart,
     tournamentEnd: data.basicInfo.tournamentEnd,
 
-    // SETTINGS
     type: data.settings.type,
     maxTeams: data.settings.maxTeams,
     minTeamSize: data.settings.minTeamSize,
@@ -241,14 +230,12 @@ export function mapTournamentDataToApi(
     prizePool: data.settings.prizePool ?? 0,
     prizeGuaranteed: data.settings.prizeGuaranteed ?? false,
 
-    // Nâng cao
     setting: {
       defaultBestOf: data.settings.defaultBestOf ?? 1,
       defaultMatchTime: data.settings.defaultMatchTime ?? 30,
       allowDraws: data.settings.allowDraws ?? false,
     },
 
-    // SUB ENTITIES
     stages: data.stages,
     rules: data.rules,
   };

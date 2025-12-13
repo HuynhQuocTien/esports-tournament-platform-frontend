@@ -1,4 +1,3 @@
-// frontend/src/routers/PublicRouter.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "../components/layouts/public/PublicLayout";
 import {

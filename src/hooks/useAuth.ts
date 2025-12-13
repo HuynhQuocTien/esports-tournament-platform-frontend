@@ -1,4 +1,3 @@
-// frontend/src/hooks/useAuth.ts
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "../common/interfaces/payload/jwt-payload";
@@ -6,7 +5,6 @@ import type { JwtPayload } from "../common/interfaces/payload/jwt-payload";
 export function useAuth() {
   const [user, setUser] = useState<JwtPayload | null>();
 
-  // Function để load user từ token
   const loadUserFromToken = () => {
     const token = localStorage.getItem("access_token");
     if (token) {

@@ -17,7 +17,6 @@ export interface BracketResponse {
 }
 
 export const bracketService = {
-  // Gọi BE để tạo bracket
   async generateBracket(tournamentId: string, data: GenerateBracketRequest): Promise<BracketResponse> {
     try {
       const response = await api.post(`/tournaments/${tournamentId}/generate-brackets`, data);
@@ -27,7 +26,6 @@ export const bracketService = {
     }
   },
 
-  // Lấy cấu trúc bracket
   async getBracketStructure(tournamentId: string) {
     try {
       const response = await api.get(`/tournaments/${tournamentId}/brackets`);
@@ -37,7 +35,6 @@ export const bracketService = {
     }
   },
 
-  // Lấy thông tin bracket
   async getBracketInfo(tournamentId: string) {
     try {
       const response = await api.get(`/tournaments/${tournamentId}/brackets/info`);
@@ -47,7 +44,6 @@ export const bracketService = {
     }
   },
 
-  // Kiểm tra xem bracket đã được tạo chưa
   async checkBracketExists(tournamentId: string): Promise<boolean> {
     try {
       const response = await api.get(`/tournaments/${tournamentId}/brackets/exists`);
@@ -57,7 +53,6 @@ export const bracketService = {
     }
   },
 
-  // Xóa bracket
   async deleteBracket(tournamentId: string): Promise<void> {
     try {
       await api.delete(`/tournaments/${tournamentId}/brackets`);

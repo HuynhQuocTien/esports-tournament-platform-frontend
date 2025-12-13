@@ -30,7 +30,6 @@ const PAGE_BACKGROUND_COLOR = "#f5f7fa";
 const CARD_BACKGROUND_COLOR = "#e6f7ff";
 const CARD_BORDER_COLOR = "#bae0ff";
 
-// Mock data for matches
 const mockMatches = [
   {
     id: 1,
@@ -130,7 +129,6 @@ const mockMatches = [
   },
 ];
 
-// Group matches by date
 const groupMatchesByDate = (matches: any[]) => {
   return matches.reduce((groups, match) => {
     const date = match.date;

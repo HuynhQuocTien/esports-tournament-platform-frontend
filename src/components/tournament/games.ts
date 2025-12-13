@@ -3,10 +3,10 @@ export interface Game {
   name: string;
   value: string;
   logo: string;
-  logoDark?: string; // Optional dark mode logo
+  logoDark?: string;
   description?: string;
   categories: string[];
-  popularity: number; // 1-10 for sorting
+  popularity: number;
 }
 
 export const games: Game[] = [

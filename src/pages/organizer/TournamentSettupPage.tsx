@@ -53,13 +53,12 @@ const TournamentSetupPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false); // Thêm state để theo dõi đang xử lý API
+  const [isProcessing, setIsProcessing] = useState(false); 
 
   useEffect(() => {
     if (id) {
       loadTournamentData();
     } else {
-      // Create new tournament
       setTournamentData({
         basicInfo: {
           id: '',
@@ -87,7 +86,7 @@ const TournamentSetupPage: React.FC = () => {
         registrations: [],
       });
       setInitialLoading(false);
-      setHasUnsavedChanges(true); // Tournament mới luôn có thay đổi chưa lưu
+      setHasUnsavedChanges(true);
     }
   }, [id]);
 
@@ -96,7 +95,6 @@ const TournamentSetupPage: React.FC = () => {
     try {
       if(!id) return;
       const res = await tournamentService.getForSetup(id);
-      // Map API response to TournamentData
       let data;
       if(res.success){
         data = res.data;
@@ -135,13 +133,11 @@ const TournamentSetupPage: React.FC = () => {
       };
       
       setTournamentData(mappedData);
-      // Lưu bản gốc để so sánh
       setOriginalData(data);
-      setHasUnsavedChanges(false); // Dữ liệu vừa load, chưa có thay đổi
+      setHasUnsavedChanges(false);
     } catch (error) {
       message.error('Không tìm thấy dữ liệu giải đấu');
       console.error('Error loading tournament:', error);
-      // navigate('/tournaments/create');
     } finally {
       setInitialLoading(false);
     }
@@ -190,35 +186,25 @@ const TournamentSetupPage: React.FC = () => {
     if (!tournamentData) return;
     
     setLoading(true);
-    setIsProcessing(true); // Đang xử lý API
+    setIsProcessing(true);
     try {
       if (id) {
-        // Update existing tournament
-        // Giả định API call thành công
         await tournamentService.saveDraft(id);
       } else {
-        // Create new tournament
-        // Giả định API call thành công và trả về ID
-        // const newTournament = await tournamentService.create(tournamentData);
-        // id = newTournament.id; // Cập nhật ID nếu cần
+        
       }
       
       message.success('Đã lưu bản nháp');
       setHasUnsavedChanges(false);
-      // Cập nhật originalData sau khi lưu thành công
       if (id && tournamentData) {
-        // Cập nhật originalData với dữ liệu hiện tại
-        // Đây chỉ là mock, bạn cần lấy dữ liệu từ API response
         setOriginalData({
           ...originalData,
           name: tournamentData.basicInfo.name,
           game: tournamentData.basicInfo.game,
-          // ... các trường khác
         } as TournamentApiResponse);
       }
     } catch (error: any) {
       message.error(`Lỗi khi lưu bản nháp: ${error.message}`);
-      // Giữ nguyên trạng thái chưa lưu vì lưu thất bại
       setHasUnsavedChanges(true);
     } finally {
       setLoading(false);
@@ -229,7 +215,6 @@ const TournamentSetupPage: React.FC = () => {
   const handlePublish = async () => {
     if (!tournamentData || !id) return;
     
-    // Kiểm tra xem có thay đổi chưa lưu không
     if (hasUnsavedChanges) {
       confirm({
         title: 'Có thay đổi chưa lưu',
@@ -245,7 +230,6 @@ const TournamentSetupPage: React.FC = () => {
       return;
     }
 
-    // Validate required fields
     if (!tournamentData.basicInfo?.name || !tournamentData.basicInfo?.game) {
       message.error('Vui lòng điền đầy đủ thông tin cơ bản');
       setActiveTab('basic');
@@ -291,31 +275,23 @@ const TournamentSetupPage: React.FC = () => {
   const updateTournamentData = async (key: TournamentDataKey, data: any) => {
     if (!tournamentData) return;
     
-    // LUÔN đánh dấu có thay đổi ngay khi dữ liệu được cập nhật
     setHasUnsavedChanges(true);
     
-    // Cập nhật state ngay lập tức
     const updatedData = { 
       ...tournamentData, 
       [key]: data 
     };
     setTournamentData(updatedData as TournamentData);
     
-    // Nếu đang xử lý API (save/publish), không gọi API update
     if (isProcessing) return;
 
-    // Chỉ gọi API khi có ID và không đang xử lý API khác
     if (id && !isProcessing) {
       setLoading(true);
       try {
-        // await tournamentService.updateTournamentSection(id, key, data);
-        
-        // KHÔNG reset hasUnsavedChanges ở đây vì người dùng có thể tiếp tục thay đổi
-        // Chỉ reset khi người dùng chủ động lưu
+
         message.success('Đã cập nhật thông tin');
       } catch (error: any) {
         message.error(`Lỗi khi cập nhật: ${error.message}`);
-        // Giữ nguyên trạng thái chưa lưu
       } finally {
         setLoading(false);
       }
@@ -323,7 +299,6 @@ const TournamentSetupPage: React.FC = () => {
   };
 
   const handleTabChange = (newTab: string) => {
-    // Nếu đang xử lý API, không cho phép chuyển tab
     if (isProcessing) {
       message.warning('Vui lòng đợi hoàn tất thao tác trước khi chuyển tab');
       return;
@@ -341,7 +316,6 @@ const TournamentSetupPage: React.FC = () => {
           setActiveTab(newTab);
         },
         onCancel: () => {
-          // Cho phép chuyển tab mà không lưu
           setActiveTab(newTab);
         },
       });
@@ -351,7 +325,6 @@ const TournamentSetupPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    // Nếu đang xử lý API, không cho phép quay lại
     if (isProcessing) {
       message.warning('Vui lòng đợi hoàn tất thao tác trước khi rời đi');
       return;
@@ -403,7 +376,6 @@ const TournamentSetupPage: React.FC = () => {
   return (
     <div style={{ padding: '24px', background: '#f0f2f5', minHeight: '100vh' }}>
       <Card>
-        {/* Header */}
         <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
           <Col>
             <Space>
@@ -459,7 +431,6 @@ const TournamentSetupPage: React.FC = () => {
           </Col>
         </Row>
 
-        {/* Progress Steps */}
         <div style={{ marginBottom: 24 }}>
           <Steps current={tabs.findIndex(tab => tab.key === activeTab)} size="small">
             {tabs.map(tab => (
@@ -468,7 +439,6 @@ const TournamentSetupPage: React.FC = () => {
           </Steps>
         </div>
 
-        {/* Tabs */}
         <Tabs
           activeKey={activeTab}
           onChange={handleTabChange}
@@ -484,7 +454,6 @@ const TournamentSetupPage: React.FC = () => {
               <CurrentComponent
                 data={tournamentData}
                 updateData={updateTournamentData}
-                // loading={loading}
               />
             ) : null
           }))}

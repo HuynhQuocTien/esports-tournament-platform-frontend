@@ -149,21 +149,18 @@ export const TournamentSection: React.FC = () => {
       if (response.data.success) {
         setTournaments(response.data.data);
       } else {
-        // Fallback to direct array if BE structure is different
         setTournaments(response.data.data || response.data);
       }
     } catch (err: any) {
       console.error("Error fetching tournaments:", err);
       setError(err.response?.data?.message || "Không thể tải danh sách giải đấu");
       
-      // Fallback to mock data if API fails
       setTournaments(getMockTournaments());
     } finally {
       setLoading(false);
     }
   };
 
-  // Fallback mock data in case API fails
   const getMockTournaments = (): Tournament[] => [
     {
       id: "1",

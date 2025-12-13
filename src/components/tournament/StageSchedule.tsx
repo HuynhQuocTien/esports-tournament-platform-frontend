@@ -1,4 +1,3 @@
-// src/pages/tournaments/components/StageSchedule.tsx
 import React from 'react';
 import { Table, Tag, Card, Row, Col, Empty } from 'antd';
 import type { StageConfig } from '../../../common/types/tournament';

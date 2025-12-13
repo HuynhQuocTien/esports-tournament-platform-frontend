@@ -91,7 +91,6 @@ const BracketGenerator: React.FC<BracketGeneratorProps> = ({
     totalBrackets: number;
   } | null>(null);
 
-  // Load thông tin brackets khi component mount
   useEffect(() => {
     if (tournamentId) {
       loadTournamentBrackets();
@@ -101,15 +100,13 @@ const BracketGenerator: React.FC<BracketGeneratorProps> = ({
   const loadTournamentBrackets = async () => {
     setLoading(true);
     try {
-      // Lấy danh sách brackets của tournament
       const brackets = await bracketService.getBracketStructure(tournamentId);
       setTournamentBrackets(brackets);
       
       if (brackets.brackets && brackets.brackets.length > 0) {
-        // Load cấu trúc của bracket đầu tiên
         const firstBracketId = brackets.brackets[0].id;
         await loadBracketStructure(firstBracketId);
-        setCurrentStep(1); // Chuyển sang step xem trước nếu đã có bracket
+        setCurrentStep(1); 
       }
     } catch (error) {
       console.error('Error loading tournament brackets:', error);
@@ -165,7 +162,6 @@ const BracketGenerator: React.FC<BracketGeneratorProps> = ({
   const generateBracket = async () => {
     setGenerating(true);
     try {
-      // Gọi API BE để tạo bracket
       const response = await bracketService.generateBracket(tournamentId, {
         format: tournamentFormat,
         matchFormat,
@@ -175,7 +171,6 @@ const BracketGenerator: React.FC<BracketGeneratorProps> = ({
       if (response.success) {
         message.success('Tạo nhánh đấu thành công!');
         
-        // Load lại danh sách brackets
         await loadTournamentBrackets();
         
         onBracketGenerated?.();

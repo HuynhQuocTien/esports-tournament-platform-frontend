@@ -109,7 +109,6 @@ export interface TeamStats {
   }
 }
 
-// DTOs cho API calls
 export interface CreateTeamDto {
   name: string
   description?: string
@@ -145,7 +144,6 @@ export interface UpdateTeamMemberDto extends Partial<CreateTeamMemberDto> {
   isApproved?: boolean
 }
 
-// Pagination
 export interface PaginationParams {
   page?: number
   limit?: number

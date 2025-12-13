@@ -28,7 +28,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
 }) => {
   const selectedGame = value ? games.find(game => game.value === value) : undefined;
 
-  // Custom dropdown render
   const popupRender = (menu: React.ReactNode) => (
     <div>
       <div style={{ padding: '8px' }}>
@@ -37,7 +36,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
           prefix={<SearchOutlined />}
           allowClear
           onChange={(e) => {
-            // You can implement search logic here
           }}
         />
       </div>
@@ -46,7 +44,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
     </div>
   );
 
-  // Custom option render
   const optionRender = (game: Game) => (
     <Space>
       <Avatar 
@@ -63,7 +60,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
     </Space>
   );
 
-  // Group games by category
   const gamesByCategory: Record<string, Game[]> = {};
   sortedGames.forEach(game => {
     const mainCategory = game.categories[0];
@@ -120,7 +116,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
                     {game.categories.slice(0, 2).map(cat => (
                       <Tag 
                         key={cat} 
-                        // size="small" 
                         style={{ fontSize: '10px', padding: '0 4px', marginRight: '4px' }}
                       >
                         {cat}
@@ -139,7 +134,6 @@ const GameSelect: React.FC<GameSelectProps> = ({
 
 export default GameSelect;
 
-// Hook để sử dụng game data
 export const useGameData = () => {
   return {
     games,

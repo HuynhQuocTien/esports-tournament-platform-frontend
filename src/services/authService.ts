@@ -103,7 +103,6 @@ export const handleOAuthCallback = async (): Promise<LoginResponse> => {
     const code = urlParams.get('code');
     
     if (code) {
-      // Nếu có code, gọi API để lấy token
       const res = await api.get(`/auth/callback?code=${code}`);
       
       const { access_token, refresh_token } = res.data;
@@ -111,7 +110,6 @@ export const handleOAuthCallback = async (): Promise<LoginResponse> => {
         localStorage.setItem("access_token", access_token);
         if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
         
-        // Xóa code từ URL để tránh lặp lại
         window.history.replaceState({}, document.title, window.location.pathname);
         
         return res.data;

@@ -14,6 +14,7 @@ import { GoogleOutlined, GithubOutlined } from "@ant-design/icons";
 import { useAuth } from "@/hooks/useAuth";
 import type { JwtPayload } from "@/common/interfaces/payload/jwt-payload";
 import { jwtDecode } from "jwt-decode";
+import { handleOAuthCallback } from "@/services/authService";
 
 const { Title } = Typography;
 
@@ -27,7 +28,24 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [step, setStep] = useState<AuthStep>(initialStep);
-  const { user } = useAuth();
+  const { user, refetchUser } = useAuth();
+  useEffect(() => {
+    const checkOAuthCallback = async () => {
+      const code = searchParams.get("code");
+      if (code && !user) {
+        try {
+          await handleOAuthCallback();
+          await refetchUser();
+          message.success("Đăng nhập thành công!");
+          navigate("/", { replace: true });
+        } catch (error) {
+          console.error("OAuth callback error:", error);
+        }
+      }
+    };
+
+    checkOAuthCallback();
+  }, [searchParams, user, navigate, refetchUser]);
 
   useEffect(() => {
     if (user) {
@@ -69,11 +87,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   };
 
   const handleSocialLogin = (provider: "google" | "github") => {
-    // Redirect to social login endpoint
-    const socialLoginUrl = `${
-      import.meta.env.VITE_API_URL || "http://localhost:3001"
-    }/auth/${provider}`;
-    window.location.href = socialLoginUrl;
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const redirectUri = encodeURIComponent(`${window.location.origin}/login`);
+    let authUrl = `${baseUrl}/auth/${provider}`;
+    
+    if (provider === 'google') {
+      authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+    } else if (provider === 'github') {
+      authUrl = `https://github.com/login/oauth/authorize?client_id=${import.meta.env.VITE_GITHUB_CLIENT_ID}&redirect_uri=${redirectUri}&scope=user:email`;
+    }
+    
+    window.location.href = authUrl;
   };
 
   const renderForm = () => {

@@ -87,4 +87,42 @@ export const uploadAvatar = async (file: File) => {
   return res.data;
 };
 
+export const loginWithGoogle = (): void => {
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  window.location.href = `${baseUrl}/auth/google`;
+};
+
+export const loginWithGithub = (): void => {
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  window.location.href = `${baseUrl}/auth/github`;
+};
+
+export const handleOAuthCallback = async (): Promise<LoginResponse> => {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+      // Nếu có code, gọi API để lấy token
+      const res = await api.get(`/auth/callback?code=${code}`);
+      
+      const { access_token, refresh_token } = res.data;
+      if (access_token) {
+        localStorage.setItem("access_token", access_token);
+        if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
+        
+        // Xóa code từ URL để tránh lặp lại
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        return res.data;
+      }
+    }
+    
+    throw new Error('No authorization code found');
+  } catch (error) {
+    console.error('OAuth callback error:', error);
+    throw error;
+  }
+};
+
 

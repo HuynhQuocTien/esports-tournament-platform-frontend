@@ -76,7 +76,6 @@ export const MyTeamsPage: React.FC = () => {
   const navigate = useNavigate();
   const { createTeam, updateTeam, deleteTeam, updateTeamStatus } = useTeam();
 
-  // Fetch games và teams từ API
   useEffect(() => {
     fetchGames();
     fetchTeams();
@@ -126,7 +125,6 @@ export const MyTeamsPage: React.FC = () => {
     try {
       const values = await form.validateFields();
 
-      // Convert game name to gameId nếu cần
       if (values.game) {
         const selectedGame = games.find((g) => g.name === values.game);
         if (selectedGame) {
@@ -138,7 +136,7 @@ export const MyTeamsPage: React.FC = () => {
       if (result) {
         setIsModalOpen(false);
         form.resetFields();
-        fetchTeams(); // Refresh danh sách
+        fetchTeams();
       }
     } catch (error) {
       console.error("Validation failed:", error);
@@ -191,7 +189,6 @@ export const MyTeamsPage: React.FC = () => {
 
   const handleView = async (team: Team) => {
     try {
-      // Lấy thông tin chi tiết đội
       const teamDetail = await teamService.getTeam(team.id);
       setViewingTeam(teamDetail);
       setIsViewModalOpen(true);

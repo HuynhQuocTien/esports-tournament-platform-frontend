@@ -40,7 +40,6 @@ const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-// Mock data for charts
 const revenueData = [
   { month: "T1", revenue: 50000000, tournaments: 2 },
   { month: "T2", revenue: 75000000, tournaments: 3 },

@@ -128,7 +128,6 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
         newRules = [...rules, newRule];
       }
 
-      // Sắp xếp theo thứ tự
       newRules.sort((a, b) => a.order - b.order);
 
       updateData('rules', newRules);

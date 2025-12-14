@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Table,
   Button,
@@ -14,6 +14,12 @@ import {
   Select,
   Avatar,
   Switch,
+  Row,
+  Col,
+  Input as AntdInput,
+  Popconfirm,
+  Spin,
+  Badge,
 } from "antd";
 import {
   PlusOutlined,
@@ -22,178 +28,228 @@ import {
   EyeOutlined,
   UserOutlined,
   MailOutlined,
+  PhoneOutlined,
+  SearchOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
+import { userService } from "../../services/userService";
+import dayjs from "dayjs";
+import type { User, UserCreateData } from "@/common/types/user";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  role: "admin" | "moderator" | "user";
-  status: "active" | "inactive";
-  joinDate: string;
-  avatar: string;
-}
-
 export const AdminUsersPage: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      username: "admin",
-      email: "admin@esports.vn",
-      role: "admin",
-      status: "active",
-      joinDate: "2024-01-01",
-      avatar: "https://picsum.photos/seed/admin/60/60",
-    },
-    {
-      id: "2",
-      username: "moderator01",
-      email: "mod@esports.vn",
-      role: "moderator",
-      status: "active",
-      joinDate: "2024-01-05",
-      avatar: "https://picsum.photos/seed/moderator/60/60",
-    },
-    {
-      id: "3",
-      username: "player01",
-      email: "player@esports.vn",
-      role: "user",
-      status: "inactive",
-      joinDate: "2024-01-10",
-      avatar: "https://picsum.photos/seed/player/60/60",
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [searchText, setSearchText] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form] = Form.useForm();
 
-  const handleAdd = () => {
-    form.validateFields().then((values) => {
-      const newUser: User = {
-        id: Date.now().toString(),
-        ...values,
-        joinDate: new Date().toISOString().split("T")[0],
-        avatar: `https://picsum.photos/seed/user${Date.now()}/60/60`,
+  const fetchUsers = useCallback(async (page = 1, search = "") => {
+    setLoading(true);
+    try {
+      const response = await userService.getUsers(page, 10, search);
+      setUsers(response.users);
+      setPagination(response.pagination);
+    } catch (error) {
+      message.error("Failed to fetch users");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers(1, searchText);
+  }, [fetchUsers, searchText]);
+
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+      const userData: UserCreateData = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        role: values.role,
+        phone: values.phone,
+        avatarUrl: values.avatarUrl,
       };
-      setUsers([...users, newUser]);
+      
+      await userService.createUser(userData);
+      message.success("User created successfully!");
       setIsModalOpen(false);
-      message.success("Thêm người dùng thành công!");
       form.resetFields();
-    });
+      fetchUsers(pagination.page, searchText);
+    } catch (error) {
+      message.error("Failed to create user");
+    }
   };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    form.setFieldsValue(user);
+    form.setFieldsValue({
+      name: user.fullname,
+      email: user.email,
+      role: user.role.name,
+      phone: user.phone,
+      avatarUrl: user.avatar,
+    });
     setIsModalOpen(true);
   };
 
-  const handleUpdate = () => {
-    form.validateFields().then((values) => {
-      setUsers(
-        users.map((user) =>
-          user.id === editingUser?.id ? { ...user, ...values } : user,
-        ),
-      );
+  const handleUpdate = async () => {
+    try {
+      const values = await form.validateFields();
+      if (!editingUser) return;
+      
+      const userData = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        role: values.role,
+        phone: values.phone,
+        avatarUrl: values.avatarUrl,
+      };
+      
+      await userService.updateUser(editingUser.id, userData);
+      message.success("User updated successfully!");
       setIsModalOpen(false);
       setEditingUser(null);
-      message.success("Cập nhật người dùng thành công!");
       form.resetFields();
-    });
+      fetchUsers(pagination.page, searchText);
+    } catch (error) {
+      message.error("Failed to update user");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: "Xác nhận xóa",
-      content: "Bạn có chắc chắn muốn xóa người dùng này?",
-      okText: "Xóa",
-      cancelText: "Hủy",
-      okButtonProps: { danger: true },
-      onOk: () => {
-        setUsers(users.filter((user) => user.id !== id));
-        message.success("Xóa người dùng thành công!");
-      },
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      await userService.deleteUser(id);
+      message.success("User deleted successfully!");
+      fetchUsers(pagination.page, searchText);
+    } catch (error) {
+      message.error("Failed to delete user");
+    }
   };
 
-  const handleStatusChange = (checked: boolean, userId: string) => {
-    setUsers(
-      users.map((user) =>
-        user.id === userId
-          ? { ...user, status: checked ? "active" : "inactive" }
-          : user,
-      ),
-    );
-    message.success(`Đã ${checked ? "kích hoạt" : "vô hiệu hóa"} người dùng!`);
+  const handleStatusChange = async (checked: boolean, userId: string) => {
+    try {
+      if (checked) {
+        await userService.activateUser(userId);
+        message.success("User activated successfully!");
+      } else {
+        await userService.deactivateUser(userId);
+        message.success("User deactivated successfully!");
+      }
+      fetchUsers(pagination.page, searchText);
+    } catch (error) {
+      message.error("Failed to update user status");
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    fetchUsers(1, value);
+  };
+
+  const handleRefresh = () => {
+    fetchUsers(pagination.page, searchText);
+  };
+
+  const handleTableChange = (pagination: any) => {
+    fetchUsers(pagination.current, searchText);
   };
 
   const getRoleTag = (role: string) => {
     const config = {
-      admin: { color: "red", text: "Quản trị viên" },
-      moderator: { color: "orange", text: "Điều hành viên" },
-      user: { color: "blue", text: "Người dùng" },
+      ADMIN: { color: "red", text: "Admin" },
+      ORGANIZER: { color: "orange", text: "Organizer" },
+      TEAM_MANAGER: { color: "blue", text: "Team Manager" },
     };
-    const roleConfig = config[role as keyof typeof config];
+    const roleConfig = config[role as keyof typeof config] || { color: "default", text: role };
     return <Tag color={roleConfig.color}>{roleConfig.text}</Tag>;
   };
 
   const columns = [
     {
-      title: "Người dùng",
-      dataIndex: "username",
-      key: "username",
-      render: (username: string, record: User) => (
+      title: "User",
+      dataIndex: "fullname",
+      key: "fullname",
+      render: (fullname: string, record: User) => (
         <Space>
-          <Avatar src={record.avatar} size="large" />
+          <Badge 
+            dot 
+            status={record.isActive ? "success" : "error"}
+            offset={[-5, 40]}
+          >
+            <Avatar 
+              src={record.avatar || `https://ui-avatars.com/api/?name=${fullname}&background=random`}
+              size="large"
+              icon={!record.avatar && <UserOutlined />}
+            />
+          </Badge>
           <div>
             <Text strong style={{ fontSize: 14, display: "block" }}>
-              {username}
+              {fullname}
             </Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
               <MailOutlined /> {record.email}
             </Text>
+            {record.phone && (
+              <Text type="secondary" style={{ fontSize: 12, display: "block" }}>
+                <PhoneOutlined /> {record.phone}
+              </Text>
+            )}
           </div>
         </Space>
       ),
     },
     {
-      title: "Vai trò",
-      dataIndex: "role",
+      title: "Role",
+      dataIndex: ["role", "name"],
       key: "role",
       render: (role: string) => getRoleTag(role),
     },
     {
-      title: "Ngày tham gia",
-      dataIndex: "joinDate",
-      key: "joinDate",
-      render: (date: string) => <Text style={{ fontSize: 12 }}>{date}</Text>,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string, record: User) => (
+      title: "Status",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive: boolean, record: User) => (
         <Switch
-          checked={status === "active"}
+          checked={isActive}
           onChange={(checked) => handleStatusChange(checked, record.id)}
-          checkedChildren="Hoạt động"
-          unCheckedChildren="Khóa"
+          checkedChildren="Active"
+          unCheckedChildren="Inactive"
         />
       ),
     },
     {
-      title: "Hành động",
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date: string) => (
+        <Text style={{ fontSize: 12 }}>
+          {dayjs(date).format("DD/MM/YYYY HH:mm")}
+        </Text>
+      ),
+    },
+    {
+      title: "Actions",
       key: "actions",
       render: (_: any, record: User) => (
         <Space>
-          <Tooltip title="Xem chi tiết">
+          <Tooltip title="View Details">
             <Button type="text" icon={<EyeOutlined />} size="small" />
           </Tooltip>
-          <Tooltip title="Chỉnh sửa">
+          <Tooltip title="Edit">
             <Button
               type="text"
               icon={<EditOutlined />}
@@ -201,15 +257,22 @@ export const AdminUsersPage: React.FC = () => {
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
-          <Tooltip title="Xóa">
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              size="small"
-              onClick={() => handleDelete(record.id)}
-            />
-          </Tooltip>
+          <Popconfirm
+            title="Delete this user?"
+            description="Are you sure you want to delete this user?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Tooltip title="Delete">
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                size="small"
+              />
+            </Tooltip>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -217,15 +280,8 @@ export const AdminUsersPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          marginBottom: 24,
-        }}
-      >
-        <div>
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <Col>
           <Title
             level={2}
             style={{
@@ -235,25 +291,43 @@ export const AdminUsersPage: React.FC = () => {
               WebkitTextFillColor: "transparent",
             }}
           >
-            👥 Quản lý người dùng
+            👥 User Management
           </Title>
           <Text type="secondary">
-            Quản lý tài khoản và phân quyền người dùng hệ thống
+            Manage user accounts and system permissions
           </Text>
-        </div>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          size="large"
-          onClick={() => {
-            setEditingUser(null);
-            setIsModalOpen(true);
-            form.resetFields();
-          }}
-        >
-          Thêm người dùng
-        </Button>
-      </div>
+        </Col>
+        <Col>
+          <Space>
+            <AntdInput
+              placeholder="Search users..."
+              prefix={<SearchOutlined />}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              onPressEnter={() => handleSearch(searchText)}
+              style={{ width: 250 }}
+            />
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={handleRefresh}
+              loading={loading}
+            >
+              Refresh
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setEditingUser(null);
+                setIsModalOpen(true);
+                form.resetFields();
+              }}
+            >
+              Add User
+            </Button>
+          </Space>
+        </Col>
+      </Row>
 
       <Card
         style={{
@@ -263,14 +337,29 @@ export const AdminUsersPage: React.FC = () => {
           background: "white",
         }}
       >
-        <Table dataSource={users} columns={columns} rowKey="id" />
+        <Spin spinning={loading}>
+          <Table
+            dataSource={users}
+            columns={columns}
+            rowKey="id"
+            pagination={{
+              current: pagination.page,
+              pageSize: pagination.limit,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total) => `Total ${total} users`,
+            }}
+            onChange={handleTableChange}
+          />
+        </Spin>
       </Card>
 
       <Modal
         title={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <UserOutlined />
-            {editingUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}
+            {editingUser ? "Edit User" : "Add New User"}
           </div>
         }
         open={isModalOpen}
@@ -280,47 +369,55 @@ export const AdminUsersPage: React.FC = () => {
           setEditingUser(null);
           form.resetFields();
         }}
-        okText={editingUser ? "Cập nhật" : "Thêm mới"}
-        cancelText="Hủy"
+        okText={editingUser ? "Update" : "Create"}
+        cancelText="Cancel"
         width={500}
+        confirmLoading={loading}
       >
         <Form form={form} layout="vertical" style={{ marginTop: 20 }}>
           <Form.Item
-            name="username"
-            label="Tên đăng nhập"
-            rules={[
-              { required: true, message: "Vui lòng nhập tên đăng nhập!" },
-            ]}
+            name="name"
+            label="Full Name"
+            rules={[{ required: true, message: "Please enter full name" }]}
           >
-            <Input placeholder="Nhập tên đăng nhập" size="large" />
+            <Input placeholder="Enter full name" />
           </Form.Item>
           <Form.Item
             name="email"
             label="Email"
             rules={[
-              { required: true, message: "Vui lòng nhập email!" },
-              { type: "email", message: "Email không hợp lệ!" },
+              { required: true, message: "Please enter email" },
+              { type: "email", message: "Invalid email format" },
             ]}
           >
-            <Input placeholder="Nhập email" size="large" />
+            <Input placeholder="Enter email" />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              { required: !editingUser, message: "Please enter password" },
+              { min: 6, message: "Password must be at least 6 characters" },
+            ]}
+          >
+            <Input.Password placeholder="Enter password" />
           </Form.Item>
           <Form.Item
             name="role"
-            label="Vai trò"
-            rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
-            initialValue="user"
+            label="Role"
+            rules={[{ required: true, message: "Please select role" }]}
           >
-            <Select placeholder="Chọn vai trò" size="large">
-              <Option value="user">Người dùng</Option>
-              <Option value="moderator">Điều hành viên</Option>
-              <Option value="admin">Quản trị viên</Option>
+            <Select placeholder="Select role">
+              <Option value="ADMIN">Admin</Option>
+              <Option value="ORGANIZER">Organizer</Option>
+              <Option value="TEAM_MANAGER">Team Manager</Option>
             </Select>
           </Form.Item>
-          <Form.Item name="status" label="Trạng thái" initialValue="active">
-            <Select size="large">
-              <Option value="active">Hoạt động</Option>
-              <Option value="inactive">Khóa</Option>
-            </Select>
+          <Form.Item name="phone" label="Phone">
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
+          <Form.Item name="avatarUrl" label="Avatar URL">
+            <Input placeholder="Enter avatar URL" />
           </Form.Item>
         </Form>
       </Modal>

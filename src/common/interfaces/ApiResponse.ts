@@ -1,7 +1,7 @@
 export interface ApiResponse {
-  success: boolean; //true
-  statusCode: number; //200
-  message: string; // "Create successful"
+  success: boolean;
+  statusCode: number;
+  message: string;
   error?: string;
   timestamp: string;
 }

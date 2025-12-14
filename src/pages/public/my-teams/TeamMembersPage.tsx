@@ -95,7 +95,6 @@ export const TeamMembersPage: React.FC = () => {
     checkInGameNameExists,
   } = useTeamMember();
 
-  // Fetch team info và members từ API
   useEffect(() => {
     if (teamId) {
       fetchTeamData();
@@ -106,15 +105,12 @@ export const TeamMembersPage: React.FC = () => {
   const fetchTeamData = async () => {
     setLoading(true);
     try {
-      // Lấy thông tin đội
       const teamData = await teamService.getTeam(teamId!);
       setTeamInfo(teamData);
 
-      // Lấy thống kê đội
       const statsData = await teamService.getTeamStats(teamId!);
       setTeamStats(statsData);
 
-      // Lấy danh sách thành viên
       await fetchTeamMembers();
     } catch (error: any) {
       message.error(error.message || "Lấy thông tin đội thất bại");
@@ -170,7 +166,7 @@ export const TeamMembersPage: React.FC = () => {
         const exists = await checkInGameNameExists(
           teamId!,
           values.inGameName,
-          editingMember?.id // Thêm excludeMemberId để loại trừ chính member đang edit
+          editingMember?.id
         );
         if (exists) {
           form.setFields([
@@ -267,7 +263,6 @@ export const TeamMembersPage: React.FC = () => {
       return;
     }
 
-    // Kiểm tra nếu là đội trưởng
     if (member.role === "CAPTAIN") {
       Modal.warning({
         title: "Không thể xóa đội trưởng",
@@ -276,10 +271,7 @@ export const TeamMembersPage: React.FC = () => {
         okText: "Đã hiểu",
       });
       return;
-    }
-
-    // Kiểm tra nếu là thành viên duy nhất
-    const activeMembers = members.filter(
+    }    const activeMembers = members.filter(
       (m) => m.status === "active" && m.isApproved && m.id !== member.id
     );
     if (activeMembers.length === 0) {
@@ -320,7 +312,7 @@ export const TeamMembersPage: React.FC = () => {
       const result = await approveMember(teamId, member.id);
       if (result) {
         fetchTeamMembers();
-        fetchTeamData(); // Refresh stats
+        fetchTeamData(); 
       }
     }
   };
@@ -350,7 +342,6 @@ export const TeamMembersPage: React.FC = () => {
     });
   };
 
-  // Kiểm tra inGameName đã tồn tại trong đội chưa
   const checkInGameNameAvailability = async (inGameName: string) => {
     if (!inGameName) return true;
 
@@ -370,7 +361,6 @@ export const TeamMembersPage: React.FC = () => {
     try {
       const values = await addForm.validateFields();
 
-      // Kiểm tra inGameName đã tồn tại chưa
       if (values.inGameName) {
         const isAvailable = await checkInGameNameAvailability(
           values.inGameName
@@ -469,7 +459,6 @@ export const TeamMembersPage: React.FC = () => {
     label,
   }));
 
-  // Filter members theo tab
   const filteredMembers = React.useMemo(() => {
     switch (activeTab) {
       case "active":

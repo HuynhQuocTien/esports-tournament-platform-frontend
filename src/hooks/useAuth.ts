@@ -1,27 +1,35 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "../common/interfaces/payload/jwt-payload";
-export function useAuth() {
-  const [user, setUser] = useState<JwtPayload | null>(null);
-  const [role, setRole] = useState<string | null>(null);
 
-  useEffect(() => {
+export function useAuth() {
+  const [user, setUser] = useState<JwtPayload | null>();
+
+  const loadUserFromToken = () => {
     const token = localStorage.getItem("access_token");
     if (token) {
       try {
         const decoded: JwtPayload = jwtDecode(token);
         if (decoded.exp * 1000 > Date.now()) {
           setUser(decoded);
-          setRole(decoded.role);
+          return decoded;
         } else {
           localStorage.removeItem("access_token");
+          setUser(null);
         }
       } catch {
         localStorage.removeItem("access_token");
+        setUser(null);
       }
+    } else {
+      setUser(null);
     }
+    return null;
+  };
 
+  useEffect(() => {
+    loadUserFromToken();
   }, []);
 
-  return { user, setUser,role, setRole };
+  return { user, setUser, refetchUser: loadUserFromToken };
 }

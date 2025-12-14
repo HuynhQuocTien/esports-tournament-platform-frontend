@@ -140,7 +140,7 @@ const AdminHeader: React.FC = () => {
                 fontWeight: 600,
               }}
             >
-              {user?.username?.charAt(0).toUpperCase() || "A"}
+              {user?.fullname?.charAt(0).toUpperCase() || "A"}
             </Avatar>
             <div style={{ textAlign: "left" }}>
               <Text
@@ -151,7 +151,7 @@ const AdminHeader: React.FC = () => {
                   display: "block",
                 }}
               >
-                {user?.username || "Admin"}
+                {user?.fullname || "Admin"}
               </Text>
               <Text style={{ color: "rgba(255, 255, 255, 0.6)", fontSize: 12 }}>
                 Quản trị viên

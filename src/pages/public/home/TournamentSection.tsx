@@ -161,7 +161,6 @@ export const TournamentSection: React.FC = () => {
     }
   };
 
-  // Fallback mock data in case API fails
   const getMockTournaments = (): Tournament[] => [
     {
       id: "1",

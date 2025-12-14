@@ -13,7 +13,6 @@ export const useTournament = (initialId?: string) => {
     try {
       const data = await tournamentService.getForSetup(id);
       
-      // Map and set data...
       setTournamentId(id);
     } catch (error) {
       throw error;
@@ -29,12 +28,10 @@ export const useTournament = (initialId?: string) => {
   ) => {
     if (!tournamentData) return;
 
-    // Update local state
     const updatedData = { ...tournamentData, [key]: data };
     setTournamentData(updatedData);
     setHasUnsavedChanges(true);
 
-    // Save immediately if requested
     if (immediateSave && tournamentId) {
       await tournamentService.updateTournamentSection(tournamentId, key, data);
       setHasUnsavedChanges(false);

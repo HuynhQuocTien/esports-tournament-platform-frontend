@@ -35,7 +35,6 @@ export const AdminSettingsPage: React.FC = () => {
 
   const onFinish = (values: any) => {
     setLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setLoading(false);
       message.success("Cập nhật cài đặt thành công!");

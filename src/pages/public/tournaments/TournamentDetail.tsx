@@ -71,7 +71,6 @@ export const TournamentDetailPage: React.FC = () => {
   const [userTeams, setUserTeams] = useState<any[]>([]);
   const [countdownTarget, setCountdownTarget] = useState<number>();
 
-  // Mock user data - in real app, get from auth context
   const currentUser = { id: "user1", name: "Người dùng", isAuthenticated: true };
 
   useEffect(() => {
@@ -105,7 +104,6 @@ export const TournamentDetailPage: React.FC = () => {
   };
 
   const fetchUserTeams = async () => {
-    // Mock API call to get user's teams
     setUserTeams([
       { id: "team1", name: "Team Alpha", tag: "ALP", members: 5, maxMembers: 5 },
       { id: "team2", name: "Team Bravo", tag: "BRV", members: 3, maxMembers: 5 },
@@ -121,13 +119,11 @@ export const TournamentDetailPage: React.FC = () => {
 
     setRegisterLoading(true);
     try {
-      // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       message.success("Đã gửi đăng ký tham gia giải đấu!");
       setRegisterModalVisible(false);
       
-      // Refresh tournament data
       fetchTournament();
     } catch (err) {
       message.error("Đăng ký thất bại. Vui lòng thử lại!");
@@ -490,7 +486,6 @@ export const TournamentDetailPage: React.FC = () => {
   const renderResultsTab = () => {
     if (!tournament) return null;
     
-    // Mock results
     const mockResults = [
       { position: 1, team: "Team Alpha", prize: formatCurrency(tournament.prizePool * 0.5) },
       { position: 2, team: "Team Bravo", prize: formatCurrency(tournament.prizePool * 0.3) },

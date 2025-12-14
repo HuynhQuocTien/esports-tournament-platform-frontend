@@ -1,4 +1,3 @@
-// src/pages/tournaments/components/TournamentOverview.tsx
 import React from 'react';
 import {
   Card,
@@ -14,7 +13,7 @@ import {
   TeamOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import type { TournamentStepProps } from '../../../common/types/tournament'; // Dùng chung interface
+import type { TournamentStepProps } from '../../../common/types/tournament';
 const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData }) => {
 
   const getStatusColor = (status?: string): string => {
@@ -39,7 +38,6 @@ const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData })
     return types[type || ''] || type || 'Chưa chọn';
   };
 
-  // Tính toán tiến độ hoàn thành
   const completionStats = {
     basicInfo: Object.keys(data.basicInfo).length > 3 ? 100 : 0,
     settings: Object.keys(data.settings).length > 3 ? 100 : 0,
@@ -49,7 +47,6 @@ const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData })
 
   const totalCompletion = Math.round(Object.values(completionStats).reduce((a, b) => a + b, 0) / 5);
 
-  // Kiểm tra các phần còn thiếu
   const missingSections = [
     { key: 'basicInfo', name: 'Thông tin cơ bản', completed: completionStats.basicInfo === 100 },
     { key: 'settings', name: 'Cài đặt', completed: completionStats.settings === 100 },

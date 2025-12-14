@@ -19,7 +19,7 @@ import {
   LoadingOutlined,
 } from '@ant-design/icons';
 import type { TournamentBasicInfo, TournamentStepProps } from '../../../common/types/tournament';
-import type { UploadProps, UploadFile } from 'antd'; // Gộp các import type
+import type { UploadProps, UploadFile } from 'antd';
 import { tournamentService } from '@/services/tournamentService';
 import { fileService } from '@/services/fileService';
 import dayjs from 'dayjs';
@@ -71,7 +71,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       
       form.setFieldsValue(formValues);
 
-      // Set initial file list for display
       if (data.basicInfo.logoUrl) {
         setUploadState(prev => ({
           ...prev,
@@ -96,7 +95,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
         }));
       }
     } else {
-      // Reset form nếu không có data
       form.resetFields();
       setUploadState({
         logoUploading: false,
@@ -105,24 +103,20 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   }, [data, form]);
 
-  // Upload image và lấy signed URL
   const uploadImage = async (file: File, type: 'logo' | 'banner'): Promise<string> => {
     try {
-      // Update upload state
       if (type === 'logo') {
         setUploadState(prev => ({ ...prev, logoUploading: true }));
       } else {
         setUploadState(prev => ({ ...prev, bannerUploading: true }));
       }
 
-      // 1. Upload file lên server
       const uploadResult = await fileService.upload(file);
       
       if (!uploadResult.filename) {
         throw new Error('Upload failed');
       }
       
-      // 2. Lấy signed URL cho file vừa upload
       const publicUrl = await fileService.getPublicUrl(uploadResult.filename);
       
       if (type === 'logo') {
@@ -142,16 +136,13 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  // Handle logo upload
   const handleLogoUpload: UploadProps['customRequest'] = async (options) => {
     const { file, onSuccess, onError } = options;
     try {
       const signedUrl = await uploadImage(file as File, 'logo');
       
-      // Update form value với signed URL
       form.setFieldsValue({ logoUrl: signedUrl });
       
-      // Update upload state
       setUploadState(prev => ({
         ...prev,
         logoFile: {
@@ -169,17 +160,14 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  // Handle banner upload
   const handleBannerUpload: UploadProps['customRequest'] = async (options) => {
     const { file, onSuccess, onError } = options;
     
     try {
       const signedUrl = await uploadImage(file as File, 'banner');
       
-      // Update form value với signed URL
       form.setFieldsValue({ bannerUrl: signedUrl });
       
-      // Update upload state
       setUploadState(prev => ({
         ...prev,
         bannerFile: {
@@ -202,7 +190,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     form.setFieldsValue({ game: value });
   };
 
-  // Handle file change for logo
   const handleLogoChange: UploadProps['onChange'] = (info) => {
     if (info.file.status === 'removed') {
       form.setFieldsValue({ logoUrl: '' });
@@ -210,7 +197,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  // Handle file change for banner
   const handleBannerChange: UploadProps['onChange'] = (info) => {
     if (info.file.status === 'removed') {
       form.setFieldsValue({ bannerUrl: '' });
@@ -218,7 +204,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  // Validate file before upload
   const beforeUpload = (file: File, type: 'logo' | 'banner'): boolean => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
@@ -238,12 +223,10 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     setLoading(true);
     
     try {
-      // Convert dates to ISO string
       const processedValues: Partial<TournamentBasicInfo> = {
         ...values,
       };
 
-      // Chỉ chuyển đổi nếu có giá trị
       if (values.registrationStart) {
         processedValues.registrationStart = dayjs(values.registrationStart);
       }
@@ -256,7 +239,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
         processedValues.tournamentStart = dayjs(values.tournamentStart);
       }
 
-      // Ensure logoUrl and bannerUrl are included
       const formValues = form.getFieldsValue();
       if (formValues.logoUrl) {
         processedValues.logoUrl = formValues.logoUrl;
@@ -281,7 +263,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     }
   };
 
-  // Upload props for logo
   const logoUploadProps: UploadProps = {
     accept: 'image/*',
     listType: "picture" as const,
@@ -301,7 +282,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     },
   };
 
-  // Upload props for banner
   const bannerUploadProps: UploadProps = {
     accept: 'image/*',
     listType: "picture" as const,
@@ -428,7 +408,6 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   max={512} 
                   style={{ width: '100%' }}
                   size="large"
-                  // placeholder="VD: 8, 16, 32, 64..."
                 />
               </Form.Item>
             </Card>

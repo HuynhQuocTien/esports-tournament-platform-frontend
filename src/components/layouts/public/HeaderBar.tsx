@@ -50,7 +50,7 @@ const { Text } = Typography;
 const HeaderBar: React.FC = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [authStep, setAuthStep] = useState<"login" | "register">("login");
-  const { user, setUser, setRole } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -72,7 +72,6 @@ const HeaderBar: React.FC = () => {
 
   useEffect(() => {
     if (user?.avatar) {
-      console.log("🔄 Syncing avatar from user context:", user.avatar);
       setCurrentAvatar(user.avatar);
     }
     if (user?.fullname) {
@@ -137,11 +136,6 @@ const HeaderBar: React.FC = () => {
       },
     });
   };
-
-  // const handleLoginClick = () => {
-  //   setAuthStep("login");
-  //   setAuthOpen(true);
-  // };
 
   const handleLoginClick = () => {
     navigate("/login?step=login");
@@ -235,7 +229,6 @@ const HeaderBar: React.FC = () => {
       const cacheBuster = Date.now();
       const avatarUrl = `${URL_PUBLIC_IMG}${avatarPath}?t=${cacheBuster}`;
       
-      console.log("🖼️ Rendering avatar:", avatarUrl);
 
       return (
         <Avatar 
@@ -474,7 +467,6 @@ const HeaderBar: React.FC = () => {
             localStorage.setItem("access_token", userData.access_token);
           const decoded: JwtPayload = jwtDecode(userData.access_token);
           setUser(decoded);
-          setRole(decoded.role);
           setAuthOpen(false);
           if (decoded.role === "ADMIN") {
             window.location.href = "/admin";

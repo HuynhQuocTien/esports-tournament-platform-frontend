@@ -144,19 +144,17 @@ export const TournamentSection: React.FC = () => {
   const fetchTournaments = async () => {
     try {
       setLoading(true);
-      const response = await tournamentService.getFeature();
+      // const response = await tournamentService.getFeature();
       
       if (response.data.success) {
         setTournaments(response.data.data);
       } else {
-        // Fallback to direct array if BE structure is different
         setTournaments(response.data.data || response.data);
       }
     } catch (err: any) {
       console.error("Error fetching tournaments:", err);
       setError(err.response?.data?.message || "Không thể tải danh sách giải đấu");
       
-      // Fallback to mock data if API fails
       setTournaments(getMockTournaments());
     } finally {
       setLoading(false);
@@ -268,9 +266,9 @@ export const TournamentSection: React.FC = () => {
           showIcon
           style={{ marginBottom: 24 }}
         />
-        <Button type="primary" onClick={fetchTournaments}>
+        {/* <Button type="primary" onClick={fetchTournaments}>
           Thử lại
-        </Button>
+        </Button> */}
       </section>
     );
   }

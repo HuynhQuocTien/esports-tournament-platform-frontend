@@ -55,15 +55,15 @@ export const PublicRouter = () => {
         } />
         
         <Route path="tournaments/mine" element={
-          <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
+          // <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
             <MyTournamentPage />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         } />
         
         <Route path="tournaments/setup/:id" element={
-          <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
+          // <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
             <TournamentSetupPage />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         } />
         
         <Route path="*" element={<Navigate to="/" replace />} />

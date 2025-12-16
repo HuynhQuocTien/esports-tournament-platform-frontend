@@ -144,7 +144,7 @@ export const TournamentSection: React.FC = () => {
   const fetchTournaments = async () => {
     try {
       setLoading(true);
-      const response = await tournamentService.getFeature();
+      // const response = await tournamentService.getFeature();
       
       if (response.data.success) {
         setTournaments(response.data.data);
@@ -265,9 +265,9 @@ export const TournamentSection: React.FC = () => {
           showIcon
           style={{ marginBottom: 24 }}
         />
-        <Button type="primary" onClick={fetchTournaments}>
+        {/* <Button type="primary" onClick={fetchTournaments}>
           Thử lại
-        </Button>
+        </Button> */}
       </section>
     );
   }

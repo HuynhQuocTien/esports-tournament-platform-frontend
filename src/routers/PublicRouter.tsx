@@ -6,7 +6,6 @@ import {
   ResultsPage,
   SchedulePage,
   TeamsPage,
-  TournamentDetailPage,
   TournamentsPage,
 } from "../pages/public";
 import CreateTournamentPage from "@/pages/organizer/CreateTournamentPage";
@@ -16,6 +15,7 @@ import MyTournamentPage from "@/pages/organizer/MyTournamentPage";
 import TournamentSetupPage from "@/pages/organizer/TournamentSettupPage";
 import { TeamMembersPage } from "@/pages/public/my-teams/TeamMembersPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { TournamentDetailPage } from "@/pages/public/tournaments/TournamentDetail";
 
 export const PublicRouter = () => {
   return (

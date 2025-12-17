@@ -144,7 +144,7 @@ export const TournamentSection: React.FC = () => {
   const fetchTournaments = async () => {
     try {
       setLoading(true);
-      // const response = await tournamentService.getFeature();
+      const response = await tournamentService.getFeature();
       
       if (response.data.success) {
         setTournaments(response.data.data);

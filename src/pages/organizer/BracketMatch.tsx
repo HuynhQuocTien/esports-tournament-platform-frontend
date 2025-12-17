@@ -61,7 +61,6 @@ const { confirm } = Modal;
 const { Option } = Select;
 const { TextArea } = Input;
 
-// Thêm interface cho dữ liệu bracket
 interface BracketViewData {
   stages: TournamentStage[];
   activeStage: TournamentStage | null;
@@ -72,7 +71,6 @@ interface BracketViewData {
   saving: boolean;
 }
 
-// Component BracketMatch - Hiển thị một trận đấu trong bracket
 const BracketMatch: React.FC<{
   match: Match;
   teams: Team[];
@@ -111,7 +109,7 @@ const BracketMatch: React.FC<{
     const statusConfig = {
       [MatchStatus.PENDING]: { color: 'default', text: 'Chờ bắt đầu' },
       [MatchStatus.SCHEDULED]: { color: 'blue', text: 'Đã lên lịch' },
-      [MatchStatus.IN_PROGRESS]: { color: 'orange', text: 'Đang diễn ra' },
+      [MatchStatus.PROCESSING]: { color: 'orange', text: 'Đang diễn ra' },
       [MatchStatus.COMPLETED]: { color: 'green', text: 'Đã hoàn thành' },
       [MatchStatus.CANCELLED]: { color: 'red', text: 'Đã hủy' }
     };
@@ -136,7 +134,7 @@ const BracketMatch: React.FC<{
           Bắt đầu trận đấu
         </Menu.Item>
       )}
-      {match.status === MatchStatus.IN_PROGRESS && (
+      {match.status === MatchStatus.PROCESSING&& (
         <Menu.Item 
           icon={<CheckCircleOutlined />}
           onClick={() => onCompleteMatch(match.id)}
@@ -762,7 +760,7 @@ const TournamentBracket: React.FC<{
             <Card size="small">
               <Statistic
                 title="Trận đang diễn ra"
-                value={bracketData.matches.filter(m => m.status === MatchStatus.IN_PROGRESS).length}
+                value={bracketData.matches.filter(m => m.status === MatchStatus.PROCESSING).length}
                 prefix={<PlayCircleOutlined />}
               />
             </Card>
@@ -900,3 +898,19 @@ class MatchService {
   }
 }
 */
+
+const Statistic: React.FC<{
+  title: string;
+  value: number;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+}> = ({ title, value, prefix, suffix }) => (
+  <div style={{ textAlign: 'center' }}>
+    <div style={{ fontSize: 24, fontWeight: 'bold', color: '#1890ff' }}>
+      {prefix && <span style={{ marginRight: 8 }}>{prefix}</span>}
+      {value}
+      {suffix && <span style={{ marginLeft: 4 }}>{suffix}</span>}
+    </div>
+    <Text type="secondary">{title}</Text>
+  </div>
+);

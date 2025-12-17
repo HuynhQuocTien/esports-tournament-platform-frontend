@@ -22,8 +22,7 @@ import {
   FileTextOutlined,
   CheckCircleOutlined,
   ExclamationCircleOutlined,
-  TagOutlined,
-  BranchesOutlined
+  TagOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import TournamentBasicSettings from './TournamentSettings';
@@ -31,16 +30,15 @@ import TournamentStages from './TournamentStages';
 import TournamentRegistration from './TournamentRegistration';
 import TournamentRules from './TournamentRules';
 import TournamentOverview from './TournamentOverview';
-import type TournamentBasicInfo from './TournamentBasicInfo';
+import TournamentBasicInfo from './TournamentBasicInfo';
 import { tournamentService } from '@/services/tournamentService';
 import type { 
   TournamentData, 
   TournamentDataKey, 
   TournamentApiResponse,
   PublishTournamentRequest 
-} from '@/common/types/tournament';
+} from '@common/common/types/tournament';
 import { Dayjs } from 'dayjs';
-import { number } from 'motion';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -170,12 +168,6 @@ const TournamentSetupPage: React.FC = () => {
       icon: <TeamOutlined />,
       component: TournamentRegistration
     },
-    {
-    key: 'bracket',
-    label: 'Nhánh đấu',
-    icon: <BranchesOutlined />,
-    component: TournamentBracket
-  },
     {
       key: 'rules',
       label: 'Quy định',

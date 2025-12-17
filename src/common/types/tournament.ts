@@ -29,6 +29,30 @@ export interface TournamentBasicInfo {
   format: string;
 }
 
+export const TournamentStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  REGISTRATION_OPEN: 'REGISTRATION_OPEN',
+  REGISTRATION_CLOSED: 'REGISTRATION_CLOSED',
+  ONGOING: 'ONGOING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type TournamentStatus =
+  typeof TournamentStatus[keyof typeof TournamentStatus];
+
+export const MatchStatus = {
+  PENDING: 'PENDING',
+  SCHEDULED: 'SCHEDULED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+} as const;
+
+export type MatchStatus =
+  typeof MatchStatus[keyof typeof MatchStatus];
+
 export interface TournamentSetting {
   type: TournamentFormat;
   maxTeams: number;
@@ -239,4 +263,74 @@ export function mapTournamentDataToApi(
     stages: data.stages,
     rules: data.rules,
   };
+}
+
+export interface Match {
+  id: string;
+  round: number;
+  order: number;
+  team1?: Team;
+  team2?: Team;
+  team1Score?: number;
+  team2Score?: number;
+  status: string;
+  scheduledTime?: Date;
+  bracket?: Bracket;
+  nextMatch?: Match;
+  nextMatchSlot?: number;
+  createdAt: Date;
+}
+
+export interface Tournament {
+  id: string;
+  name: string;
+  description?: string;
+  game: string;
+  type: string;
+  format: string;
+  status: string;
+  maxTeams: number;
+  minTeamSize: number;
+  maxTeamSize: number;
+  registrationStart?: Date;
+  registrationEnd?: Date;
+  tournamentStart?: Date;
+  tournamentEnd?: Date;
+  logoUrl?: string;
+  bannerUrl?: string;
+  prizePool?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  seed?: number;
+  members: any[];
+}
+
+export interface Match {
+  id: string;
+  round: number;
+  order: number;
+  team1?: Team;
+  team2?: Team;
+  team1Score?: number;
+  team2Score?: number;
+  status: string;
+  scheduledTime?: Date;
+  bracket?: Bracket;
+  nextMatch?: Match;
+  nextMatchSlot?: number;
+  createdAt: Date;
+}
+
+export interface Bracket {
+  id: string;
+  name: string;
+  bracketOrder: number;
+  isFinal: boolean;
+  matches: Match[];
 }

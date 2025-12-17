@@ -6,7 +6,6 @@ import {
   ResultsPage,
   SchedulePage,
   TeamsPage,
-  TournamentDetailPage,
   TournamentsPage,
 } from "../pages/public";
 import CreateTournamentPage from "@/pages/organizer/CreateTournamentPage";

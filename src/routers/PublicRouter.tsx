@@ -15,13 +15,12 @@ import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
 import MyTournamentPage from "@/pages/organizer/MyTournamentPage";
 import TournamentSetupPage from "@/pages/organizer/TournamentSettupPage";
 import { TeamMembersPage } from "@/pages/public/my-teams/TeamMembersPage";
-import { ProtectedRoute } from "./ProtectedRoute";
+import { TournamentRegistrationPage } from "@/pages/public/TournamentRegistrationPage";
 
 export const PublicRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
-
         <Route index element={<HomePage />} />
         <Route path="tournaments" element={<TournamentsPage />} />
         <Route path="tournaments/:id" element={<TournamentDetailPage />} />
@@ -29,43 +28,23 @@ export const PublicRouter = () => {
         <Route path="teams" element={<TeamsPage />} />
         <Route path="ranking" element={<RankingPage />} />
         <Route path="schedule" element={<SchedulePage />} />
-        
-        <Route path="profile" element={
-          <ProtectedRoute excludedRoles={['TEAM_MANAGER', 'ORGANIZER', 'ADMIN']}>
-            <UserProfilePage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="my-teams" element={
-          <ProtectedRoute excludedRoles={['TEAM_MANAGER']}>
-            <MyTeamsPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="team/:teamId/members" element={
-          <ProtectedRoute excludedRoles={['TEAM_MANAGER']}>
-            <TeamMembersPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="tournaments/create-league" element={
-          <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
-            <CreateTournamentPage />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="tournaments/mine" element={
-          // <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
-            <MyTournamentPage />
-          // </ProtectedRoute>
-        } />
-        
-        <Route path="tournaments/setup/:id" element={
-          // <ProtectedRoute allowedRoles={['TEAM_MANAGER', 'ORGANIZER']}>
-            <TournamentSetupPage />
-          // </ProtectedRoute>
-        } />
-        
+
+        <Route path="profile" element={<UserProfilePage />} />
+
+        <Route path="my-teams" element={<MyTeamsPage />} />
+
+        <Route path="team/:teamId/members" element={<TeamMembersPage />} />
+
+        <Route
+          path="tournaments/create-league"
+          element={<CreateTournamentPage />}
+        />
+        <Route path="tournaments/:id/register" element={<TournamentRegistrationPage />} />
+
+        <Route path="tournaments/mine" element={<MyTournamentPage />} />
+
+        <Route path="tournaments/setup/:id" element={<TournamentSetupPage />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

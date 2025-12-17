@@ -25,16 +25,6 @@ const AdminSidebar: React.FC = () => {
       label: "Tổng quan",
     },
     {
-      key: "/admin/tournaments",
-      icon: <TrophyOutlined style={{ fontSize: 16 }} />,
-      label: "Quản lý giải đấu",
-    },
-    {
-      key: "/admin/teams",
-      icon: <TeamOutlined style={{ fontSize: 16 }} />,
-      label: "Quản lý đội",
-    },
-    {
       key: "/admin/ranking",
       icon: <CrownOutlined style={{ fontSize: 16 }} />,
       label: "Bảng xếp hạng",
@@ -45,19 +35,9 @@ const AdminSidebar: React.FC = () => {
       label: "Quản lý người dùng",
     },
     {
-      key: "/admin/permissions",
-      icon: <KeyOutlined style={{ fontSize: 16 }} />,
-      label: "Phân quyền hệ thống",
-    },
-    {
-      key: "/admin/analytics",
-      icon: <BarChartOutlined style={{ fontSize: 16 }} />,
-      label: "Thống kê & Báo cáo",
-    },
-    {
-      key: "/admin/settings",
+      key: "/admin/notifications",
       icon: <SettingOutlined style={{ fontSize: 16 }} />,
-      label: "Cài đặt hệ thống",
+      label: "Cài đặt thông báo",
     },
   ];
 

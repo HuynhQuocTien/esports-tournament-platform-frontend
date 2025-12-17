@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams, useNavigate } from "react-router-dom";
 import {
   Card,
   List,
@@ -11,6 +11,7 @@ import {
   Timeline,
   Statistic,
   Divider,
+  Button,
 } from "antd";
 import {
   CalendarOutlined,
@@ -77,6 +78,7 @@ const CARD_BACKGROUND_COLOR = "#ffffff";
 
 export const TournamentDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const tournament = mockTournamentDetails.find((t) => t.id === id);
 
   if (!tournament) {
@@ -188,6 +190,42 @@ export const TournamentDetailPage: React.FC = () => {
               </Col>
             </Row>
           </Col>
+          <Col xs={24} md={8}>
+            <Row gutter={[16, 16]}>
+              <Col xs={12}>
+                <Statistic
+                  title="Tổng giải thưởng"
+                  value={tournament.prizePool}
+                  valueStyle={{ color: "white" }}
+                  prefix={<TrophyOutlined />}
+                />
+              </Col>
+              <Col xs={12}>
+                <Statistic
+                  title="Số đội"
+                  value={tournament.teams}
+                  valueStyle={{ color: "white" }}
+                  prefix={<TeamOutlined />}
+                />
+              </Col>
+            </Row>
+            {/* Thêm nút đăng ký ở đây */}
+            <Button
+              type="primary"
+              size="large"
+              block
+              style={{
+                marginTop: 16,
+                background: "linear-gradient(135deg, #52c41a 0%, #389e0d 100%)",
+                border: "none",
+                borderRadius: 8,
+                height: 40,
+              }}
+              onClick={() => navigate(`/tournaments/${id}/register`)}
+            >
+              Đăng ký tham gia ngay
+            </Button>
+          </Col>
         </Row>
       </Card>
 
@@ -220,8 +258,8 @@ export const TournamentDetailPage: React.FC = () => {
                     match.status === "completed"
                       ? "#52c41a"
                       : match.status === "ongoing"
-                        ? "#1890ff"
-                        : "#faad14"
+                      ? "#1890ff"
+                      : "#faad14"
                   }
                 >
                   <div style={{ padding: "8px 0" }}>

@@ -30,6 +30,7 @@ import { AuthModal } from "../../auth";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "@/common/interfaces/payload/jwt-payload";
 import { URL_PUBLIC_IMG } from "@/services/api";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 type MenuItem = {
   key: string;
@@ -331,26 +332,7 @@ const HeaderBar: React.FC = () => {
         {user?.role ? (
           <>
             {/* Notifications */}
-            <Badge count={3} size="small" offset={[-2, 2]}>
-              <Button
-                type="text"
-                icon={
-                  <BellOutlined
-                    style={{ fontSize: 18, color: "rgba(255, 255, 255, 0.8)" }}
-                  />
-                }
-                style={{
-                  width: 40,
-                  height: 40,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: 8,
-                }}
-              />
-            </Badge>
+            <NotificationBell userId={user?.id} />
 
             {/* Messages */}
             <Badge count={5} size="small" offset={[-2, 2]}>

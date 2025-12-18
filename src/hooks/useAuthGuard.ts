@@ -1,4 +1,3 @@
-// frontend/src/hooks/useAuthGuard.ts
 import { useState } from "react";
 import { Modal } from "antd";
 import { useNavigate } from "react-router-dom";

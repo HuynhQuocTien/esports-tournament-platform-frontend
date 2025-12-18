@@ -1,4 +1,3 @@
-// components/MatchScoreModal.tsx
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, InputNumber, Row, Col, Typography, Avatar, Space, Tag } from 'antd';
 import type { Match } from '@/common/types';

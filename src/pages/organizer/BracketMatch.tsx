@@ -146,7 +146,6 @@ const BracketMatch: React.FC<{
         icon={<SwapOutlined />}
         disabled={!team1 || !team2}
         onClick={() => {
-          // Hoán đổi đội
           const updates = {
             team1: team2,
             team2: team1,
@@ -269,7 +268,6 @@ const BracketMatch: React.FC<{
   );
 };
 
-// Component TournamentBracket - Tab quản lý nhánh đấu
 const TournamentBracket: React.FC<{
   data: TournamentData;
   updateData: (key: TournamentDataKey, data: any) => void;
@@ -291,7 +289,6 @@ const TournamentBracket: React.FC<{
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [form] = Form.useForm();
 
-  // Load dữ liệu từ database
   useEffect(() => {
     if (tournamentId) {
       loadBracketData();
@@ -301,14 +298,12 @@ const TournamentBracket: React.FC<{
   const loadBracketData = async () => {
     setBracketData(prev => ({ ...prev, loading: true }));
     try {
-      // Load stages của tournament
       const stagesResponse = await tournamentService.getTournamentStages(tournamentId!);
       
       if (stagesResponse.success && stagesResponse.data) {
         const stages = stagesResponse.data;
         const activeStage = stages[0] || null;
         
-        // Load brackets của stage đầu tiên
         let activeBracket = null;
         let matches = [];
         
@@ -318,7 +313,6 @@ const TournamentBracket: React.FC<{
             const brackets = bracketsResponse.data;
             activeBracket = brackets[0] || null;
             
-            // Load matches của bracket đầu tiên
             if (activeBracket) {
               const matchesResponse = await matchService.getBracketMatches(activeBracket.id);
               if (matchesResponse.success && matchesResponse.data) {
@@ -328,7 +322,6 @@ const TournamentBracket: React.FC<{
           }
         }
         
-        // Load teams từ tournament registrations
         const teams = data.registrations || [];
         
         setBracketData({
@@ -359,13 +352,11 @@ const TournamentBracket: React.FC<{
       const stage = bracketData.stages.find(s => s.id === stageId);
       if (!stage) return;
       
-      // Load brackets của stage mới
       const bracketsResponse = await bracketService.getStageBrackets(stageId);
       if (bracketsResponse.success && bracketsResponse.data) {
         const brackets = bracketsResponse.data;
         const activeBracket = brackets[0] || null;
         
-        // Load matches của bracket mới
         let matches = [];
         if (activeBracket) {
           const matchesResponse = await matchService.getBracketMatches(activeBracket.id);
@@ -418,7 +409,6 @@ const TournamentBracket: React.FC<{
     try {
       const response = await matchService.updateMatch(matchId, updates);
       if (response.success) {
-        // Update local state
         const updatedMatches = bracketData.matches.map(match => 
           match.id === matchId ? { ...match, ...updates } : match
         );
@@ -485,7 +475,6 @@ const TournamentBracket: React.FC<{
     const match = bracketData.matches.find(m => m.id === matchId);
     if (!match) return;
     
-    // Show modal để nhập điểm số
     Modal.confirm({
       title: 'Nhập kết quả trận đấu',
       content: (
@@ -526,7 +515,6 @@ const TournamentBracket: React.FC<{
           team2Score: match.team2Score
         });
         
-        // Xử lý đội thắng vào trận tiếp theo
         if (match.nextMatch && match.team1Score !== undefined && match.team2Score !== undefined) {
           const winner = match.team1Score > match.team2Score ? match.team1 : match.team2Score > match.team1Score ? match.team2 : null;
           
@@ -579,7 +567,7 @@ const TournamentBracket: React.FC<{
           
           if (response.success) {
             message.success('Đã tạo tự động các trận đấu');
-            loadBracketData(); // Reload data
+            loadBracketData();
           }
         } catch (error) {
           console.error('Error generating bracket:', error);

@@ -1,4 +1,3 @@
-// frontend/src/pages/public/TournamentRegistrationPage.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -151,12 +150,10 @@ export const TournamentRegistrationPage: React.FC = () => {
       const newTeam = await teamService.createTeam(teamData);
       message.success("Tạo đội thành công!");
       
-      // Thêm đội mới vào danh sách và chọn nó
       setTeams(prev => [newTeam, ...prev]);
       setSelectedTeam(newTeam.id);
       setShowCreateTeamModal(false);
       
-      // Reset form tạo đội
       form.setFieldsValue({
         teamName: "",
         teamDescription: "",

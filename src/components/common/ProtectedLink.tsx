@@ -1,4 +1,3 @@
-// frontend/src/components/common/ProtectedLink.tsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Modal } from "antd";

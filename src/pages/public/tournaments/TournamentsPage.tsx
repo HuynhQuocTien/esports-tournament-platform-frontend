@@ -1,4 +1,3 @@
-// frontend/src/pages/public/tournaments/TournamentsPage.tsx
 import React, { useEffect, useState } from "react";
 import {
   Card,

@@ -1,4 +1,3 @@
-// frontend/src/pages/public/tournaments/TournamentDetailPage.tsx
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -46,11 +45,9 @@ const { TabPane } = Tabs;
 const PAGE_BACKGROUND_COLOR = "#f8fafc";
 const CARD_BACKGROUND_COLOR = "#ffffff";
 
-// Hook kiểm tra đăng nhập - FIX: Di chuyển ra ngoài component
 const useAuthGuard = () => {
   const navigate = useNavigate();
 
-  // Sử dụng useMemo để tránh tạo function mới mỗi lần render
   const isAuthenticated = useCallback(() => {
     const token = localStorage.getItem("access_token");
     return !!token;
@@ -83,7 +80,6 @@ const useAuthGuard = () => {
   };
 };
 
-// Protected Button Component
 interface ProtectedButtonProps {
   children: React.ReactNode;
   onClick: () => void;
@@ -314,7 +310,6 @@ export const TournamentDetailPage: React.FC = () => {
     );
   }
 
-  // Mock schedule data
   const scheduleData = [
     {
       match: "Team Phoenix vs Dragon Warriors",
@@ -332,7 +327,6 @@ export const TournamentDetailPage: React.FC = () => {
     },
   ];
 
-  // Mock participants
   const participants = [
     "Team Phoenix", "Dragon Warriors", "Thunder Storm", "Shadow Hunters",
     "Ice Breakers", "Fire Starters", "Wind Riders", "Earth Shakers"

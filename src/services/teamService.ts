@@ -1,4 +1,3 @@
-// frontend/src/services/teamService.ts
 import api from './api';
 import type { 
   Team, 

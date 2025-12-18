@@ -29,7 +29,6 @@ export const formatDate = (
   try {
     const date = new Date(dateString);
     
-    // Check if date is valid
     if (isNaN(date.getTime())) {
       return 'Ngày không hợp lệ';
     }
@@ -46,7 +45,6 @@ export const formatDate = (
       timeZone
     };
 
-    // For time-only display
     if (!showYear && !showTime) {
       return date.toLocaleDateString(locale, {
         day: '2-digit',
@@ -165,7 +163,6 @@ export const formatCurrency = (
       return 'Số tiền không hợp lệ';
     }
 
-    // For compact notation (e.g., 1K, 1M)
     if (notation === 'compact' && numericAmount >= 1000) {
       const formatter = new Intl.NumberFormat(locale, {
         style: 'currency',
@@ -178,7 +175,6 @@ export const formatCurrency = (
       return formatter.format(numericAmount);
     }
 
-    // Standard notation
     const formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
@@ -372,22 +368,16 @@ export const formatPhoneNumber = (
 ): string => {
   if (!phoneNumber) return '';
 
-  // Remove all non-digit characters
   const cleaned = phoneNumber.replace(/\D/g, '');
 
-  // Check if it's a valid Vietnamese phone number
   if (cleaned.length === 10) {
-    // Format: 090 123 4567
     return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6)}`;
   } else if (cleaned.length === 11 && cleaned.startsWith('84')) {
-    // Format: +84 90 123 4567
     return `+${cleaned.slice(0, 2)} ${cleaned.slice(2, 5)} ${cleaned.slice(5, 8)} ${cleaned.slice(8)}`;
   } else if (cleaned.length === 12 && cleaned.startsWith('+84')) {
-    // Format: +84 90 123 4567
     return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)} ${cleaned.slice(6, 9)} ${cleaned.slice(9)}`;
   }
 
-  // Return original if can't format
   return phoneNumber;
 };
 

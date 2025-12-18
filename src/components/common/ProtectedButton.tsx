@@ -1,4 +1,3 @@
-// frontend/src/components/common/ProtectedButton.tsx
 import React from "react";
 import { Button, type ButtonProps } from "antd";
 import { useAuthGuard } from "@/hooks/useAuthGuard";

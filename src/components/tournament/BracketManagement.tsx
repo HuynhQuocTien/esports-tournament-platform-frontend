@@ -169,13 +169,11 @@ const TournamentManagementAntd: React.FC<TournamentManagementProps> = ({ tournam
       const newMatches = arrayMove(matches, activeIndex, overIndex);
       setMatches(newMatches);
       
-      // Update match order in backend
       try {
         await matchService.updateMatchOrder(tournamentId, newMatches.map(m => m.id));
         message.success('Đã cập nhật thứ tự trận đấu');
       } catch (error) {
         message.error('Không thể cập nhật thứ tự');
-        // Rollback on error
         setMatches([...matches]);
       }
     }
@@ -224,7 +222,6 @@ const TournamentManagementAntd: React.FC<TournamentManagementProps> = ({ tournam
 
   const getStatusTag = (status: TournamentStatus | MatchStatus) => {
     const statusConfig: Record<string, { color: string; text: string; icon?: React.ReactNode }> = {
-      // Tournament Status
       [TournamentStatus.DRAFT]: { color: 'default', text: 'Nháp' },
       [TournamentStatus.PUBLISHED]: { color: 'processing', text: 'Đã xuất bản' },
       [TournamentStatus.REGISTRATION_OPEN]: { color: 'success', text: 'Mở đăng ký' },
@@ -233,12 +230,9 @@ const TournamentManagementAntd: React.FC<TournamentManagementProps> = ({ tournam
       [TournamentStatus.COMPLETED]: { color: 'success', text: 'Đã kết thúc', icon: <CheckCircleOutlined /> },
       [TournamentStatus.CANCELLED]: { color: 'error', text: 'Đã hủy', icon: <CloseCircleOutlined /> },
       
-      // Match Status
       [MatchStatus.PENDING]: { color: 'default', text: 'Chờ' },
       [MatchStatus.SCHEDULED]: { color: 'processing', text: 'Đã lên lịch' },
       [MatchStatus.PROCESSING]: { color: 'warning', text: 'Đang diễn ra', icon: <PlayCircleOutlined /> },
-    //   [MatchStatus.COMPLETED]: { color: 'success', text: 'Hoàn thành', icon: <CheckCircleOutlined /> },
-    //   [MatchStatus.CANCELLED]: { color: 'error', text: 'Đã hủy', icon: <CloseCircleOutlined /> },
     };
 
     const config = statusConfig[status] || { color: 'default', text: status };
@@ -420,7 +414,6 @@ const TournamentManagementAntd: React.FC<TournamentManagementProps> = ({ tournam
               type="text"
               icon={<EditOutlined />}
               onClick={() => {
-                // Open edit modal
               }}
             />
           </Tooltip>

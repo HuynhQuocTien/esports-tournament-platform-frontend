@@ -1,3 +1,4 @@
+// frontend/src/common/types/team.ts
 export const TeamRole = {
   CAPTAIN: 'CAPTAIN',
   PLAYER: 'PLAYER',

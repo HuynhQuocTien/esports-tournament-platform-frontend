@@ -20,13 +20,28 @@ export interface TournamentBasicInfo {
   description?: string;
   logoUrl?: string;
   bannerUrl?: string;
-  registrationStart?:  Dayjs;
+  registrationStart?: Dayjs;
   registrationEnd?: Dayjs;
-  tournamentStart?:  Dayjs;
-  tournamentEnd?:  Dayjs;
+  tournamentStart?: Dayjs;
+  tournamentEnd?: Dayjs;
   maxTeams: number;
   type: string;
   format: string;
+  status?: string;
+  prizePool?: number;
+  registeredTeams?: number;
+  organizer?: {
+    id: string;
+    name: string;
+  };
+  approvedTeamsCount?: number;
+  registrationProgress?: number;
+  registrationStatus?: string;
+  timeStatus?: {
+    label: string;
+    color: string;
+    icon: string;
+  };
 }
 
 export const TournamentStatus = {
@@ -333,4 +348,56 @@ export interface Bracket {
   bracketOrder: number;
   isFinal: boolean;
   matches: Match[];
+}
+
+export interface TournamentRegistrationRequest {
+  type: 'team' | 'individual';
+  teamInfo?: {
+    teamName: string;
+    teamTag?: string;
+    teamDescription?: string;
+    members: Array<{
+      name: string;
+      gameId: string;
+      role?: string;
+      rank?: string;
+    }>;
+    captainName: string;
+    captainEmail: string;
+    captainPhone: string;
+  };
+  individualInfo?: {
+    fullName: string;
+    age: number;
+    email: string;
+    phone: string;
+    gameId: string;
+    rank: string;
+    mainRole?: string;
+    experience?: string;
+    availability?: string[];
+    preferences?: string[];
+  };
+  agreeTerms: boolean;
+}
+
+export interface TournamentRegistrationResponse {
+  id: string;
+  status: string;
+  message: string;
+  registeredAt: string;
+}
+
+export interface TournamentEligibilityCheck {
+  eligible: boolean;
+  reasons: string[];
+  remainingSlots: number;
+}
+
+export interface PaginatedTournamentsResponse {
+  data: TournamentBasicInfo[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

@@ -1,5 +1,5 @@
 import api from "./api";
-import type { PublishTournamentRequest, TournamentApiResponse, TournamentBasicInfo, TournamentData } from "@/common/types";
+import type { PaginatedTournamentsResponse, PublishTournamentRequest, TournamentApiResponse, TournamentBasicInfo, TournamentData } from "@/common/types";
 
 export const tournamentService = {
   create: (data: Partial<TournamentBasicInfo>) =>
@@ -38,5 +38,15 @@ export const tournamentService = {
     return res.data;
   },
 
-  getFeature: () =>  api.get(`/tournaments/featured`)
+  getFeature: () =>  api.get(`/tournament-public/featured`),
+
+  getPublicTournaments: (params?: {
+    page?: number;
+    limit?: number;
+    game?: string;
+    status?: string;
+    search?: string;
+  }) => api.get<PaginatedTournamentsResponse>("/tournament-public/filler", { params }),
+   checkEligibility: (tournamentId: string) =>
+    api.get<{ eligible: boolean; reason?: string }>(`/tournaments/${tournamentId}/check-eligibility`),
 };

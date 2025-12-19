@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Row, Col, Card, Typography, Tag, Button, Space, Spin, Alert, Progress } from "antd";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import {
   EyeOutlined,
   TeamOutlined,
@@ -12,7 +11,7 @@ import {
   TrophyOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { tournamentService } from "@/services/tournamentService";
+import { useFeaturedTournaments } from "@/hooks/useFeaturedTournament";
 
 const { Title, Text } = Typography;
 
@@ -133,33 +132,12 @@ const getGameIcon = (game: string): string => {
 };
 
 export const TournamentSection: React.FC = () => {
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchTournaments();
-  }, []);
-
-  const fetchTournaments = async () => {
-    try {
-      setLoading(true);
-      const response = await tournamentService.getFeature();
-      
-      if (response.data.success) {
-        setTournaments(response.data.data);
-      } else {
-        setTournaments(response.data.data || response.data);
-      }
-    } catch (err: any) {
-      console.error("Error fetching tournaments:", err);
-      setError(err.response?.data?.message || "Không thể tải danh sách giải đấu");
-      
-      setTournaments(getMockTournaments());
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+      tournaments,
+      loading,
+      error,
+      refetch,
+    } = useFeaturedTournaments();
 
   const getMockTournaments = (): Tournament[] => [
     {

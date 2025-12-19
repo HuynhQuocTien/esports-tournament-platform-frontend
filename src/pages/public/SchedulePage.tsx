@@ -174,7 +174,6 @@ export const SchedulePage: React.FC = () => {
 
   const groupedMatches = groupMatchesByDate(filteredMatches);
 
-  // Get unique tournaments for filter
   const tournaments = [
     ...new Set(mockMatches.map((match) => match.tournament)),
   ];

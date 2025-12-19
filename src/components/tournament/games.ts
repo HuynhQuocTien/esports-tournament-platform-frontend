@@ -148,25 +148,20 @@ export const games: Game[] = [
   }
 ];
 
-// Sort by popularity
 export const sortedGames = [...games].sort((a, b) => b.popularity - a.popularity);
 
-// Get game by value
 export const getGameByValue = (value: string): Game | undefined => {
   return games.find(game => game.value === value);
 };
 
-// Get game by id
 export const getGameById = (id: string): Game | undefined => {
   return games.find(game => game.id === id);
 };
 
-// Get games by category
 export const getGamesByCategory = (category: string): Game[] => {
   return games.filter(game => game.categories.includes(category));
 };
 
-// Search games
 export const searchGames = (query: string): Game[] => {
   const lowerQuery = query.toLowerCase();
   return games.filter(game => 

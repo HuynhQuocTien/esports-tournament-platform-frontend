@@ -11,7 +11,8 @@ import {
   TrophyOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useFeaturedTournaments } from "@/hooks/useFeaturedTournament";
+import { tournamentService } from "@/services/tournamentService";
+import { ProtectedLink } from "@/components/common/ProtectedLink";
 
 const { Title, Text } = Typography;
 
@@ -483,7 +484,11 @@ export const TournamentSection: React.FC = () => {
                     Xem kết quả
                   </Button>
                 </Link>
-                <Link to={`/tournaments/${tournament.id}`}>
+                  <ProtectedLink 
+                  to={`/tournaments/${tournament.id}`}
+                  requireAuth={true}
+                  authMessage="Đăng nhập để xem chi tiết giải đấu và đăng ký tham gia"
+                >
                   <Button
                     type="primary"
                     style={{
@@ -495,7 +500,7 @@ export const TournamentSection: React.FC = () => {
                   >
                     Chi tiết
                   </Button>
-                </Link>
+                </ProtectedLink>
               </div>
             </Card>
           </Col>
@@ -503,7 +508,11 @@ export const TournamentSection: React.FC = () => {
       </Row>
 
       <div style={{ textAlign: "center", marginTop: "32px" }}>
-        <Link to="/tournaments/create">
+        <ProtectedLink 
+          to="/tournaments/create"
+          requireAuth={true}
+          authMessage="Đăng nhập để tạo giải đấu mới"
+        >
           <Button
             type="primary"
             size="large"
@@ -520,12 +529,7 @@ export const TournamentSection: React.FC = () => {
           >
             Đăng ký tham gia giải đấu
           </Button>
-        </Link>
-        <div style={{ marginTop: "16px" }}>
-          <Text type="secondary">
-            Đang có {tournaments.length} giải đấu nổi bật
-          </Text>
-        </div>
+        </ProtectedLink>
       </div>
     </section>
   );

@@ -1,4 +1,3 @@
-// components/BracketVisualization.tsx
 import React from 'react';
 import { Card, Row, Col, Typography, Empty } from 'antd';
 import { TrophyOutlined } from '@ant-design/icons';

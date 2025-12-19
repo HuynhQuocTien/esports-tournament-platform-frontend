@@ -15,7 +15,9 @@ import { MyTeamsPage } from "@/pages/public/my-teams/MyTeamsPage";
 import MyTournamentPage from "@/pages/organizer/MyTournamentPage";
 import TournamentSetupPage from "@/pages/organizer/TournamentSettupPage";
 import { TeamMembersPage } from "@/pages/public/my-teams/TeamMembersPage";
-import { TournamentRegistrationPage } from "@/pages/public/TournamentRegistrationPage";
+import { TournamentRegistrationPage } from "@/pages/public/tournaments/TournamentRegistrationPage";
+import NotificationsPage from "@/pages/public/notifications/NotificationsPage";
+import { TournamentRegistrationPreviewPage } from "@/pages/public/tournaments/TournamentRegistrationPreviewPage";
 
 export const PublicRouter = () => {
   return (
@@ -28,6 +30,11 @@ export const PublicRouter = () => {
         <Route path="teams" element={<TeamsPage />} />
         <Route path="ranking" element={<RankingPage />} />
         <Route path="schedule" element={<SchedulePage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+        <Route
+          path="/tournaments/:id/register-preview"
+          element={<TournamentRegistrationPreviewPage />}
+        />
 
         <Route path="profile" element={<UserProfilePage />} />
 
@@ -39,7 +46,10 @@ export const PublicRouter = () => {
           path="tournaments/create-league"
           element={<CreateTournamentPage />}
         />
-        <Route path="tournaments/:id/register" element={<TournamentRegistrationPage />} />
+        <Route
+          path="tournaments/:id/register"
+          element={<TournamentRegistrationPage />}
+        />
 
         <Route path="tournaments/mine" element={<MyTournamentPage />} />
 

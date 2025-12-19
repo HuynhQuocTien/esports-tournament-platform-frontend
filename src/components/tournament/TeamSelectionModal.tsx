@@ -1,4 +1,3 @@
-// components/TeamSelectionModal.tsx
 import React, { useState } from 'react';
 import { Modal, List, Avatar, Input, Button, Space, Tag, Empty } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';

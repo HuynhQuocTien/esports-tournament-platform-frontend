@@ -64,11 +64,12 @@ const CreateTournamentPage: React.FC = () => {
 
   const onFinish = async (values: TournamentBasicInfo) => {
     setLoading(true);
+    console.log('Form values:', values);
     try {
 
-      const res = await tournamentService.create(values);
-      if (res)
-        message.success('Tạo giải đấu thành công!');
+      // const res = await tournamentService.create(values);
+      // if (res)
+      //   message.success('Tạo giải đấu thành công!');
       
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');
@@ -180,40 +181,7 @@ const CreateTournamentPage: React.FC = () => {
                   placeholder="VD: 8, 16, 32, 64..."
                 />
               </Form.Item>
-
-              {/* Thời gian
-              <Title level={4} style={{ marginTop: 24, marginBottom: 16 }}>Thời gian</Title>
               
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="registrationPeriod"
-                    label="Thời gian đăng ký"
-                  >
-                    <RangePicker
-                      showTime
-                      format="YYYY-MM-DD HH:mm"
-                      style={{ width: '100%' }}
-                      size="large"
-                    />
-                  </Form.Item>
-                </Col>
-                
-                <Col span={12}>
-                  <Form.Item
-                    name="tournamentPeriod"
-                    label="Thời gian diễn ra giải đấu"
-                  >
-                    <RangePicker
-                      showTime
-                      format="YYYY-MM-DD HH:mm"
-                      style={{ width: '100%' }}
-                      size="large"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row> */}
-
               {/* Mô tả */}
               <Form.Item
                 name="description"

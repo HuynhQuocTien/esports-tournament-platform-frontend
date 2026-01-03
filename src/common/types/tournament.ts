@@ -14,7 +14,6 @@ export const TournamentFormatValues = [
 export type TournamentFormat = typeof TournamentFormatValues[number];
 
 export interface TournamentBasicInfo {
-  id: string;
   name: string;
   game: string;
   description?: string;
@@ -42,6 +41,7 @@ export interface TournamentBasicInfo {
     color: string;
     icon: string;
   };
+  visibility?: 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY';
 }
 
 export const TournamentStatus = {

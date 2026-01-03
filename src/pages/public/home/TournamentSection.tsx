@@ -13,6 +13,7 @@ import {
 } from "@ant-design/icons";
 import { tournamentService } from "@/services/tournamentService";
 import { ProtectedLink } from "@/components/common/ProtectedLink";
+import { useFeaturedTournaments } from "@/hooks/useFeaturedTournament";
 
 const { Title, Text } = Typography;
 

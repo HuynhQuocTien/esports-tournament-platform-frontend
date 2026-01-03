@@ -139,7 +139,7 @@ export const RegisterForm: React.FC<Props> = ({ onSwitch, onClose }) => {
 
         {/* User Type */}
         <Form.Item
-          name="userType"
+          name="role"
           rules={[{ required: true, message: "Vui lòng chọn loại tài khoản!" }]}
         >
           <Select

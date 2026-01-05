@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Card, 
   Row, 
@@ -6,8 +6,10 @@ import {
   Button, 
   message, 
   Typography, 
+  Divider, 
   Space, 
   Alert,
+  Steps,
   Spin,
   Tag,
   Modal,
@@ -16,35 +18,56 @@ import {
   Tabs,
   List,
   Avatar,
+  Input,
+  Popconfirm,
+  Tooltip,
   Badge,
   Select,
+  Dropdown,
+  Menu,
   InputNumber,
+  TimePicker,
+  Switch,
   DatePicker,
   Collapse,
   Form,
+  Radio
 } from 'antd';
 import { 
   ExclamationCircleOutlined, 
+  CheckCircleOutlined,
+  LoadingOutlined,
+  EyeOutlined,
   UserOutlined,
   PlusOutlined,
+  DeleteOutlined,
   EditOutlined,
   TeamOutlined,
   TrophyOutlined,
   ScheduleOutlined,
   DragOutlined,
+  CheckOutlined,
+  CloseOutlined,
+  MoreOutlined,
   SyncOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  SwapOutlined,
+  InfoCircleOutlined
 } from '@ant-design/icons';
 import { 
   DndContext, 
-  type DragEndEvent, 
+  DragEndEvent, 
   DragOverlay,
-  type DragStartEvent,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
+  closestCorners,
   KeyboardSensor,
+  UniqueIdentifier
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -53,22 +76,29 @@ import {
 } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import TournamentBracketVisualization from '@/components/tournament/TournamentBracketVisualization';
+import TournamentBracketVisualization from './TournamentBracketVisualization';
 import { tournamentService } from '@/services/tournamentService';
 import { matchService } from '@/services/matchService';
 import type { 
+  TournamentData, 
   TournamentStage, 
   Bracket, 
   Match, 
-  Team, 
-  TournamentStepProps
+  Team 
 } from '@/common/types';
-import dayjs from 'dayjs';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
+const { Panel } = Collapse;
 const { confirm } = Modal;
+const { Option } = Select;
 const { RangePicker } = DatePicker;
+
+interface TournamentStagesProps {
+  tournamentData: TournamentData;
+  onUpdate: (updatedData: Partial<TournamentData>) => void;
+  onRefresh: () => Promise<void>;
+}
 
 interface DraggableItem {
   id: string;
@@ -103,7 +133,11 @@ const SortableItem: React.FC<{
   );
 };
 
-const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) => {
+const TournamentStages: React.FC<TournamentStagesProps> = ({ 
+  tournamentData,
+  onUpdate,
+  onRefresh
+}) => {
   const [activeTab, setActiveTab] = useState('brackets');
   const [loading, setLoading] = useState(false);
   const [generatingBracket, setGeneratingBracket] = useState(false);
@@ -133,17 +167,17 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
   );
 
   useEffect(() => {
-    if (data?.registrations) {
+    if (tournamentData?.registrations) {
       // Lấy teams từ registrations (giả sử có field teams)
-      const approvedTeams = data.registrations
+      const approvedTeams = tournamentData.registrations
         .filter((reg: any) => reg.status === 'APPROVED')
         .map((reg: any) => reg.team);
       setTeams(approvedTeams);
     }
-  }, [data]);
+  }, [tournamentData]);
 
   const handleGenerateBrackets = async () => {
-    if (!data?.basicInfo.id) return;
+    if (!tournamentData.basicInfo.id) return;
 
     confirm({
       title: 'Tạo nhánh đấu tự động',
@@ -153,8 +187,8 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
           <p>Hệ thống sẽ tạo nhánh đấu với thông tin:</p>
           <ul>
             <li>Số đội: <strong>{teams.length}</strong></li>
-            <li>Thể thức: <strong>{data?.basicInfo.format}</strong></li>
-            <li>Game: <strong>{data?.basicInfo.game}</strong></li>
+            <li>Thể thức: <strong>{tournamentData.basicInfo.format}</strong></li>
+            <li>Game: <strong>{tournamentData.basicInfo.game}</strong></li>
           </ul>
           <Alert 
             type="warning" 
@@ -167,13 +201,13 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
         setGeneratingBracket(true);
         try {
           // Gọi API tạo bracket
-          await tournamentService.generateBrackets(data?.basicInfo.id, {
-            format: data?.basicInfo.format,
+          await tournamentService.generateBrackets(tournamentData.basicInfo.id, {
+            format: tournamentData.basicInfo.format,
             teams: teams
           });
           
           message.success('Đã tạo nhánh đấu thành công!');
-          // await onRefresh();
+          await onRefresh();
         } catch (error) {
           message.error('Không thể tạo nhánh đấu');
           console.error('Generate bracket error:', error);
@@ -220,7 +254,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
         slot: slot
       });
       message.success(`Đã thêm ${team.name} vào trận đấu`);
-      // await onRefresh();
+      await onRefresh();
     } catch (error) {
       message.error('Không thể thêm đội vào trận đấu');
     }
@@ -242,7 +276,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
       message.success('Đã cập nhật kết quả trận đấu');
       setIsMatchModalVisible(false);
       setEditingMatch(null);
-      // await onRefresh();
+      await onRefresh();
     } catch (error) {
       message.error('Không thể cập nhật kết quả');
     }
@@ -260,9 +294,9 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
         seed: index + 1
       }));
       
-      await tournamentService.seedTeams(data?.basicInfo.id, seeds);
+      await tournamentService.seedTeams(tournamentData.basicInfo.id, seeds);
       message.success('Đã xếp hạt giống tự động');
-      // await onRefresh();
+      await onRefresh();
     } catch (error) {
       message.error('Không thể xếp hạt giống');
     }
@@ -273,7 +307,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
       title={
         <Space>
           <TeamOutlined />
-          {/*<span>Danh sách đội ({teams.length}/{tournamentData.basicInfo.maxTeams})</span>*/}
+          <span>Danh sách đội ({teams.length}/{tournamentData.basicInfo.maxTeams})</span>
         </Space>
       }
       extra={
@@ -392,7 +426,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
   );
 
   const renderBrackets = () => {
-    if (!data.stages || data.stages.length === 0) {
+    if (!tournamentData.stages || tournamentData.stages.length === 0) {
       return (
         <Empty
           description={
@@ -421,7 +455,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
 
     return (
       <div>
-        {data.stages.map((stage: TournamentStage) => (
+        {tournamentData.stages.map((stage: TournamentStage) => (
           <Card 
             key={stage.id || stage.name}
             title={
@@ -497,7 +531,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
   const renderMatchSchedule = () => {
     const allMatches: Match[] = [];
     
-    data.stages?.forEach((stage: TournamentStage) => {
+    tournamentData.stages?.forEach((stage: TournamentStage) => {
       stage.brackets?.forEach((bracket: Bracket) => {
         if (bracket.matches) {
           allMatches.push(...bracket.matches);
@@ -605,7 +639,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
   const renderStats = () => {
     const allMatches: Match[] = [];
     
-    data.stages?.forEach((stage: TournamentStage) => {
+    tournamentData.stages?.forEach((stage: TournamentStage) => {
       stage.brackets?.forEach((bracket: Bracket) => {
         if (bracket.matches) {
           allMatches.push(...bracket.matches);
@@ -733,7 +767,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
         <Space>
           <Button 
             icon={<SyncOutlined />}
-            // onClick={onRefresh}
+            onClick={onRefresh}
           >
             Tải lại
           </Button>
@@ -817,7 +851,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
               });
               message.success('Đã lên lịch trận đấu');
               setScheduleModalVisible(false);
-              // await onRefresh();
+              await onRefresh();
             } catch (error) {
               message.error('Không thể lên lịch trận đấu');
             }

@@ -37,7 +37,7 @@ import type {
   TournamentDataKey, 
   TournamentApiResponse,
   PublishTournamentRequest 
-} from '@common/common/types/tournament';
+} from '@/common/types/tournament';
 import { Dayjs } from 'dayjs';
 
 const { Title, Text } = Typography;

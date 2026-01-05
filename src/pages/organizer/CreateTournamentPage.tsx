@@ -67,9 +67,9 @@ const CreateTournamentPage: React.FC = () => {
     console.log('Form values:', values);
     try {
 
-      // const res = await tournamentService.create(values);
-      // if (res)
-      //   message.success('Tạo giải đấu thành công!');
+      const res = await tournamentService.create(values);
+      if (res)
+        message.success('Tạo giải đấu thành công!');
       
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');

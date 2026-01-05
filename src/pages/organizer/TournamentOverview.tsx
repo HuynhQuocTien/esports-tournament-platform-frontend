@@ -13,7 +13,7 @@ import {
   TeamOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import type { TournamentStepProps } from '../../../common/types/tournament';
+import type { TournamentStepProps } from '@/common/types/tournament';
 const TournamentOverview: React.FC<TournamentStepProps> = ({ data, updateData }) => {
 
   const getStatusColor = (status?: string): string => {

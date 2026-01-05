@@ -9,11 +9,10 @@ import {
   Card,
   InputNumber,
   Divider,
-  message,
   Typography,
   Switch,
 } from 'antd';
-import type { TournamentStepProps } from '../../../common/types/tournament';
+import type { TournamentStepProps } from '@/common/types/tournament';
 
 const { Option } = Select;
 const { Text } = Typography;

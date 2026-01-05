@@ -18,7 +18,7 @@ import {
   UploadOutlined,
   LoadingOutlined,
 } from '@ant-design/icons';
-import type { TournamentBasicInfo, TournamentStepProps } from '../../../common/types/tournament';
+import type { TournamentBasicInfo, TournamentStepProps } from '@/common/types/tournament';
 import type { UploadProps, UploadFile } from 'antd';
 import { tournamentService } from '@/services/tournamentService';
 import { fileService } from '@/services/fileService';
@@ -27,7 +27,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { getGameByValue } from '@/components/tournament/games';
 import GameSelect from '@/components/tournament/GameSelect';
-import type { UploadState, FormBasicInfo} from '../../../common/types/tournament';
+import type { UploadState, FormBasicInfo} from '@/common/types/tournament';
 import { Option } from 'antd/es/mentions';
 
 const { TextArea } = Input;

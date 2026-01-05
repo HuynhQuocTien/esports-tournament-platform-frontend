@@ -14,6 +14,7 @@ export const TournamentFormatValues = [
 export type TournamentFormat = typeof TournamentFormatValues[number];
 
 export interface TournamentBasicInfo {
+  id: string;
   name: string;
   game: string;
   description?: string;
@@ -95,6 +96,20 @@ export interface TournamentStage {
   startDate?: string;
   endDate?: string;
   tournamentId?: string;
+  brackets?: Bracket[];
+}
+
+export interface Bracket{
+  id: string;
+  name:string;
+  stageId: string;
+  stageName: string;
+  bracketOrder: number;
+  isFinal: boolean;
+  matches: Match[];
+}
+
+export interface DragData {
   
 }
 

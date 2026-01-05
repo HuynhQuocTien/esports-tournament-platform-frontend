@@ -49,4 +49,25 @@ export const tournamentService = {
   }) => api.get<PaginatedTournamentsResponse>("/tournament-public/filler", { params }),
    checkEligibility: (tournamentId: string) =>
     api.get<{ eligible: boolean; reason?: string }>(`/tournaments/${tournamentId}/check-eligibility`),
+
+  async generateBrackets(
+    tournamentId: string, 
+    options: {
+      format: string;
+      teams: any[];
+      seedingMethod?: 'RANDOM' | 'MANUAL' | 'RANKING';
+    }
+  ): Promise<any> {
+    const response = await api.post(`/tournaments/${tournamentId}/brackets/generate`, options);
+    return response.data;
+  },
+    // Xếp hạt giống teams
+  async seedTeams(
+    tournamentId: string, 
+    seeds: Array<{ teamId: string; seed: number }>
+  ): Promise<any> {
+    const response = await api.post(`/tournaments/${tournamentId}/seed`, { seeds });
+    return response.data;
+  },
+
 };

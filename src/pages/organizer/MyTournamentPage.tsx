@@ -4,10 +4,10 @@ import TournamentCard from "@/components/tournament/TournamentCard";
 import TournamentFilter from "@/components/tournament/TournamentFilter";
 import EmptyState from "@/components/tournament/Empty";
 import { Button, Row, Col } from "antd";
-import type { ITournament } from "@/common/interfaces/tournament/tournament";
+import type { TournamentBasicInfo } from "@/common/types";
 
 export default function MyTournamentPage() {
-    const [tournaments, setTournaments] =  useState<ITournament[]>([]);
+    const [tournaments, setTournaments] =  useState<TournamentBasicInfo[]>([]);
     const [filter, setFilter] = useState("all");
 
     const fetchData = async () => {
@@ -30,7 +30,6 @@ export default function MyTournamentPage() {
 
     return (
         <div style={{ maxWidth: 1100, margin: "auto", padding: 20 }}>
-      {/* Header */}
       <div
         style={{
           display: "flex",

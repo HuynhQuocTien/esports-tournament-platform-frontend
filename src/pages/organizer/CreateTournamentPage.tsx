@@ -18,47 +18,39 @@ import {
 } from '@ant-design/icons';
 import { tournamentService } from '@/services/tournamentService';
 import type { TournamentBasicInfo } from '@/common/types';
+import { gameService } from "@/services/gameService";
+
+
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 const { RangePicker } = DatePicker;
 
-interface TournamentFormData {
-  name: string;
-  game: string;
-  description?: string;
-  logoUrl?: string;
-  bannerUrl?: string;
-  registrationStart?: string;
-  registrationEnd?: string;
-  tournamentStart?: string;
-  tournamentEnd?: string;
-  maxTeams: number;
-  type: string;
-}
-
 const CreateTournamentPage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const gameOptions = [
-    'League of Legends',
-    'Valorant', 
-    'Counter-Strike 2',
-    'Dota 2',
-    'PUBG',
-    'Mobile Legends',
-    'Free Fire',
-    'Other'
-  ];
+
+  const [gameOptions, setGameOptions] = useState<string[]>([]);
+
+  React.useEffect(() => {
+    const loadGames = async () => {
+      try {
+        const games = await gameService.getGames();
+        setGameOptions(games.map((game) => game.name));
+      } catch (error) {
+        console.error("Error loading games:", error);
+      }
+    };
+    loadGames();
+  }, []);;
 
   const tournamentFormat = [
     { value: 'SINGLE_ELIMINATION', label: 'Loại trực tiếp' },
-    { value: 'DOUBLE_ELIMINATION', label: 'Loại đấu đôi' },
+    { value: 'DOUBLE_ELIMINATION', label: 'Loại đấu nhánh thắng-nhánh thua' },
   ];
   const tournamentTypes = [
-    { value: 'team', label: 'Teams' },
-    { value: 'solo', label: 'Solo' },
+    { value: 'team', label: 'Đội' }
   ];
 
 

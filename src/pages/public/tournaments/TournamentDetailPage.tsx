@@ -498,15 +498,6 @@ export const TournamentDetailPage: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <Divider style={{ margin: '12px 0' }} />
-                    <div>
-                      <Text strong>Phí tham gia:</Text>
-                      <div style={{ marginTop: 8 }}>
-                        <Text style={{ fontSize: 20, color: "#1890ff", fontWeight: 'bold' }}>
-                          {(tournament as any).registrationFee ? `$${(tournament as any).registrationFee}` : 'Miễn phí'}
-                        </Text>
-                      </div>
-                    </div>
                   </Space>
                 </Card>
               </Col>
@@ -701,32 +692,6 @@ export const TournamentDetailPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-
-      {/* Additional Actions for Authenticated Users */}
-      {isAuthenticated && (
-        <Card
-          style={{
-            marginTop: 24,
-            borderRadius: 16,
-            border: "none",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-          }}
-        >
-          <Row gutter={[24, 24]} align="middle">
-            <Col xs={24} md={16}>
-              <Title level={4} style={{ margin: 0 }}>
-                Đã sẵn sàng tham gia?
-              </Title>
-              <Text type="secondary">
-                Hoàn tất đăng ký để chính thức tham gia giải đấu này
-              </Text>
-            </Col>
-            <Col xs={24} md={8}>
-              {renderRegisterButton()}
-            </Col>
-          </Row>
-        </Card>
-      )}
 
       {/* Login Prompt for Non-Authenticated Users */}
       {!isAuthenticated && (

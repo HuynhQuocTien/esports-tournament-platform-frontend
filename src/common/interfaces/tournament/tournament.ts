@@ -87,3 +87,69 @@ export interface Registration {
   status: string;
   registeredAt: string;
 }
+
+
+export interface RegistrationResponse {
+  id: string;
+  tournamentId: string;
+  teamId: string;
+  status: string;
+  registeredAt: string;
+  approvedAt?: string;
+  hasCheckedIn: boolean;
+  checkedInAt?: string;
+  registrationData?: any;
+}
+
+export interface RegistrationStatusResponse {
+  isRegistered: boolean;
+  status?: string;
+  registration?: RegistrationResponse;
+  canRegister: boolean;
+  reasons?: string[];
+}
+
+export interface EligibilityResponse {
+  eligible: boolean;
+  reasons?: string[];
+  remainingSlots: number;
+  canRegister: boolean;
+  checks: {
+    isPublic: boolean;
+    isRegistrationOpen: boolean;
+    hasAvailableSlots: boolean;
+    userNotRegistered: boolean;
+    userNotOrganizer: boolean;
+  };
+  registrationStatus?: RegistrationStatusResponse;
+}
+
+export interface RegistrationRequest {
+  teamId: string;
+  registrationData?: any;
+}
+
+export interface UpdateRegistrationStatusRequest {
+  status: string;
+  reason?: string;
+}
+
+export interface CheckInRequest {
+  teamId: string;
+}
+
+export interface CancelRegistrationRequest {
+  teamId: string;
+  reason?: string;
+}
+
+export interface BulkRegisterRequest {
+  teamIds: string[];
+}
+
+export interface RegistrationListResponse {
+  success: boolean;
+  data: RegistrationResponse[];
+  total: number;
+  isOrganizer: boolean;
+}

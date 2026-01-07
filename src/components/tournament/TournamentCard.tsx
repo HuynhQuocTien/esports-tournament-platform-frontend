@@ -1,4 +1,4 @@
-import { EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Avatar, Card, Tag } from "antd";
 
 interface Props {
@@ -27,7 +27,7 @@ export default function TournamentCard({ tournament, onEdit, onDelete }: Props) 
 
             actions={[
                 <EditOutlined key="edit" onClick={onEdit} />,
-                <EditOutlined key="delete" onClick={onDelete} />,
+                <DeleteOutlined key="delete" onClick={onDelete} />,
             ]}
         >
             <Card.Meta

@@ -71,15 +71,6 @@ const TournamentSetupPage: React.FC = () => {
           tournamentEnd: new Dayjs(),
         },
         settings: {
-          type: 'SINGLE_ELIMINATION',
-          maxTeams: 16,
-          minTeamSize: 1,
-          maxTeamSize: 5,
-          allowIndividual: false,
-          visibility: 'PUBLIC',
-          registrationFee: 0,
-          prizePool: 0,
-          prizeGuaranteed: false,
         },
         stages: [],
         rules: [],
@@ -288,7 +279,6 @@ const TournamentSetupPage: React.FC = () => {
     if (id && !isProcessing) {
       setLoading(true);
       try {
-
         message.success('Đã cập nhật thông tin');
       } catch (error: any) {
         message.error(`Lỗi khi cập nhật: ${error.message}`);
@@ -340,14 +330,14 @@ const TournamentSetupPage: React.FC = () => {
         cancelButtonProps: { danger: true },
         onOk: async () => {
           await handleSaveDraft();
-          navigate('/tournaments');
+          navigate('/tournaments/mine');
         },
         onCancel: () => {
-          navigate('/tournaments');
+          navigate('/tournaments/mine');
         },
       });
     } else {
-      navigate('/tournaments');
+      navigate('/tournaments/mine ');
     }
   };
 

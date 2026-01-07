@@ -87,3 +87,4 @@ export interface Registration {
   status: string;
   registeredAt: string;
 }
+

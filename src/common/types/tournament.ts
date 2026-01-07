@@ -70,19 +70,27 @@ export type MatchStatus =
   typeof MatchStatus[keyof typeof MatchStatus];
 
 export interface TournamentSetting {
-  type: TournamentFormat;
-  maxTeams: number;
-  minTeamSize: number;
-  maxTeamSize: number;
-  allowIndividual: boolean;
-  visibility: 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY';
-  registrationFee?: number;
-  prizePool?: number;
-  prizeGuaranteed?: boolean;
-  defaultBestOf?: number;
-  defaultMatchTime?: number;
-  allowDraws?: boolean;
+  id?: string;
+  tournament?: Tournament;
+  
+  allowTeamRegistration: boolean;
+  requireApproval: boolean;
+  allowDraws: boolean;
+  defaultBestOf: number;
+  matchFormat?: any; 
+  autoSchedule: boolean;
+  defaultMatchTime: number;
+  notifyMatchStart: boolean;
+  notifyRegistration: boolean;
+  notifyResults: boolean;
+  requireStream: boolean;
+  streamPlatforms: string[];
+  
+  // Các trường timestamp
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
 
 export interface TournamentStage {
   id?: string;
@@ -258,41 +266,6 @@ export interface ITournamentApiService {
   saveDraft(id: string, data: Partial<TournamentData>): Promise<void>;
   publishTournament(id: string, data: PublishTournamentRequest): Promise<void>;
   deleteTournament(id: string): Promise<void>;
-}
-
-export function mapTournamentDataToApi(
-  data: TournamentData,
-): CreateTournamentRequest {
-  return {
-    name: data.basicInfo.name,
-    game: data.basicInfo.game,
-    description: data.basicInfo.description ?? "",
-    logoUrl: data.basicInfo.logoUrl,
-    bannerUrl: data.basicInfo.bannerUrl,
-    registrationStart: data.basicInfo.registrationStart,
-    registrationEnd: data.basicInfo.registrationEnd,
-    tournamentStart: data.basicInfo.tournamentStart,
-    tournamentEnd: data.basicInfo.tournamentEnd,
-
-    type: data.settings.type,
-    maxTeams: data.settings.maxTeams,
-    minTeamSize: data.settings.minTeamSize,
-    maxTeamSize: data.settings.maxTeamSize,
-    allowIndividual: data.settings.allowIndividual,
-    visibility: data.settings.visibility,
-    registrationFee: data.settings.registrationFee ?? 0,
-    prizePool: data.settings.prizePool ?? 0,
-    prizeGuaranteed: data.settings.prizeGuaranteed ?? false,
-
-    setting: {
-      defaultBestOf: data.settings.defaultBestOf ?? 1,
-      defaultMatchTime: data.settings.defaultMatchTime ?? 30,
-      allowDraws: data.settings.allowDraws ?? false,
-    },
-
-    stages: data.stages,
-    rules: data.rules,
-  };
 }
 
 export interface Match {

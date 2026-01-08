@@ -120,22 +120,70 @@ export const tournamentService = {
   deleteTournamentRule: (tournamentId: string, ruleId: string) =>
     api.delete(`/tournaments/${tournamentId}/rules/${ruleId}`),
 
-  async autoSeedTeams(tournamentId: string) {
-    const response = await api.post(`/tournaments/${tournamentId}/auto-seed`);
-    return response.data;
+  // async autoSeedTeams(tournamentId: string) {
+  //   const response = await api.post(`/tournaments/${tournamentId}/auto-seed`);
+  //   return response.data;
+  // },
+
+  // tournamentService.ts - Cập nhật autoSeedTeams function
+  async autoSeedTeams(tournamentId: string): Promise<{
+    success: boolean;
+    message: string;
+    seededTeams?: number;
+    seededMatches?: number;
+    byeMatches?: number;
+    nextRoundMatches?: number;
+    advancedTeams?: number;
+  }> {
+    try {
+      console.log('Calling auto-seed API for tournament:', tournamentId);
+      const response = await api.post(`/tournaments/${tournamentId}/auto-seed`);
+
+      console.log('Auto seed API response:', response.data);
+
+      // Trường hợp 1: response.data chứa trực tiếp các thuộc tính
+      if (response.data && response.data.success !== undefined) {
+        return response.data;
+      }
+
+      // Trường hợp 2: response có cấu trúc { data: { ... } }
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+
+      // Fallback
+      return {
+        success: true,
+        message: 'Seeding completed',
+        ...response.data
+      };
+
+    } catch (error: any) {
+      console.error('Auto seed API error:', error);
+
+      return {
+        success: false,
+        message: error.response?.data?.message || error.message || 'Auto seeding failed',
+        seededTeams: 0,
+        seededMatches: 0,
+        byeMatches: 0,
+        nextRoundMatches: 0,
+        advancedTeams: 0
+      };
+    }
   },
 
-  async seedTeamsToBracket(tournamentId: string, bracketId: string, seeds: Array<{teamId: string; seed: number}>, userId: string) {
+  async seedTeamsToBracket(tournamentId: string, bracketId: string, seeds: Array<{ teamId: string; seed: number }>, userId: string) {
     const response = await api.post(`/tournaments/${tournamentId}/brackets/${bracketId}/seed`, { seeds, userId });
     return response.data;
   },
 
-  async getSeedingPreview(tournamentId: string, seeds: Array<{teamId: string; seed: number}>) {
+  async getSeedingPreview(tournamentId: string, seeds: Array<{ teamId: string; seed: number }>) {
     const response = await api.post(`/tournaments/${tournamentId}/seeding-preview`, { seeds });
     return response.data;
   },
 
-  async seedAndStartTournament(tournamentId: string, seeds?: Array<{teamId: string; seed: number}>) {
+  async seedAndStartTournament(tournamentId: string, seeds?: Array<{ teamId: string; seed: number }>) {
     const response = await api.post(`/tournaments/${tournamentId}/seed-and-start`, { seeds });
     return response.data;
   },

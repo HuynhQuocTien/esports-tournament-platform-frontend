@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import type { TournamentRule, TournamentStepProps } from '@/common/types';
 import { tournamentService } from '@/services/tournamentService';
+import { useParams } from 'react-router-dom';
 
 const { TextArea } = Input;
 const { confirm } = Modal;
@@ -29,6 +30,7 @@ interface TournamentRuleWithKey extends TournamentRule {
 }
 
 const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) => {
+  const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [editingRule, setEditingRule] = useState<TournamentRule | null>(null);
@@ -37,17 +39,17 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
   const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
-    if (data?.basicInfo?.id) {
+    if (id) {
       loadRules();
     }
-  }, [data?.basicInfo?.id]);
+  }, [id]);
 
   const loadRules = async () => {
-    if (!data?.basicInfo?.id) return;
+    if (!id) return;
     
     try {
       setLoading(true);
-      const response = await tournamentService.getTournamentRules(data.basicInfo.id);
+      const response = await tournamentService.getTournamentRules(id);
       console.log('Loaded rules:', response.data);
       const rules = response.data.data || [];
       
@@ -152,11 +154,11 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
       icon: <ExclamationCircleOutlined />,
       content: `Bạn có chắc chắn muốn xóa quy định "${ruleTitle}"?`,
       onOk: async () => {
-        if (!data?.basicInfo?.id) return;
+        if (!id) return;
         
         try {
           setDeleting(ruleId);
-          await tournamentService.deleteTournamentRule(data.basicInfo.id, ruleId);
+          await tournamentService.deleteTournamentRule(id, ruleId);
           
           // Refresh rules from API
           await loadRules();
@@ -174,8 +176,8 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
   const handleModalOk = async (): Promise<void> => {
     try {
       const values = await form.validateFields();
-      
-      if (!data?.basicInfo?.id) {
+      console.log('basic info: ', data?.basicInfo);
+      if (!id) {
         message.error('Không tìm thấy ID giải đấu');
         return;
       }
@@ -192,7 +194,7 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
       if (editingRule?.id) {
         // Update existing rule
         await tournamentService.updateTournamentRule(
-          data.basicInfo.id, 
+          id, 
           editingRule.id, 
           ruleData
         );
@@ -200,7 +202,7 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
       } else {
         // Create new rule
         await tournamentService.createTournamentRule(
-          data.basicInfo.id, 
+          id, 
           ruleData
         );
         message.success('Thêm quy định thành công');

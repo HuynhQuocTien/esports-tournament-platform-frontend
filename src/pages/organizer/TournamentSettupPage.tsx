@@ -28,7 +28,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import TournamentBasicSettings from "./TournamentSettings";
 import TournamentStages from "./TournamentStages";
-import TournamentRegistration from "./TournamentRegistration";
+import TournamentRegistrationManagement from "./TournamentRegistrationManagement";
 import TournamentRules from "./TournamentRules";
 import TournamentOverview from "./TournamentOverview";
 import TournamentBasicInfo from "./TournamentBasicInfo";
@@ -125,7 +125,7 @@ const TournamentSetupPage: React.FC = () => {
       key: "registrations",
       label: "Đăng ký",
       icon: <TeamOutlined />,
-      component: withTabNavigation(TournamentRegistration, "rules"),
+      component: withTabNavigation(TournamentRegistrationManagement, "rules"),
     },
     {
       key: "rules",

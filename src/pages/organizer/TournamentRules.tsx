@@ -17,7 +17,7 @@ import {
   DeleteOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import type { TournamentStepProps, TournamentRule } from '../../../common/types/tournament';
+import type { TournamentRule, TournamentStepProps } from '@/common/types';
 
 const { TextArea } = Input;
 const { confirm } = Modal;

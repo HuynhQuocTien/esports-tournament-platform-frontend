@@ -120,4 +120,28 @@ export const tournamentService = {
   deleteTournamentRule: (tournamentId: string, ruleId: string) =>
     api.delete(`/tournaments/${tournamentId}/rules/${ruleId}`),
 
+  async autoSeedTeams(tournamentId: string) {
+    const response = await api.post(`/tournaments/${tournamentId}/auto-seed`);
+    return response.data;
+  },
+
+  async seedTeamsToBracket(tournamentId: string, bracketId: string, seeds: Array<{teamId: string; seed: number}>, userId: string) {
+    const response = await api.post(`/tournaments/${tournamentId}/brackets/${bracketId}/seed`, { seeds, userId });
+    return response.data;
+  },
+
+  async getSeedingPreview(tournamentId: string, seeds: Array<{teamId: string; seed: number}>) {
+    const response = await api.post(`/tournaments/${tournamentId}/seeding-preview`, { seeds });
+    return response.data;
+  },
+
+  async seedAndStartTournament(tournamentId: string, seeds?: Array<{teamId: string; seed: number}>) {
+    const response = await api.post(`/tournaments/${tournamentId}/seed-and-start`, { seeds });
+    return response.data;
+  },
+  async startTournament(tournamentId: string) {
+    const response = await api.post(`/tournaments/${tournamentId}/start`);
+    return response.data;
+  },
+
 };

@@ -230,7 +230,7 @@ const TournamentStages: React.FC<TournamentStagesProps> = ({
     setSelectedMatch(match);
     setEditingMatch({
       matchId: match.id,
-      scheduledTime: match.scheduledTime
+      // scheduledTime: match.scheduledTime
     });
     setScheduleModalVisible(true);
   };
@@ -360,7 +360,7 @@ const TournamentStages: React.FC<TournamentStagesProps> = ({
                     {stage.format && (
                       <div>
                         <Text strong>Định dạng: </Text>
-                        <Text>{JSON.stringify(stage.format).type}</Text>
+                        {/* <Text>{JSON.stringify(stage.format).type}</Text> */}
                       </div>
                     )}
                     {stage.startDate && (

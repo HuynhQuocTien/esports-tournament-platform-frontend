@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Card, 
   Row, 
@@ -16,43 +16,30 @@ import {
   Tabs,
   List,
   Avatar,
-  Badge,
-  Select,
+  Statistic,
+  Descriptions,
+  Steps,
+  Divider,
+  Table,
   InputNumber,
-  DatePicker,
-  Collapse,
-  Form,
 } from 'antd';
 import { 
   ExclamationCircleOutlined, 
-  UserOutlined,
-  PlusOutlined,
-  EditOutlined,
   TeamOutlined,
   TrophyOutlined,
   ScheduleOutlined,
-  DragOutlined,
   SyncOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
+  CheckOutlined,
+  PlayCircleOutlined,
+  RocketOutlined,
+  LoadingOutlined,
+  UserOutlined,
+  CrownOutlined,
+  ArrowRightOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
-import { 
-  DndContext, 
-  type DragEndEvent, 
-  DragOverlay,
-  type DragStartEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  KeyboardSensor,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import TournamentBracketVisualization from '@/components/tournament/TournamentBracketVisualization';
 import { tournamentService } from '@/services/tournamentService';
 import { matchService } from '@/services/matchService';
@@ -61,87 +48,189 @@ import type {
   Bracket, 
   Match, 
   Team, 
-  TournamentStepProps
+  TournamentStepProps,
+  Tournament,
+  TournamentData,
+  TournamentBasicInfo,
 } from '@/common/types';
 import dayjs from 'dayjs';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
 const { confirm } = Modal;
-const { RangePicker } = DatePicker;
+const { Step } = Steps;
 
-interface DraggableItem {
-  id: string;
-  type: 'team' | 'match';
-  data: Team | Match;
-}
-
-const SortableItem: React.FC<{
-  id: string;
-  children: React.ReactNode;
-  data?: any;
-}> = ({ id, children, data }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} data-drag-data={JSON.stringify(data)}>
-      {children}
-    </div>
-  );
-};
-
-const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) => {
+const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData }) => {
   const [activeTab, setActiveTab] = useState('brackets');
   const [loading, setLoading] = useState(false);
   const [generatingBracket, setGeneratingBracket] = useState(false);
+  const [seedingTeams, setSeedingTeams] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [isMatchModalVisible, setIsMatchModalVisible] = useState(false);
-  const [isSeedModalVisible, setIsSeedModalVisible] = useState(false);
-  const [draggingItem, setDraggingItem] = useState<DraggableItem | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [editingMatch, setEditingMatch] = useState<{
-    matchId: string;
-    team1Score?: number;
-    team2Score?: number;
-    scheduledTime?: Date;
-  } | null>(null);
-  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
-
-  // DnD sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const [processingMatch, setProcessingMatch] = useState(false);
+  const [tournamentInfo, setTournamentInfo] = useState<TournamentBasicInfo | null>(null);
+  const [matchStats, setMatchStats] = useState({
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    scheduled: 0,
+    pending: 0,
+  });
 
   useEffect(() => {
     if (data?.registrations) {
-      // Lấy teams từ registrations (giả sử có field teams)
       const approvedTeams = data.registrations
-        .filter((reg: any) => reg.status === "approved")
-        .map((reg: any) => reg.team);
+        .filter((reg: any) => reg.status === "APPROVED" || reg.status === "approved")
+        .map((reg: any) => ({
+          ...reg.team,
+          registrationId: reg.id,
+          registeredAt: reg.registeredAt,
+        }));
       setTeams(approvedTeams);
     }
-    console.log('TournamentStages registrations data:', data.registrations);
+    
+    if (data?.basicInfo) {
+      setTournamentInfo(data.basicInfo);
+    }
+
+    // Tính toán match stats
+    calculateMatchStats();
+    
+    console.log('TournamentStages data:', data);
   }, [data]);
+
+  const calculateMatchStats = () => {
+    if (!data?.stages) return;
+
+    let total = 0;
+    let completed = 0;
+    let inProgress = 0;
+    let scheduled = 0;
+    let pending = 0;
+
+    data.stages.forEach((stage: TournamentStage) => {
+      stage.brackets?.forEach((bracket: Bracket) => {
+        bracket.matches?.forEach((match: Match) => {
+          total++;
+          switch (match.status) {
+            case 'COMPLETED':
+              completed++;
+              break;
+            case 'LIVE':
+              inProgress++;
+              break;
+            case 'SCHEDULED':
+              scheduled++;
+              break;
+            case 'PENDING':
+              pending++;
+              break;
+          }
+        });
+      });
+    });
+
+    setMatchStats({ total, completed, inProgress, scheduled, pending });
+  };
+
+  const refreshData = async () => {
+    setLoading(true);
+    try {
+      if (data?.basicInfo?.id) {
+        const updatedTournament = await tournamentService.getById(data.basicInfo.id);
+        updateData('basicInfo', updatedTournament.data);
+        message.success('Đã tải lại dữ liệu');
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      message.error('Không thể tải lại dữ liệu');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🎯 QUAN TRỌNG: 1 NÚT TỰ ĐỘNG LOAD ĐĂNG KÝ VÀO TRẬN ĐẤU
+  const handleAutoSeedAndAssign = async () => {
+    if (!data?.basicInfo?.id) return;
+
+    confirm({
+      title: 'Tự động xếp hạt giống và assign teams',
+      icon: <SyncOutlined />,
+      content: (
+        <div>
+          <Alert
+            message="Hệ thống sẽ tự động:"
+            description={
+              <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+                <li>Xếp hạt giống cho {teams.length} đội đã duyệt</li>
+                <li>Assign teams vào các trận đấu vòng 1</li>
+                <li>Tự động xử lý bye matches (nếu có)</li>
+                <li>Lên lịch các trận đấu vòng 1</li>
+              </ul>
+            }
+            type="info"
+            style={{ marginBottom: 16 }}
+          />
+          <Descriptions size="small" column={1}>
+            <Descriptions.Item label="Số đội">{teams.length}</Descriptions.Item>
+            <Descriptions.Item label="Format">{data?.basicInfo.format}</Descriptions.Item>
+            <Descriptions.Item label="Bracket">{data?.stages?.[0]?.brackets?.[0]?.name || 'Chưa có bracket'}</Descriptions.Item>
+          </Descriptions>
+        </div>
+      ),
+      onOk: async () => {
+        setSeedingTeams(true);
+        try {
+          // 1. Auto seed teams
+          message.loading({ content: 'Đang xếp hạt giống...', key: 'seeding', duration: 0 });
+          const seedResult = await tournamentService.autoSeedTeams(data.basicInfo.id);
+          
+          // 2. Assign teams to matches
+          message.loading({ content: 'Đang assign teams vào trận đấu...', key: 'assigning', duration: 0 });
+          
+          // 3. Auto schedule matches
+          message.loading({ content: 'Đang lên lịch trận đấu...', key: 'scheduling', duration: 0 });
+          await autoScheduleFirstRoundMatches();
+          
+          message.success({ content: 'Đã hoàn thành tự động seed và assign!', key: 'seeding' });
+          
+          // 4. Refresh data
+          await refreshData();
+          
+          return seedResult;
+        } catch (error: any) {
+          message.error({ content: error.message || 'Không thể tự động seed', key: 'seeding' });
+          console.error('Auto seed and assign error:', error);
+          return null;
+        } finally {
+          setSeedingTeams(false);
+        }
+      }
+    });
+  };
+
+  const autoScheduleFirstRoundMatches = async () => {
+    if (!data?.stages?.[0]?.brackets?.[0]) return;
+
+    const bracket = data.stages[0].brackets[0];
+    const firstRoundMatches = bracket.matches?.filter(m => m.round === 1 && m.team1 && m.team2) || [];
+    
+    // Lên lịch cách nhau 30 phút
+    const startTime = new Date();
+    startTime.setHours(10, 0, 0, 0); // 10:00 AM
+
+    for (let i = 0; i < firstRoundMatches.length; i++) {
+      const match = firstRoundMatches[i];
+      const scheduledTime = new Date(startTime.getTime() + i * 30 * 60000); // 30 phút cách nhau
+      
+      try {
+        await matchService.scheduleMatch(match.id, scheduledTime);
+      } catch (error) {
+        console.error(`Failed to schedule match ${match.id}:`, error);
+      }
+    }
+  };
 
   const handleGenerateBrackets = async () => {
     if (!data?.basicInfo.id) return;
@@ -151,12 +240,12 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
       icon: <ExclamationCircleOutlined />,
       content: (
         <div>
-          <p>Hệ thống sẽ tạo nhánh đấu với thông tin:</p>
-          <ul>
-            <li>Số đội: <strong>{teams.length}</strong></li>
-            <li>Thể thức: <strong>{data?.basicInfo.format}</strong></li>
-            <li>Game: <strong>{data?.basicInfo.game}</strong></li>
-          </ul>
+          <p>Hệ thống sẽ tạo nhánh đấu với:</p>
+          <Descriptions size="small" column={1}>
+            <Descriptions.Item label="Số đội">{teams.length}</Descriptions.Item>
+            <Descriptions.Item label="Thể thức">{data?.basicInfo.format}</Descriptions.Item>
+            <Descriptions.Item label="Game">{data?.basicInfo.game}</Descriptions.Item>
+          </Descriptions>
           <Alert 
             type="warning" 
             message="Nhánh đấu cũ sẽ bị xóa nếu đã tồn tại!"
@@ -167,16 +256,14 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
       onOk: async () => {
         setGeneratingBracket(true);
         try {
-          // Gọi API tạo bracket
-          await tournamentService.generateBrackets(data?.basicInfo.id, {
-            format: data?.basicInfo.format,
-            teams: teams
+          await tournamentService.generateBrackets(data.basicInfo.id, {
+            format: data.basicInfo.format,
+            totalTeams: teams.length,
           });
-          
           message.success('Đã tạo nhánh đấu thành công!');
-          // await onRefresh();
-        } catch (error) {
-          message.error('Không thể tạo nhánh đấu');
+          await refreshData();
+        } catch (error: any) {
+          message.error(error.message || 'Không thể tạo nhánh đấu');
           console.error('Generate bracket error:', error);
         } finally {
           setGeneratingBracket(false);
@@ -185,45 +272,103 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
     });
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const dragData = active.data.current as DraggableItem;
-    setDraggingItem(dragData);
+  const handleStartTournament = async () => {
+    confirm({
+      title: 'Bắt đầu giải đấu',
+      icon: <RocketOutlined />,
+      content: (
+        <div>
+          <Alert
+            message="Sau khi bắt đầu, giải đấu sẽ:"
+            description={
+              <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+                <li>🚀 Chuyển trạng thái sang "Đang diễn ra"</li>
+                <li>⏰ Bắt đầu đếm ngược thời gian</li>
+                <li>📋 Hiển thị trên trang chủ</li>
+                <li>🚫 <strong>Không thể hoàn tác</strong></li>
+              </ul>
+            }
+            type="warning"
+          />
+          <div style={{ marginTop: 16 }}>
+            <Text strong>Điều kiện bắt đầu:</Text>
+            <ul>
+              <li>✅ Có bracket: {data?.stages?.length > 0 ? '✓' : '✗'}</li>
+              <li>✅ Có teams: {teams.length >= 2 ? '✓' : '✗'}</li>
+              <li>✅ Teams đã được seed: {checkIfTeamsAreSeeded() ? '✓' : '✗'}</li>
+            </ul>
+          </div>
+        </div>
+      ),
+      onOk: async () => {
+        setLoading(true);
+        try {
+          await tournamentService.startTournament(data.basicInfo.id);
+          message.success('Giải đấu đã bắt đầu!');
+          await refreshData();
+        } catch (error: any) {
+          message.error(error.message || 'Không thể bắt đầu giải đấu');
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  const checkIfTeamsAreSeeded = () => {
+    // Kiểm tra xem có match nào đã có team chưa
+    if (!data?.stages?.[0]?.brackets?.[0]?.matches) return false;
     
-    if (!over) {
-      setDraggingItem(null);
-      return;
-    }
-
-    const dragData = active.data.current as DraggableItem;
-    const dropData = over.data.current as any;
-
-    // Kéo team vào match slot
-    if (dragData.type === 'team' && dropData?.type === 'match-slot') {
-      await assignTeamToMatchSlot(
-        dragData.data as Team,
-        dropData.matchId,
-        dropData.slot
-      );
-    }
-
-    setDraggingItem(null);
+    const matches = data.stages[0].brackets[0].matches;
+    return matches.some(match => match.team1 || match.team2);
   };
 
-  const assignTeamToMatchSlot = async (team: Team, matchId: string, slot: 1 | 2) => {
+  const handleUpdateMatchResult = async () => {
+    if (!selectedMatch) return;
+
+    setProcessingMatch(true);
     try {
-      await matchService.assignTeam(matchId, {
-        teamId: team.id,
-        slot: slot
-      });
-      message.success(`Đã thêm ${team.name} vào trận đấu`);
-      // await onRefresh();
-    } catch (error) {
-      message.error('Không thể thêm đội vào trận đấu');
+      const result = await matchService.updateMatchResult(
+        selectedMatch.id,
+        {
+          team1Score: selectedMatch.team1Score || 0,
+          team2Score: selectedMatch.team2Score || 0,
+        }
+      );
+
+      if (result) {
+        message.success('Đã cập nhật kết quả trận đấu!');
+        
+        // Tự động xử lý đội thắng đi tiếp
+        try {
+          await handleAutoAdvanceWinner(selectedMatch.id);
+        } catch (advanceError) {
+          console.warn('Auto advance warning:', advanceError);
+        }
+        
+        setIsMatchModalVisible(false);
+        setSelectedMatch(null);
+        await refreshData();
+      }
+    } catch (error: any) {
+      message.error(error.message || 'Không thể cập nhật kết quả');
+    } finally {
+      setProcessingMatch(false);
+    }
+  };
+
+  const handleAutoAdvanceWinner = async (matchId: string) => {
+    try {
+      const result = await matchService.autoAdvanceWinner(matchId);
+      
+      if (result.success) {
+        message.success('Đội thắng đã được tự động chuyển đến trận tiếp theo!');
+        await refreshData();
+      }
+      return result;
+    } catch (error: any) {
+      console.error('Auto advance error:', error);
+      throw error;
     }
   };
 
@@ -232,156 +377,63 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
     setIsMatchModalVisible(true);
   };
 
-  const handleUpdateMatchResult = async () => {
-    if (!selectedMatch || !editingMatch) return;
-
-    try {
-      await matchService.updateResult(selectedMatch.id, {
-        team1Score: editingMatch.team1Score || 0,
-        team2Score: editingMatch.team2Score || 0
-      });
-      message.success('Đã cập nhật kết quả trận đấu');
-      setIsMatchModalVisible(false);
-      setEditingMatch(null);
-      // await onRefresh();
-    } catch (error) {
-      message.error('Không thể cập nhật kết quả');
-    }
-  };
-
-  const handleScheduleMatch = async (match: Match) => {
-    setSelectedMatch(match);
-    setScheduleModalVisible(true);
-  };
-
-  const handleAutoSeed = async () => {
-    try {
-      const seeds = teams.map((team, index) => ({
-        teamId: team.id,
-        seed: index + 1
-      }));
-      
-      await tournamentService.seedTeams(data?.basicInfo.id, seeds);
-      message.success('Đã xếp hạt giống tự động');
-      // await onRefresh();
-    } catch (error) {
-      message.error('Không thể xếp hạt giống');
-    }
-  };
-
   const renderTeamList = () => (
     <Card 
       title={
         <Space>
           <TeamOutlined />
-          {/*<span>Danh sách đội ({teams.length}/{tournamentData.basicInfo.maxTeams})</span>*/}
+          <span>Danh sách đội đã duyệt ({teams.length})</span>
         </Space>
       }
       extra={
-        <Space>
-          <Button 
-            size="small" 
-            icon={<SyncOutlined />} 
-            onClick={handleAutoSeed}
-            disabled={teams.length < 2}
-          >
-            Xếp hạt giống
-          </Button>
-          <Button 
-            size="small" 
-            type="primary" 
-            icon={<DragOutlined />}
-            onClick={() => setIsSeedModalVisible(true)}
-            disabled={teams.length < 2}
-          >
-            Sắp xếp thủ công
-          </Button>
-        </Space>
-      }
-    >
-      <DndContext 
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext 
-          items={teams.map(t => t.id)}
-          strategy={verticalListSortingStrategy}
+        <Button 
+          type="primary" 
+          size="small"
+          icon={<SyncOutlined />}
+          onClick={handleAutoSeedAndAssign}
+          loading={seedingTeams}
+          disabled={teams.length < 2 || !data?.stages?.length}
         >
-          <List
-            dataSource={teams}
-            renderItem={(team, index) => (
-              <SortableItem 
-                key={team.id} 
-                id={team.id}
-                data={{ type: 'team', data: team }}
-              >
-                <List.Item
-                  style={{
-                    padding: '12px',
-                    border: '1px solid #f0f0f0',
-                    marginBottom: '8px',
-                    borderRadius: '4px',
-                    backgroundColor: 'white',
-                    cursor: 'grab',
-                  }}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar 
-                        src={team.logoUrl} 
-                        icon={<UserOutlined />}
-                        size="large"
-                      />
-                    }
-                    title={
-                      <Space>
-                        <Text strong>{team.name}</Text>
-                        {team.seed && (
-                          <Tag color="gold">
-                            <TrophyOutlined /> #{team.seed}
-                          </Tag>
-                        )}
-                      </Space>
-                    }
-                    description={
-                      <Text type="secondary">
-                        {team.members?.length || 0} thành viên
-                      </Text>
-                    }
-                  />
-                  <Badge 
-                    status="success" 
-                    text="Đã duyệt"
-                  />
-                </List.Item>
-              </SortableItem>
-            )}
-          />
-        </SortableContext>
-
-        <DragOverlay>
-          {draggingItem?.type === 'team' && (
-            <div style={{
-              padding: '12px',
-              background: 'white',
-              border: '2px dashed #1890ff',
-              borderRadius: '4px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              width: '300px'
-            }}>
-              <Space>
+          Auto Seed & Assign
+        </Button>
+      }
+      style={{ marginBottom: 24 }}
+    >
+      <List
+        dataSource={teams}
+        renderItem={(team, index) => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={
                 <Avatar 
-                  src={(draggingItem.data as Team).logoUrl} 
+                  src={team.logoUrl} 
                   icon={<UserOutlined />}
+                  size="large"
                 />
-                <Text strong>{(draggingItem.data as Team).name}</Text>
-                <Tag color="blue">Kéo vào trận đấu</Tag>
-              </Space>
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+              }
+              title={
+                <Space>
+                  <Text strong>{team.name}</Text>
+                  {team.seed && (
+                    <Tag color="gold">#{team.seed}</Tag>
+                  )}
+                </Space>
+              }
+              description={
+                <Space>
+                  <Text type="secondary">{team.members?.length || 0} thành viên</Text>
+                  {team.registrationDate && (
+                    <Tag color="blue">
+                      ĐK: {dayjs(team.registrationDate).format('DD/MM HH:mm')}
+                    </Tag>
+                  )}
+                </Space>
+              }
+            />
+            <Tag color="success">Đã duyệt</Tag>
+          </List.Item>
+        )}
+      />
 
       {teams.length === 0 && (
         <Empty
@@ -389,8 +441,121 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />
       )}
+
+      {teams.length > 0 && (
+        <Alert
+          message="Hướng dẫn"
+          description={
+            <div>
+              <p>1. Click <strong>"Auto Seed & Assign"</strong> để tự động xếp hạt giống và assign teams vào trận đấu</p>
+              <p>2. Hệ thống sẽ tự động xử lý seeding và lên lịch</p>
+              <p>3. Sau khi assign xong, có thể bắt đầu giải đấu</p>
+            </div>
+          }
+          type="info"
+          showIcon
+          style={{ marginTop: 16 }}
+        />
+      )}
     </Card>
   );
+
+  const renderTournamentControlPanel = () => (
+    <Card
+      title="Điều khiển giải đấu"
+      style={{ marginBottom: 24 }}
+      extra={
+        <Button 
+          icon={<SyncOutlined />} 
+          onClick={refreshData}
+          loading={loading}
+        >
+          Tải lại
+        </Button>
+      }
+    >
+      <Steps
+        current={getTournamentStep()}
+        items={[
+          {
+            title: 'Đội đã duyệt',
+            description: `${teams.length} đội`,
+            // data?.basicInfo?.minTeamSize ||
+            status: teams.length >= ( 2) ? 'finish' : 'process',
+          },
+          {
+            title: 'Tạo bracket',
+            description: data?.stages?.length > 0 ? 'Đã tạo' : 'Chưa tạo',
+            status: data?.stages?.length > 0 ? 'finish' : 'process',
+          },
+          {
+            title: 'Seed teams',
+            description: checkIfTeamsAreSeeded() ? 'Đã seed' : 'Chưa seed',
+            status: checkIfTeamsAreSeeded() ? 'finish' : 'process',
+          },
+          {
+            title: 'Bắt đầu',
+            description: tournamentInfo?.status === 'LIVE' ? 'Đang diễn ra' : 'Chờ',
+            status: tournamentInfo?.status === 'LIVE' ? 'finish' : 'wait',
+          },
+        ]}
+        size="small"
+      />
+
+      <Divider />
+
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <Button
+          type="primary"
+          block
+          icon={<SyncOutlined />}
+          onClick={handleAutoSeedAndAssign}
+          loading={seedingTeams}
+          disabled={teams.length < 2 || !data?.stages?.length}
+          size="large"
+        >
+          AUTO SEED & ASSIGN TEAMS
+        </Button>
+        <Text type="secondary" style={{ textAlign: 'center', display: 'block' }}>
+          Tự động xếp hạt giống và assign {teams.length} đội vào trận đấu
+        </Text>
+
+        <Button
+          type="dashed"
+          block
+          icon={<TrophyOutlined />}
+          onClick={handleGenerateBrackets}
+          loading={generatingBracket}
+          disabled={teams.length < 2}
+          size="large"
+          style={{ marginTop: 8 }}
+        >
+          TẠO/REFRESH BRACKET
+        </Button>
+
+        {checkIfTeamsAreSeeded() && tournamentInfo?.status !== 'LIVE' && (
+          <Button
+            type="primary"
+            danger
+            block
+            icon={<RocketOutlined />}
+            onClick={handleStartTournament}
+            size="large"
+            style={{ marginTop: 8 }}
+          >
+            🚀 BẮT ĐẦU GIẢI ĐẤU
+          </Button>
+        )}
+      </Space>
+    </Card>
+  );
+
+  const getTournamentStep = () => {
+    if (tournamentInfo?.status === 'LIVE') return 3;
+    if (checkIfTeamsAreSeeded()) return 2;
+    if (data?.stages?.length > 0) return 1;
+    return 0;
+  };
 
   const renderBrackets = () => {
     if (!data.stages || data.stages.length === 0) {
@@ -399,20 +564,20 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
           description={
             <div>
               <Title level={4}>Chưa có nhánh đấu nào</Title>
-              <Text type="secondary">
-                Tạo nhánh đấu để bắt đầu giải đấu. Cần ít nhất 2 đội đã được duyệt.
-              </Text>
+              <Paragraph type="secondary">
+                Cần ít nhất 2 đội đã được duyệt để tạo bracket.
+              </Paragraph>
             </div>
           }
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         >
           <Button 
-            type="primary" 
-            size="large"
+            type="primary"
             onClick={handleGenerateBrackets}
             disabled={teams.length < 2}
             loading={generatingBracket}
-            icon={<PlusOutlined />}
+            icon={<TrophyOutlined />}
+            size="large"
           >
             Tạo nhánh đấu
           </Button>
@@ -429,27 +594,9 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
               <Space>
                 <span>{stage.name}</span>
                 <Tag color="blue">{stage.type}</Tag>
-                {stage.isSeeded && <Tag color="gold">Đã xếp hạt giống</Tag>}
               </Space>
             }
             style={{ marginBottom: 24 }}
-            extra={
-              <Space>
-                <Button 
-                  icon={<ScheduleOutlined />}
-                  onClick={() => handleScheduleStage(stage)}
-                >
-                  Lên lịch
-                </Button>
-                <Button 
-                  type="primary" 
-                  icon={<EditOutlined />}
-                  onClick={() => handleEditStage(stage)}
-                >
-                  Chỉnh sửa
-                </Button>
-              </Space>
-            }
           >
             {stage.brackets && stage.brackets.map((bracket: Bracket) => (
               <div key={bracket.id} style={{ marginBottom: 32 }}>
@@ -469,12 +616,17 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
                   </Title>
                   <Space>
                     <Text type="secondary">{bracket.matches?.length || 0} trận đấu</Text>
-                    <Button 
-                      size="small"
-                      onClick={() => handleScheduleBracket(bracket)}
-                    >
-                      <ClockCircleOutlined /> Lên lịch
-                    </Button>
+                    {!checkIfTeamsAreSeeded() && (
+                      <Button 
+                        type="primary"
+                        size="small"
+                        icon={<SyncOutlined />}
+                        onClick={handleAutoSeedAndAssign}
+                        loading={seedingTeams}
+                      >
+                        Auto Assign Teams
+                      </Button>
+                    )}
                   </Space>
                 </div>
                 
@@ -482,7 +634,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
                   <TournamentBracketVisualization
                     bracket={bracket}
                     onMatchClick={handleMatchClick}
-                    onScheduleMatch={handleScheduleMatch}
+                    onScheduleMatch={() => {}}
                   />
                 ) : (
                   <Empty description="Chưa có trận đấu nào" />
@@ -512,11 +664,41 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
     return (
       <Row gutter={[16, 16]}>
         <Col span={24}>
-          <Alert
-            message={`${scheduledMatches.length} trận đã lên lịch / ${unscheduledMatches.length} trận chưa lên lịch`}
-            type="info"
-            showIcon
-          />
+          <Card title="Tổng quan lịch thi đấu">
+            <Row gutter={[16, 16]}>
+              <Col span={6}>
+                <Statistic 
+                  title="Tổng trận" 
+                  value={matchStats.total} 
+                  prefix={<TrophyOutlined />}
+                />
+              </Col>
+              <Col span={6}>
+                <Statistic 
+                  title="Đã hoàn thành" 
+                  value={matchStats.completed} 
+                  valueStyle={{ color: '#52c41a' }}
+                  prefix={<CheckOutlined />}
+                />
+              </Col>
+              <Col span={6}>
+                <Statistic 
+                  title="Đang diễn ra" 
+                  value={matchStats.inProgress} 
+                  valueStyle={{ color: '#1890ff' }}
+                  prefix={<PlayCircleOutlined />}
+                />
+              </Col>
+              <Col span={6}>
+                <Statistic 
+                  title="Đã lên lịch" 
+                  value={matchStats.scheduled} 
+                  valueStyle={{ color: '#722ed1' }}
+                  prefix={<CalendarOutlined />}
+                />
+              </Col>
+            </Row>
+          </Card>
         </Col>
 
         <Col span={12}>
@@ -530,7 +712,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
                   actions={[
                     <Button 
                       type="link" 
-                      icon={<EditOutlined />}
+                      icon={<EyeOutlined />}
                       onClick={() => handleMatchClick(match)}
                     >
                       Chi tiết
@@ -538,26 +720,26 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
                   ]}
                 >
                   <List.Item.Meta
-                    title={`${match.bracket?.name || 'Bracket'} - Trận ${match.order}`}
-                    description={
-                      <Space direction="vertical" size="small">
-                        <Text>
+                    title={
+                      <Space>
+                        <Text strong>
                           {match.team1?.name || 'TBD'} vs {match.team2?.name || 'TBD'}
                         </Text>
-                        <Space>
-                          <ClockCircleOutlined />
-                          <Text type="secondary">
-                            {new Date(match.scheduledTime!).toLocaleString()}
-                          </Text>
-                          <Tag color="blue">Vòng {match.round}</Tag>
-                        </Space>
+                        <Tag color="blue">Vòng {match.round}</Tag>
+                      </Space>
+                    }
+                    description={
+                      <Space>
+                        <ClockCircleOutlined />
+                        <Text type="secondary">
+                          {dayjs(match.scheduledTime).format('DD/MM HH:mm')}
+                        </Text>
                       </Space>
                     }
                   />
                   <Tag color={
                     match.status === 'COMPLETED' ? 'success' :
-                    match.status === 'PROCESSING' ? 'processing' :
-                    match.status === 'SCHEDULED' ? 'blue' : 'default'
+                    match.status === 'LIVE' ? 'processing' : 'blue'
                   }>
                     {match.status}
                   </Tag>
@@ -572,28 +754,16 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
             <List
               dataSource={unscheduledMatches}
               renderItem={match => (
-                <List.Item
-                  actions={[
-                    <Button 
-                      type="primary" 
-                      size="small"
-                      onClick={() => handleScheduleMatch(match)}
-                    >
-                      <CalendarOutlined /> Lên lịch
-                    </Button>
-                  ]}
-                >
+                <List.Item>
                   <List.Item.Meta
-                    title={`${match.bracket?.name || 'Bracket'} - Trận ${match.order}`}
-                    description={
+                    title={
                       <Text>
                         {match.team1?.name || 'TBD'} vs {match.team2?.name || 'TBD'}
                       </Text>
                     }
+                    description={<Text type="secondary">Vòng {match.round} - Trận {match.order}</Text>}
                   />
-                  <Tag color={match.status === 'PENDING' ? 'orange' : 'default'}>
-                    {match.status}
-                  </Tag>
+                  <Tag color="orange">Chưa lên lịch</Tag>
                 </List.Item>
               )}
             />
@@ -604,116 +774,194 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
   };
 
   const renderStats = () => {
-    const allMatches: Match[] = [];
-    
-    data.stages?.forEach((stage: TournamentStage) => {
-      stage.brackets?.forEach((bracket: Bracket) => {
-        if (bracket.matches) {
-          allMatches.push(...bracket.matches);
-        }
-      });
-    });
-
-    const stats = {
-      totalTeams: teams.length,
-      totalMatches: allMatches.length,
-      completedMatches: allMatches.filter(m => m.status === 'COMPLETED').length,
-      inProgressMatches: allMatches.filter(m => m.status === 'PROCESSING').length,
-      pendingMatches: allMatches.filter(m => m.status === 'PENDING').length,
-      scheduledMatches: allMatches.filter(m => m.scheduledTime).length,
-    };
-
-    const progressPercent = stats.totalMatches > 0 
-      ? Math.round((stats.completedMatches / stats.totalMatches) * 100)
+    const progressPercent = matchStats.total > 0 
+      ? Math.round((matchStats.completed / matchStats.total) * 100)
       : 0;
 
     return (
-      <div>
-        <Card title="Tiến độ giải đấu" style={{ marginBottom: 16 }}>
-          <Progress 
-            percent={progressPercent} 
-            status={progressPercent === 100 ? 'success' : 'active'}
-            strokeColor={{
-              '0%': '#108ee9',
-              '100%': '#87d068',
-            }}
-          />
-          <div style={{ marginTop: 16, textAlign: 'center' }}>
-            <Text type="secondary">
-              {stats.completedMatches}/{stats.totalMatches} trận đã hoàn thành
-            </Text>
-          </div>
-        </Card>
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Card title="Tiến độ giải đấu">
+            <Progress 
+              percent={progressPercent} 
+              status={progressPercent === 100 ? 'success' : 'active'}
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+              style={{ marginBottom: 16 }}
+            />
+            <div style={{ textAlign: 'center' }}>
+              <Text type="secondary">
+                {matchStats.completed}/{matchStats.total} trận đã hoàn thành ({progressPercent}%)
+              </Text>
+            </div>
+          </Card>
+        </Col>
 
-        <Row gutter={[16, 16]}>
-          {Object.entries(stats).map(([key, value]) => (
-            <Col key={key} span={8}>
-              <Card size="small">
-                <StatisticCard 
-                  title={getStatTitle(key)}
-                  value={value}
-                  color={getStatColor(key)}
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
+        <Col span={24}>
+          <Card title="Thống kê chi tiết">
+            <Table
+              dataSource={[
+                { key: 'total', label: 'Tổng số trận', value: matchStats.total, color: '#1890ff' },
+                { key: 'completed', label: 'Đã hoàn thành', value: matchStats.completed, color: '#52c41a' },
+                { key: 'inProgress', label: 'Đang diễn ra', value: matchStats.inProgress, color: '#fa8c16' },
+                { key: 'scheduled', label: 'Đã lên lịch', value: matchStats.scheduled, color: '#722ed1' },
+                { key: 'pending', label: 'Chờ xử lý', value: matchStats.pending, color: '#d9d9d9' },
+              ]}
+              columns={[
+                {
+                  title: 'Loại',
+                  dataIndex: 'label',
+                  key: 'label',
+                },
+                {
+                  title: 'Số lượng',
+                  dataIndex: 'value',
+                  key: 'value',
+                  render: (value, record: any) => (
+                    <Tag color={record.color} style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                      {value}
+                    </Tag>
+                  ),
+                },
+                {
+                  title: 'Tỷ lệ',
+                  key: 'percentage',
+                  render: (_, record: any) => {
+                    const percentage = matchStats.total > 0 
+                      ? Math.round((record.value / matchStats.total) * 100)
+                      : 0;
+                    return <Progress percent={percentage} size="small" />;
+                  },
+                },
+              ]}
+              pagination={false}
+              size="small"
+            />
+          </Card>
+        </Col>
+      </Row>
     );
   };
 
-  const handleScheduleStage = (stage: TournamentStage) => {
-    Modal.confirm({
-      title: `Lên lịch cho ${stage.name}`,
-      content: (
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <RangePicker
-            showTime
-            style={{ width: '100%' }}
-            placeholder={['Thời gian bắt đầu', 'Thời gian kết thúc']}
-          />
-          <Text type="secondary">Lịch sẽ được áp dụng cho tất cả trận trong stage này</Text>
-        </Space>
-      ),
-      onOk: async (values) => {
-        // Logic schedule stage
-      }
-    });
-  };
+  const renderMatchDetailModal = () => (
+    <Modal
+      title="Chi tiết trận đấu"
+      open={isMatchModalVisible}
+      onCancel={() => {
+        setIsMatchModalVisible(false);
+        setSelectedMatch(null);
+      }}
+      width={700}
+      footer={[
+        <Button key="cancel" onClick={() => setIsMatchModalVisible(false)}>
+          Đóng
+        </Button>,
+        selectedMatch?.status !== 'COMPLETED' && selectedMatch?.team1 && selectedMatch?.team2 && (
+          <Button 
+            key="update" 
+            type="primary"
+            onClick={handleUpdateMatchResult}
+            loading={processingMatch}
+          >
+            Cập nhật kết quả
+          </Button>
+        ),
+      ]}
+    >
+      {selectedMatch && (
+        <div>
+          <Descriptions column={2} size="small" bordered>
+            <Descriptions.Item label="Trận đấu">
+              Vòng {selectedMatch.round} - Trận {selectedMatch.order}
+            </Descriptions.Item>
+            <Descriptions.Item label="Trạng thái">
+              <Tag color={
+                selectedMatch.status === 'COMPLETED' ? 'success' :
+                selectedMatch.status === 'LIVE' ? 'processing' : 'blue'
+              }>
+                {selectedMatch.status}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Đội 1" span={2}>
+              {selectedMatch.team1 ? (
+                <Space>
+                  <Avatar src={selectedMatch.team1.logoUrl} size="small" />
+                  <Text strong>{selectedMatch.team1.name}</Text>
+                  {selectedMatch.team1.seed && (
+                    <Tag color="gold">#{selectedMatch.team1.seed}</Tag>
+                  )}
+                </Space>
+              ) : 'Chưa có đội'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Đội 2" span={2}>
+              {selectedMatch.team2 ? (
+                <Space>
+                  <Avatar src={selectedMatch.team2.logoUrl} size="small" />
+                  <Text strong>{selectedMatch.team2.name}</Text>
+                  {selectedMatch.team2.seed && (
+                    <Tag color="gold">#{selectedMatch.team2.seed}</Tag>
+                  )}
+                </Space>
+              ) : 'Chưa có đội'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tỷ số">
+              {selectedMatch.team1Score !== undefined && selectedMatch.team2Score !== undefined 
+                ? `${selectedMatch.team1Score} - ${selectedMatch.team2Score}`
+                : 'Chưa có'
+              }
+            </Descriptions.Item>
+            <Descriptions.Item label="Đội thắng">
+              {selectedMatch.winner ? (
+                <Space>
+                  <CrownOutlined style={{ color: '#faad14' }} />
+                  <Text strong>{selectedMatch.winner.name}</Text>
+                </Space>
+              ) : 'Chưa xác định'}
+            </Descriptions.Item>
+          </Descriptions>
 
-  const handleScheduleBracket = (bracket: Bracket) => {
-    // Logic schedule bracket
-  };
+          {selectedMatch.status !== 'COMPLETED' && selectedMatch.team1 && selectedMatch.team2 && (
+            <div style={{ marginTop: 24 }}>
+              <Title level={5}>Cập nhật kết quả</Title>
+              <Space size="large" style={{ width: '100%', justifyContent: 'center' }}>
+                <InputNumber
+                  min={0}
+                  max={100}
+                  value={selectedMatch.team1Score}
+                  onChange={(value) => {
+                    setSelectedMatch({
+                      ...selectedMatch,
+                      team1Score: value || 0
+                    });
+                  }}
+                  size="large"
+                  style={{ width: 100 }}
+                />
+                <Text strong style={{ fontSize: '24px' }}>:</Text>
+                <InputNumber
+                  min={0}
+                  max={100}
+                  value={selectedMatch.team2Score}
+                  onChange={(value) => {
+                    setSelectedMatch({
+                      ...selectedMatch,
+                      team2Score: value || 0
+                    });
+                  }}
+                  size="large"
+                  style={{ width: 100 }}
+                />
+              </Space>
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
+  );
 
-  const handleEditStage = (stage: TournamentStage) => {
-    // Logic edit stage
-  };
-
-  const getStatTitle = (key: string) => {
-    const titles: Record<string, string> = {
-      totalTeams: 'Số đội',
-      totalMatches: 'Tổng số trận',
-      completedMatches: 'Trận đã hoàn thành',
-      inProgressMatches: 'Trận đang diễn ra',
-      pendingMatches: 'Trận chờ',
-      scheduledMatches: 'Trận đã lên lịch'
-    };
-    return titles[key] || key;
-  };
-
-  const getStatColor = (key: string) => {
-    const colors: Record<string, string> = {
-      totalTeams: '#1890ff',
-      totalMatches: '#52c41a',
-      completedMatches: '#87d068',
-      inProgressMatches: '#faad14',
-      pendingMatches: '#d9d9d9',
-      scheduledMatches: '#722ed1'
-    };
-    return colors[key] || '#1890ff';
-  };
-
-  if (loading) {
+  if (loading && !seedingTeams) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 0' }}>
         <Spin size="large" />
@@ -732,397 +980,56 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
       }}>
         <Title level={2}>Quản lý Vòng đấu & Trận đấu</Title>
         <Space>
+          {tournamentInfo?.status === 'LIVE' && (
+            <Tag color="red" icon={<PlayCircleOutlined />} style={{ fontSize: '16px', padding: '8px 16px' }}>
+              ĐANG DIỄN RA
+            </Tag>
+          )}
           <Button 
             icon={<SyncOutlined />}
-            // onClick={onRefresh}
+            onClick={refreshData}
+            loading={loading}
           >
             Tải lại
-          </Button>
-          <Button 
-            type="primary" 
-            icon={<PlusOutlined />}
-            onClick={handleGenerateBrackets}
-            loading={generatingBracket}
-            disabled={teams.length < 2}
-          >
-            Tạo/Tạo lại nhánh đấu
           </Button>
         </Space>
       </div>
 
-      <Tabs 
-        activeKey={activeTab} 
-        onChange={setActiveTab}
-        type="card"
-        size="large"
-      >
-        <TabPane tab="Nhánh đấu" key="brackets">
-          <Row gutter={[24, 24]}>
-            <Col span={6}>
-              {renderTeamList()}
-            </Col>
-            <Col span={18}>
-              {renderBrackets()}
-            </Col>
-          </Row>
-        </TabPane>
-
-        <TabPane tab="Lịch thi đấu" key="schedule">
-          {renderMatchSchedule()}
-        </TabPane>
-
-        <TabPane tab="Thống kê" key="stats">
-          {renderStats()}
-        </TabPane>
-      </Tabs>
-
-      {/* Match Detail Modal */}
-      <Modal
-        title="Chi tiết trận đấu"
-        open={isMatchModalVisible}
-        onCancel={() => {
-          setIsMatchModalVisible(false);
-          setSelectedMatch(null);
-          setEditingMatch(null);
-        }}
-        width={700}
-        footer={[
-          <Button key="cancel" onClick={() => setIsMatchModalVisible(false)}>
-            Đóng
-          </Button>,
-          selectedMatch?.status !== 'COMPLETED' && (
-            <Button 
-              key="update" 
-              type="primary"
-              onClick={handleUpdateMatchResult}
-              disabled={!editingMatch}
-            >
-              Cập nhật kết quả
-            </Button>
-          )
-        ]}
-      >
-        {selectedMatch && renderMatchDetail()}
-      </Modal>
-
-      {/* Schedule Match Modal */}
-      <Modal
-        title="Lên lịch trận đấu"
-        open={scheduleModalVisible}
-        onCancel={() => setScheduleModalVisible(false)}
-        onOk={async () => {
-          if (selectedMatch && editingMatch?.scheduledTime) {
-            try {
-              await matchService.schedule(selectedMatch.id, {
-                scheduledTime: editingMatch.scheduledTime
-              });
-              message.success('Đã lên lịch trận đấu');
-              setScheduleModalVisible(false);
-              // await onRefresh();
-            } catch (error) {
-              message.error('Không thể lên lịch trận đấu');
-            }
-          }
-        }}
-      >
-        {selectedMatch && (
-          <Form layout="vertical">
-            <Form.Item label="Thời gian">
-              <DatePicker
-                showTime
-                style={{ width: '100%' }}
-                value={editingMatch?.scheduledTime ? dayjs(editingMatch.scheduledTime) : null}
-                onChange={(date) => {
-                  setEditingMatch(prev => ({
-                    ...prev!,
-                    scheduledTime: date?.toDate()
-                  }));
-                }}
-              />
-            </Form.Item>
-            <Alert
-              message="Thông tin trận đấu"
-              description={
-                <Space direction="vertical">
-                  <Text>{selectedMatch.team1?.name || 'TBD'} vs {selectedMatch.team2?.name || 'TBD'}</Text>
-                  <Text>Vòng {selectedMatch.round} - Trận {selectedMatch.order}</Text>
-                </Space>
-              }
-              type="info"
-              showIcon
-            />
-          </Form>
-        )}
-      </Modal>
-
-      {/* Seed Teams Modal */}
-      <Modal
-        title="Xếp hạt giống thủ công"
-        open={isSeedModalVisible}
-        onCancel={() => setIsSeedModalVisible(false)}
-        width={800}
-        footer={[
-          <Button key="cancel" onClick={() => setIsSeedModalVisible(false)}>
-            Hủy
-          </Button>,
-          <Button 
-            key="save" 
-            type="primary"
-            onClick={async () => {
-              // Logic save manual seeding
-              setIsSeedModalVisible(false);
-            }}
-          >
-            Lưu hạt giống
-          </Button>
-        ]}
-      >
-        <DndContext 
-          sensors={sensors}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={teams.map(t => t.id)}>
-            <List
-              dataSource={teams}
-              renderItem={(team, index) => (
-                <SortableItem 
-                  key={team.id} 
-                  id={team.id}
-                  data={{ type: 'team', data: team }}
-                >
-                  <List.Item
-                    style={{
-                      padding: '12px',
-                      border: '1px solid #f0f0f0',
-                      marginBottom: '8px',
-                      borderRadius: '4px',
-                      backgroundColor: 'white',
-                      cursor: 'grab',
-                    }}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <Avatar 
-                          src={team.logoUrl} 
-                          icon={<UserOutlined />}
-                        />
-                      }
-                      title={
-                        <Space>
-                          <Text strong>{team.name}</Text>
-                          <Tag color="gold">Vị trí: {index + 1}</Tag>
-                        </Space>
-                      }
-                    />
-                    <DragOutlined style={{ color: '#999' }} />
-                  </List.Item>
-                </SortableItem>
-              )}
-            />
-          </SortableContext>
-        </DndContext>
-        <Alert
-          message="Kéo và thả để sắp xếp thứ tự hạt giống"
-          type="info"
-          showIcon
-          style={{ marginTop: 16 }}
-        />
-      </Modal>
-    </div>
-  );
-
-  function renderMatchDetail() {
-    if (!selectedMatch) return null;
-
-    return (
-      <div>
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
-            <Card size="small" title="Thông tin trận đấu">
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text strong>Vòng:</Text>
-                  <Text>Vòng {selectedMatch.round} - Trận {selectedMatch.order}</Text>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Text strong>Trạng thái:</Text>
-                  <Tag color={
-                    selectedMatch.status === 'COMPLETED' ? 'success' :
-                    selectedMatch.status === 'PROCESSING' ? 'processing' :
-                    selectedMatch.status === 'SCHEDULED' ? 'blue' : 'default'
-                  }>
-                    {selectedMatch.status}
-                  </Tag>
-                </div>
-                {selectedMatch.scheduledTime && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text strong>Thời gian:</Text>
-                    <Text>{new Date(selectedMatch.scheduledTime).toLocaleString()}</Text>
-                  </div>
-                )}
-              </Space>
-            </Card>
-          </Col>
-
-          <Col span={24}>
-            <Card size="small" title="Đội thi đấu">
-              <Row gutter={[16, 16]}>
-                <Col span={10}>
-                  <TeamCard 
-                    team={selectedMatch.team1}
-                    slot={1}
-                    matchId={selectedMatch.id}
-                  />
-                </Col>
-                
-                <Col span={4} style={{ textAlign: 'center', paddingTop: 40 }}>
-                  <Title level={2}>VS</Title>
-                  {selectedMatch.team1Score !== undefined && selectedMatch.team2Score !== undefined && (
-                    <Title level={3} style={{ color: '#52c41a' }}>
-                      {selectedMatch.team1Score} - {selectedMatch.team2Score}
-                    </Title>
-                  )}
-                </Col>
-                
-                <Col span={10}>
-                  <TeamCard 
-                    team={selectedMatch.team2}
-                    slot={2}
-                    matchId={selectedMatch.id}
-                  />
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          {selectedMatch.status !== 'COMPLETED' && (
-            <Col span={24}>
-              <Card size="small" title="Cập nhật kết quả">
-                <Row gutter={16}>
-                  <Col span={10}>
-                    <InputNumber
-                      min={0}
-                      style={{ width: '100%' }}
-                      placeholder="Điểm đội 1"
-                      value={editingMatch?.team1Score}
-                      onChange={(value) => setEditingMatch(prev => ({
-                        ...prev!,
-                        team1Score: value || 0
-                      }))}
-                    />
-                  </Col>
-                  <Col span={4} style={{ textAlign: 'center', paddingTop: 8 }}>
-                    <Text strong>:</Text>
-                  </Col>
-                  <Col span={10}>
-                    <InputNumber
-                      min={0}
-                      style={{ width: '100%' }}
-                      placeholder="Điểm đội 2"
-                      value={editingMatch?.team2Score}
-                      onChange={(value) => setEditingMatch(prev => ({
-                        ...prev!,
-                        team2Score: value || 0
-                      }))}
-                    />
-                  </Col>
-                </Row>
-              </Card>
-            </Col>
-          )}
-
-          {selectedMatch.status === 'COMPLETED' && selectedMatch.team1 && selectedMatch.team2 && (
-            <Col span={24}>
-              <Alert
-                message={`Đội thắng: ${
-                  (selectedMatch.team1Score || 0) > (selectedMatch.team2Score || 0) 
-                    ? selectedMatch.team1.name 
-                    : selectedMatch.team2.name
-                }`}
-                type="success"
-                showIcon
-              />
-            </Col>
-          )}
-        </Row>
-      </div>
-    );
-  }
-};
-
-const TeamCard: React.FC<{ 
-  team?: Team; 
-  slot: 1 | 2; 
-  matchId: string 
-}> = ({ team, slot, matchId }) => {
-  return (
-    <div
-      style={{
-        border: '2px dashed',
-        borderColor: '#d9d9d9',
-        borderRadius: '8px',
-        padding: '16px',
-        textAlign: 'center',
-        backgroundColor: '#fafafa',
-        minHeight: '150px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-      data-type="match-slot"
-      data-match-id={matchId}
-      data-slot={slot}
-    >
-      {team ? (
-        <>
-          <Avatar 
-            src={team.logoUrl} 
-            size={64} 
-            icon={<TeamOutlined />}
+      <Row gutter={[24, 24]}>
+        <Col span={6}>
+          {renderTournamentControlPanel()}
+          {renderTeamList()}
+        </Col>
+        <Col span={18}>
+          <Tabs 
+            activeKey={activeTab} 
+            onChange={setActiveTab}
+            type="card"
+            size="large"
+            items={[
+              {
+                key: 'brackets',
+                label: 'Nhánh đấu',
+                children: renderBrackets(),
+              },
+              {
+                key: 'schedule',
+                label: 'Lịch thi đấu',
+                children: renderMatchSchedule(),
+              },
+              {
+                key: 'stats',
+                label: 'Thống kê',
+                children: renderStats(),
+              },
+            ]}
           />
-          <Title level={4} style={{ marginTop: 8, marginBottom: 0 }}>
-            {team.name}
-          </Title>
-          {team.seed && (
-            <Text type="secondary">Hạt giống #{team.seed}</Text>
-          )}
-        </>
-      ) : (
-        <>
-          <Avatar 
-            size={64} 
-            icon={<PlusOutlined />}
-            style={{ backgroundColor: '#f0f0f0' }}
-          />
-          <Text type="secondary" style={{ marginTop: 8 }}>
-            Kéo đội vào đây
-          </Text>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
-            Slot {slot}
-          </Text>
-        </>
-      )}
+        </Col>
+      </Row>
+
+      {renderMatchDetailModal()}
     </div>
   );
 };
-
-const StatisticCard: React.FC<{ 
-  title: string; 
-  value: number; 
-  color: string 
-}> = ({ title, value, color }) => (
-  <div style={{ textAlign: 'center' }}>
-    <div style={{ 
-      fontSize: '32px', 
-      fontWeight: 'bold', 
-      color,
-      marginBottom: '8px'
-    }}>
-      {value}
-    </div>
-    <Text type="secondary">{title}</Text>
-  </div>
-);
 
 export default TournamentStages;

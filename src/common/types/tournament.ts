@@ -293,6 +293,10 @@ export interface Match {
     team2Seed: number;
     isActive: boolean;
     heapValue: number;
+    version: number;
+    winner: Team;
+    team1Id?: string;
+    team2Id?: string;
 }
 
 export interface Tournament {

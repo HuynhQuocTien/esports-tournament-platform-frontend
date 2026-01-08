@@ -144,5 +144,34 @@ async assignTeam(
   async autoAdvanceWinners(bracketId: string): Promise<any> {
     const response = await api.post(`/brackets/${bracketId}/auto-advance`);
     return response.data;
-  }
+  },
+   async updateMatchResult(matchId: string, data: { 
+    team1Score: number; 
+    team2Score: number; 
+    version?: number;
+    notes?: string;
+  }) {
+    const response = await api.put(`/matches/${matchId}/result`, data);
+    return response.data;
+  },
+
+  async autoAdvanceWinner(matchId: string) {
+    const response = await api.post(`/matches/${matchId}/auto-advance`);
+    return response.data;
+  },
+
+  async assignTeamToMatch(matchId: string, data: { teamId: string; slot: 1 | 2 }) {
+    const response = await api.put(`/matches/${matchId}/assign-team`, data);
+    return response.data;
+  },
+
+  async scheduleMatch(matchId: string, scheduledTime: Date) {
+    const response = await api.put(`/matches/${matchId}/schedule`, { scheduledTime });
+    return response.data;
+  },
+
+  async startMatch(matchId: string) {
+    const response = await api.post(`/matches/${matchId}/start`);
+    return response.data;
+  },
 }

@@ -254,198 +254,141 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
   // };
 
   // TournamentStages.tsx - Sửa lại handleAutoSeedAndAssign
-  const handleAutoSeedAndAssign = async () => {
-    if (!data?.basicInfo?.id) return;
+const handleAutoSeedAndAssign = async () => {
+  if (!data?.basicInfo?.id) return;
 
-    confirm({
-      title: "Tự động xếp hạt giống và ghép đội",
-      icon: <SyncOutlined />,
-      content: (
-        <div>
-          <Alert
-            message="Hệ thống sẽ tự động:"
-            description={
-              <ul style={{ margin: "8px 0 0 0", paddingLeft: "20px" }}>
-                <li>🎯 Xếp hạt giống cho {teams.length} đội đã duyệt</li>
-                <li>🏆 Ghép đội vào các trận đấu vòng 1</li>
-                <li>
-                  ⚡ <strong>Tự động xử lý đội được miễn thi đấu (bye):</strong>
-                </li>
-                <li style={{ marginLeft: "20px" }}>
-                  • Đội được bye sẽ <strong>tự động vào vòng 2</strong>
-                </li>
-                <li style={{ marginLeft: "20px" }}>
-                  • Ghép vào trận đấu vòng 2 ngay lập tức
-                </li>
-                <li style={{ marginLeft: "20px" }}>
-                  • Không cần thi đấu vòng 1
-                </li>
-                <li>⏰ Tự động lên lịch các trận đấu</li>
-              </ul>
-            }
-            type="info"
-            style={{ marginBottom: 16 }}
-          />
-          <Descriptions size="small" column={1}>
-            <Descriptions.Item label="Số đội tham gia">
-              <Text strong>{teams.length}</Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Format giải đấu">
-              {data?.basicInfo.format}
-            </Descriptions.Item>
-            <Descriptions.Item label="Số đội được bye">
-              <Tag color="blue">
-                {Math.pow(2, Math.ceil(Math.log2(teams.length))) - teams.length}{" "}
-                đội
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Tổng trận đấu vòng 1">
-              {Math.floor(teams.length / 2)} trận
-            </Descriptions.Item>
-          </Descriptions>
-        </div>
-      ),
-      onOk: async () => {
-        setSeedingTeams(true);
-        try {
-          message.loading({
-            content: "Đang xếp hạt giống và xử lý đội được bye...",
-            key: "seeding",
-            duration: 0,
-          });
+  confirm({
+    title: "Tự động xếp hạt giống và ghép đội",
+    icon: <SyncOutlined />,
+    content: (
+      <div>
+       
+        <Descriptions size="small" column={1}>
+          <Descriptions.Item label="Số đội tham gia">
+            <Text strong>{teams.length}</Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="Format giải đấu">
+            {data?.basicInfo.format}
+          </Descriptions.Item>
+          <Descriptions.Item label="Số đội được bye">
+            <Tag color="blue">
+              {Math.pow(2, Math.ceil(Math.log2(teams.length))) - teams.length} đội
+            </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="Tổng trận đấu vòng 1">
+            {Math.floor(teams.length / 2)} trận
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
+    ),
+    onOk: async () => {
+      setSeedingTeams(true);
+      try {
+        message.loading({
+          content: "Đang xếp hạt giống và xử lý đội được bye...",
+          key: "seeding",
+          duration: 0,
+        });
 
-          // Gọi API seeding - SỬA: gọi trực tiếp và xử lý response
-          const result = await tournamentService.autoSeedTeams(
-            data.basicInfo.id
-          );
+        // GỌI API - QUAN TRỌNG: Xử lý response đúng cấu trúc
+        const response = await tournamentService.autoSeedTeams(data.basicInfo.id);
+        
+        // Response structure: { success, message, data: { seededTeams, ... } }
+        console.log("Seeding response:", response);
 
-          console.log("Seeding result:", result);
+        // Lấy data từ response
+        const result = response?.data || response;
+        
+        const seededTeams = result?.seededTeams || 0;
+        const seededMatches = result?.seededMatches || 0;
+        const byeMatches = result?.byeMatches || 0;
+        const advancedTeams = result?.advancedTeams || 0;
+        const nextRoundMatches = result?.nextRoundMatches || 0;
 
-          // Sử dụng optional chaining an toàn
-          const seededTeams = result?.seededTeams || 0;
-          const seededMatches = result?.seededMatches || 0;
-          const byeMatches = result?.byeMatches || 0;
-          const advancedTeams = result?.advancedTeams || 0;
-          const nextRoundMatches = result?.nextRoundMatches || 0;
-
-          if (result?.success) {
-            message.success({
-              content: (
-                <div>
-                  <div>✅ Đã hoàn thành seeding và ghép đội!</div>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      marginTop: "8px",
-                      padding: "8px",
-                      backgroundColor: "#f6ffed",
-                      borderRadius: "4px",
-                      border: "1px solid #b7eb8f",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <span>🏆 Số đội đã seed:</span>
-                      <Text strong>{seededTeams}</Text>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <span>⚔️ Trận đấu vòng 1:</span>
-                      <Text strong>{seededMatches}</Text>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <span>⚡ Đội được bye (miễn thi đấu):</span>
-                      <Text strong style={{ color: "#1890ff" }}>
-                        {byeMatches}
-                      </Text>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      <span>🚀 Đội đã vào vòng 2:</span>
-                      <Text strong style={{ color: "#52c41a" }}>
-                        {advancedTeams}
-                      </Text>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <span>🔜 Trận đấu vòng 2 đã sẵn sàng:</span>
-                      <Text strong>{nextRoundMatches}</Text>
-                    </div>
+        if (result?.success || response?.success) {
+          message.success({
+            content: (
+              <div>
+                <div>✅ Đã hoàn thành seeding và ghép đội!</div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    marginTop: "8px",
+                    padding: "8px",
+                    backgroundColor: "#f6ffed",
+                    borderRadius: "4px",
+                    border: "1px solid #b7eb8f",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                    <span>🏆 Số đội đã seed:</span>
+                    <Text strong>{seededTeams}</Text>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                    <span>⚔️ Trận đấu vòng 1:</span>
+                    <Text strong>{seededMatches}</Text>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                    <span>⚡ Đội được bye (miễn thi đấu):</span>
+                    <Text strong style={{ color: "#1890ff" }}>{byeMatches}</Text>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                    <span>🚀 Đội đã vào vòng 2:</span>
+                    <Text strong style={{ color: "#52c41a" }}>{advancedTeams}</Text>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span>🔜 Trận đấu vòng 2 đã sẵn sàng:</span>
+                    <Text strong>{nextRoundMatches}</Text>
                   </div>
                 </div>
-              ),
-              key: "seeding",
-              duration: 6,
-            });
+              </div>
+            ),
+            key: "seeding",
+            duration: 6,
+          });
 
-            // Refresh data để hiển thị kết quả mới
-            await refreshData();
+          // Refresh data để hiển thị kết quả mới
+          await refreshData();
 
-            // Hiển thị thông báo đặc biệt về đội được bye
-            if (advancedTeams > 0) {
+          // Hiển thị thông báo đặc biệt về đội được bye
+          if (advancedTeams > 0) {
+            setTimeout(() => {
               message.info({
                 content: (
                   <div>
-                    <div>
-                      🎉 <strong>{advancedTeams} đội được bye</strong> đã tự
-                      động vào vòng 2!
-                    </div>
+                    <div>🎉 <strong>{advancedTeams} đội được bye</strong> đã tự động vào vòng 2!</div>
                     <div style={{ fontSize: "12px", marginTop: "4px" }}>
-                      Các đội này đã được ghép vào các trận đấu vòng 2 và sẽ thi
-                      đấu tiếp
+                      Các đội này đã được ghép vào các trận đấu vòng 2 và sẽ thi đấu tiếp
                     </div>
                   </div>
                 ),
                 duration: 5,
               });
-            }
-
-            return result;
-          } else {
-            message.error({
-              content: result?.message || "Không thể tự động seed và ghép đội",
-              key: "seeding",
-            });
-            return null;
+            }, 1000);
           }
-        } catch (error: any) {
+
+          return result;
+        } else {
           message.error({
-            content: error.message || "Không thể tự động seed và ghép đội",
+            content: result?.message || response?.message || "Không thể tự động seed và ghép đội",
             key: "seeding",
           });
-          console.error("Auto seed and assign error:", error);
           return null;
-        } finally {
-          setSeedingTeams(false);
         }
-      },
-    });
-  };
+      } catch (error: any) {
+        console.error("Auto seed and assign error:", error);
+        message.error({
+          content: error?.response?.data?.message || error.message || "Không thể tự động seed và ghép đội",
+          key: "seeding",
+        });
+        return null;
+      } finally {
+        setSeedingTeams(false);
+      }
+    },
+  });
+};
+
 
   const autoScheduleFirstRoundMatches = async () => {
     if (!data?.stages?.[0]?.brackets?.[0]) return;
@@ -712,8 +655,9 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
   // );
 
 
-  const renderTournamentControlPanel = () => {
+const renderTournamentControlPanel = () => {
   const byeTeamsCount = teams.filter(t => checkByeTeamStatus(t)?.isBye).length;
+  const totalByeSlots = Math.pow(2, Math.ceil(Math.log2(teams.length))) - teams.length;
   
   return (
     <Card
@@ -740,14 +684,15 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
           },
           {
             title: "Seed & Bye",
-            description: `${byeTeamsCount} đội bye`,
+            description: checkIfTeamsAreSeeded() 
+              ? `${byeTeamsCount}/${totalByeSlots} đội bye`
+              : "Chưa seed",
             status: checkIfTeamsAreSeeded() ? "finish" : "process",
             icon: byeTeamsCount > 0 ? <TrophyOutlined /> : undefined,
           },
           {
             title: "Bắt đầu",
-            description:
-              tournamentInfo?.status === "LIVE" ? "Đang diễn ra" : "Chờ",
+            description: tournamentInfo?.status === "LIVE" ? "Đang diễn ra" : "Chờ",
             status: tournamentInfo?.status === "LIVE" ? "finish" : "wait",
           },
         ]}
@@ -760,19 +705,19 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
         <Button
           type="primary"
           block
-          icon={<SyncOutlined />}
+          icon={<SyncOutlined spin={seedingTeams} />}
           onClick={handleAutoSeedAndAssign}
           loading={seedingTeams}
           disabled={teams.length < 2 || !data?.stages?.length}
           size="large"
         >
-          AUTO SEED & BYE TEAMS
+          {seedingTeams ? "Đang xử lý..." : "AUTO SEED & BYE TEAMS"}
         </Button>
-        <Text
-          type="secondary"
-          style={{ textAlign: "center", display: "block" }}
-        >
-          Tự động xếp hạt giống, ghép đội và xử lý {byeTeamsCount} đội được bye vào vòng 2
+        <Text type="secondary" style={{ textAlign: "center", display: "block", fontSize: "12px" }}>
+          {totalByeSlots > 0 
+            ? `Tự động xếp hạt giống, ghép đội và xử lý ${totalByeSlots} đội bye vào vòng 2`
+            : `Tự động xếp hạt giống và ghép ${teams.length} đội vào trận đấu`
+          }
         </Text>
 
         <Button
@@ -937,138 +882,120 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
     }
 
     // Thêm hàm này trong component
-    const renderByeTeamsInfo = () => {
-      if (!data?.stages?.[0]?.brackets?.[0]?.matches) return null;
+const renderByeTeamsInfo = () => {
+  if (!data?.stages?.[0]?.brackets?.[0]?.matches) return null;
 
-      const matches = data.stages[0].brackets[0].matches;
-      const byeMatches = matches.filter((m) => m.isBye);
-      const round2Matches = matches.filter((m) => m.round === 2);
+  const matches = data.stages[0].brackets[0].matches;
+  const byeMatches = matches.filter((m) => m.isBye && m.status === 'COMPLETED');
+  const round2Matches = matches.filter((m) => m.round === 2);
 
-      if (byeMatches.length === 0) return null;
+  if (byeMatches.length === 0) return null;
 
-      return (
-        <Card
-          title={
-            <Space>
-              <TrophyOutlined style={{ color: "#1890ff" }} />
-              <Text strong>Đội được miễn thi đấu vòng 1 (Bye)</Text>
-              <Tag color="blue">{byeMatches.length} đội</Tag>
-            </Space>
-          }
-          style={{ marginBottom: 16 }}
-          size="small"
-        >
-          <Alert
-            message="Các đội sau đã được tự động đưa vào vòng 2:"
-            description="Họ sẽ thi đấu trong các trận vòng 2 mà không cần qua vòng 1"
-            type="info"
-            showIcon
-            style={{ marginBottom: 12 }}
-          />
+  return (
+    <Card
+      title={
+        <Space>
+          <TrophyOutlined style={{ color: "#1890ff" }} />
+          <Text strong>Đội được miễn thi đấu vòng 1 (Bye)</Text>
+          <Tag color="blue">{byeMatches.length} đội</Tag>
+        </Space>
+      }
+      style={{ marginBottom: 16 }}
+      size="small"
+    >
+      {/* <Alert
+        message="Các đội sau đã được tự động đưa vào vòng 2:"
+        description="Họ sẽ thi đấu trong các trận vòng 2 mà không cần qua vòng 1"
+        type="info"
+        showIcon
+        style={{ marginBottom: 12 }}
+      /> */}
 
-          <Row gutter={[8, 8]}>
-            {byeMatches.map((match) => {
-              const team = match.team1 || match.team2;
-              if (!team) return null;
+      <Row gutter={[8, 8]}>
+        {byeMatches.map((match) => {
+          const team = match.team1 || match.team2;
+          if (!team) return null;
 
-              // Tìm team này đang ở match nào vòng 2
-              const round2Match = round2Matches.find(
-                (m) => m.team1?.id === team.id || m.team2?.id === team.id
-              );
+          // Tìm team này đang ở match nào vòng 2
+          const round2Match = round2Matches.find(
+            (m) => m.team1?.id === team.id || m.team2?.id === team.id
+          );
 
-              return (
-                <Col span={24} key={match.id}>
-                  <Card
+          return (
+            <Col span={24} key={match.id}>
+              <Card
+                size="small"
+                style={{
+                  backgroundColor: round2Match ? "#f6ffed" : "#fff7e6",
+                  border: `1px solid ${round2Match ? "#b7eb8f" : "#ffd591"}`,
+                }}
+              >
+                <Space align="start" style={{ width: "100%" }}>
+                  <Avatar
+                    src={team.logoUrl}
                     size="small"
-                    style={{
-                      backgroundColor: round2Match ? "#f6ffed" : "#fff7e6",
-                      border: `1px solid ${
-                        round2Match ? "#b7eb8f" : "#ffd591"
-                      }`,
-                    }}
+                    style={{ backgroundColor: "#1890ff" }}
                   >
-                    <Space align="start" style={{ width: "100%" }}>
-                      <Avatar
-                        src={team.logoUrl}
-                        size="small"
-                        style={{ backgroundColor: "#1890ff" }}
-                      >
-                        {team.name.charAt(0)}
-                      </Avatar>
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Text strong>{team.name}</Text>
-                          <Tag color="gold">
-                            Seed #{match.team1Seed || match.team2Seed || "N/A"}
-                          </Tag>
-                        </div>
-                        <div style={{ marginTop: 4 }}>
-                          {round2Match ? (
-                            <Space>
-                              <ArrowRightOutlined
-                                style={{ color: "#52c41a" }}
-                              />
-                              <Text type="secondary">
-                                Đã ghép vào:
-                                <Text strong style={{ marginLeft: 4 }}>
-                                  Vòng {round2Match.round} - Trận{" "}
-                                  {round2Match.order}
-                                </Text>
-                              </Text>
-                              <Tag color="success">Sẵn sàng thi đấu</Tag>
-                            </Space>
-                          ) : (
-                            <Space>
-                              <ClockCircleOutlined
-                                style={{ color: "#fa8c16" }}
-                              />
-                              <Text type="warning">
-                                Đang chờ ghép vào trận vòng 2
-                              </Text>
-                            </Space>
-                          )}
-                        </div>
+                    {team.name?.charAt(0) || 'T'}
+                  </Avatar>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text strong>{team.name}</Text>
+                      <Tag color="gold">
+                        Seed #{match.team1Seed || match.team2Seed || "N/A"}
+                      </Tag>
+                    </div>
+                    <div style={{ marginTop: 4 }}>
+                      {round2Match ? (
+                        <Space>
+                          <ArrowRightOutlined style={{ color: "#52c41a" }} />
+                          <Text type="secondary">
+                            Đã ghép vào:
+                            <Text strong style={{ marginLeft: 4 }}>
+                              Vòng {round2Match.round} - Trận {round2Match.order}
+                            </Text>
+                          </Text>
+                          <Tag color="success">Sẵn sàng thi đấu</Tag>
+                        </Space>
+                      ) : (
+                        <Space>
+                          <ClockCircleOutlined style={{ color: "#fa8c16" }} />
+                          <Text type="warning">Đang chờ ghép vào trận vòng 2</Text>
+                        </Space>
+                      )}
+                    </div>
 
-                        {/* Hiển thị đối thủ nếu đã ghép */}
-                        {round2Match &&
-                          (round2Match.team1 || round2Match.team2) && (
-                            <div
-                              style={{
-                                marginTop: 8,
-                                padding: 8,
-                                backgroundColor: "#fafafa",
-                                borderRadius: 4,
-                                fontSize: "12px",
-                              }}
-                            >
-                              <Text type="secondary">
-                                Sẽ đấu với:{" "}
-                                <Text strong>
-                                  {round2Match.team1?.id === team.id
-                                    ? round2Match.team2?.name ||
-                                      "Đang chờ đối thủ"
-                                    : round2Match.team1?.name ||
-                                      "Đang chờ đối thủ"}
-                                </Text>
-                              </Text>
-                            </div>
-                          )}
+                    {/* Hiển thị đối thủ nếu đã ghép */}
+                    {round2Match && (round2Match.team1 || round2Match.team2) && (
+                      <div
+                        style={{
+                          marginTop: 8,
+                          padding: 8,
+                          backgroundColor: "#fafafa",
+                          borderRadius: 4,
+                          fontSize: "12px",
+                        }}
+                      >
+                        <Text type="secondary">
+                          Sẽ đấu với:{" "}
+                          <Text strong>
+                            {round2Match.team1?.id === team.id
+                              ? round2Match.team2?.name || "Đang chờ đối thủ"
+                              : round2Match.team1?.name || "Đang chờ đối thủ"}
+                          </Text>
+                        </Text>
                       </div>
-                    </Space>
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        </Card>
-      );
-    };
+                    )}
+                  </div>
+                </Space>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+    </Card>
+  );
+};
 
     return (
       <div>
@@ -1151,24 +1078,7 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
                     {/* Hiển thị bracket visualization */}
                     {bracket.matches && bracket.matches.length > 0 ? (
                       <div>
-                        {/* Thêm thông tin về bye matches */}
-                        {byeMatches.length > 0 && (
-                          <Alert
-                            message="Chú ý: Các đội được miễn thi đấu (bye)"
-                            description={
-                              <div>
-                                <Text>
-                                  Có <Text strong>{byeMatches.length} đội</Text>{" "}
-                                  được bye đã tự động vào vòng 2. Họ sẽ thi đấu
-                                  trong các trận vòng 2 mà không cần qua vòng 1.
-                                </Text>
-                              </div>
-                            }
-                            type="info"
-                            showIcon
-                            style={{ marginBottom: 16 }}
-                          />
-                        )}
+                        
 
                         <TournamentBracketVisualization
                           bracket={bracket}
@@ -1538,20 +1448,24 @@ const TournamentStages: React.FC<TournamentStepProps> = ({
     );
   };
 
-  // Thêm hàm helper này
 const checkByeTeamStatus = (team: Team) => {
-  if (!data?.stages?.[0]?.brackets?.[0]?.matches) return null;
+  if (!data?.stages?.[0]?.brackets?.[0]?.matches || !team?.id) return null;
   
   const matches = data.stages[0].brackets[0].matches;
+  
+  // Tìm bye match của team này
   const byeMatch = matches.find(m => 
-    m.isBye && (m.team1?.id === team.id || m.team2?.id === team.id)
+    m.isBye && 
+    m.status === 'COMPLETED' &&
+    (m.team1?.id === team.id || m.team2?.id === team.id)
   );
   
   if (!byeMatch) return null;
   
   // Tìm xem team này đã được ghép vào vòng 2 chưa
   const round2Match = matches.find(m => 
-    m.round === 2 && (m.team1?.id === team.id || m.team2?.id === team.id)
+    m.round === 2 && 
+    (m.team1?.id === team.id || m.team2?.id === team.id)
   );
   
   return {
@@ -1563,125 +1477,106 @@ const checkByeTeamStatus = (team: Team) => {
 };
 
 // Cập nhật renderTeamList để hiển thị trạng thái bye
-const renderTeamList = () => (
-  <Card
-    title={
-      <Space>
-        <TeamOutlined />
-        <span>Danh sách đội đã duyệt ({teams.length})</span>
-        {teams.length > 0 && (
-          <Tag color="blue">
-            {teams.filter(t => checkByeTeamStatus(t)?.isBye).length} đội sẽ được bye
-          </Tag>
-        )}
-      </Space>
-    }
-    extra={
-      <Button
-        type="primary"
-        size="small"
-        icon={<SyncOutlined />}
-        onClick={handleAutoSeedAndAssign}
-        loading={seedingTeams}
-        disabled={teams.length < 2 || !data?.stages?.length}
-      >
-        Auto Seed & Bye Teams
-      </Button>
-    }
-    style={{ marginBottom: 24 }}
-  >
-    <List
-      dataSource={teams}
-      renderItem={(team, index) => {
-        const byeStatus = checkByeTeamStatus(team);
-        
-        return (
-          <List.Item
-            extra={
-              byeStatus?.isBye ? (
-                <Tag color="orange">
-                  <TrophyOutlined /> BYE
-                </Tag>
-              ) : null
-            }
-          >
-            <List.Item.Meta
-              avatar={
-                <Avatar
-                  src={team.logoUrl}
-                  icon={<UserOutlined />}
-                  size="large"
-                  style={byeStatus?.isBye ? { border: '2px solid #fa8c16' } : {}}
-                />
+const renderTeamList = () => {
+  const byeTeamsCount = teams.filter(t => checkByeTeamStatus(t)?.isBye).length;
+  
+  return (
+    <Card
+      title={
+        <Space>
+          <TeamOutlined />
+          <span>Danh sách đội đã duyệt ({teams.length})</span>
+          {byeTeamsCount > 0 && (
+            <Tag color="orange">
+              {byeTeamsCount} đội bye
+            </Tag>
+          )}
+        </Space>
+      }
+      extra={
+        <Button
+          type="primary"
+          size="small"
+          icon={<SyncOutlined />}
+          onClick={handleAutoSeedAndAssign}
+          loading={seedingTeams}
+          disabled={teams.length < 2 || !data?.stages?.length}
+        >
+          Auto Seed
+        </Button>
+      }
+      style={{ marginBottom: 24 }}
+    >
+      <List
+        dataSource={teams}
+        renderItem={(team, index) => {
+          const byeStatus = checkByeTeamStatus(team);
+          
+          return (
+            <List.Item
+              extra={
+                byeStatus?.isBye ? (
+                  <Tag color="orange">
+                    <TrophyOutlined /> BYE
+                  </Tag>
+                ) : null
               }
-              title={
-                <Space>
-                  <Text strong>{team.name}</Text>
-                  {team.seed && <Tag color="gold">#{team.seed}</Tag>}
-                  {byeStatus?.isBye && (
-                    <Tag color="green">
-                      <ArrowRightOutlined /> Vào thẳng vòng 2
-                    </Tag>
-                  )}
-                </Space>
-              }
-              description={
-                <Space>
-                  <Text type="secondary">
-                    {team.members?.length || 0} thành viên
-                  </Text>
-                  {byeStatus?.isBye && byeStatus.round2Match && (
-                    <Tag color="success">
-                      Đã ghép: Vòng {byeStatus.round2Match.round} - Trận {byeStatus.round2Match.order}
-                    </Tag>
-                  )}
-                  {byeStatus?.isBye && !byeStatus.round2Match && (
-                    <Tag color="warning">Đang chờ ghép vào vòng 2</Tag>
-                  )}
-                </Space>
-              }
-            />
-            <Tag color="success">Đã duyệt</Tag>
-          </List.Item>
-        );
-      }}
-    />
-
-    {teams.length === 0 && (
-      <Empty
-        description="Chưa có đội nào được duyệt"
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
+            >
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={team.logoUrl}
+                    icon={<UserOutlined />}
+                    size="large"
+                    style={byeStatus?.isBye ? { border: '2px solid #fa8c16' } : {}}
+                  />
+                }
+                title={
+                  <Space>
+                    <Text strong>{team.name}</Text>
+                    {team.seed && <Tag color="gold">#{team.seed}</Tag>}
+                    {byeStatus?.isBye && (
+                      <Tag color="green">
+                        <ArrowRightOutlined /> Vào thẳng vòng 2
+                      </Tag>
+                    )}
+                  </Space>
+                }
+                description={
+                  <Space direction="vertical" size={0}>
+                    <Text type="secondary">
+                      {team.members?.length || 0} thành viên
+                    </Text>
+                    {byeStatus?.isBye && byeStatus.round2Match && (
+                      <Tag color="success" size="small">
+                        Đã ghép: Vòng {byeStatus.round2Match.round} - Trận {byeStatus.round2Match.order}
+                      </Tag>
+                    )}
+                    {byeStatus?.isBye && !byeStatus.round2Match && (
+                      <Tag color="warning" size="small">
+                        Đang chờ ghép vào vòng 2
+                      </Tag>
+                    )}
+                  </Space>
+                }
+              />
+              <Tag color="success">Đã duyệt</Tag>
+            </List.Item>
+          );
+        }}
       />
-    )}
 
-    {teams.length > 0 && (
-      <Alert
-        message="Thông tin về đội được bye (miễn thi đấu)"
-        description={
-          <div>
-            <p>
-              • <strong>Đội được bye</strong> sẽ không thi đấu vòng 1
-            </p>
-            <p>
-              • Họ sẽ được <strong>tự động đưa vào vòng 2</strong> ngay lập tức
-            </p>
-            <p>
-              • Click <strong>"Auto Seed & Bye Teams"</strong> để hệ thống tự động:
-            </p>
-            <ul style={{ marginLeft: 20, marginTop: 4 }}>
-              <li>Xếp hạt giống và ghép đội vào trận đấu</li>
-              <li>Xử lý đội được bye vào vòng 2</li>
-              <li>Tự động lên lịch thi đấu</li>
-            </ul>
-          </div>
-        }
-        type="info"
-        showIcon
-        style={{ marginTop: 16 }}
-      />
-    )}
-  </Card>
-);
+      {teams.length === 0 && (
+        <Empty
+          description="Chưa có đội nào được duyệt"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      )}
+
+     
+    </Card>
+  );
+};
 
   const renderStats = () => {
     const progressPercent =

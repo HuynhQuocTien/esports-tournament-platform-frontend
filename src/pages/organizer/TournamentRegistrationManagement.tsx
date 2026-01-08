@@ -94,7 +94,7 @@ const TournamentRegistrationManagement: React.FC<TournamentStepProps> = ({ data,
             setLoading(true);
             const response = await tournamentService.getRegistrations(data.basicInfo.id, statusFilter !== 'all' ? statusFilter : undefined);
             const registrationsData = response.data?.data || [];
-            
+            updateData('registrations', registrationsData);
             const formattedRegistrations: RegistrationRecord[] = registrationsData.map(reg => {
                 // Map data from API response
                 const team = reg.team || {} as any;
@@ -115,6 +115,7 @@ const TournamentRegistrationManagement: React.FC<TournamentStepProps> = ({ data,
                     registration: reg,
                 };
             });
+
             
             setRegistrations(formattedRegistrations);
             setFilteredRegistrations(formattedRegistrations);

@@ -19,6 +19,7 @@ import {
 import { tournamentService } from '@/services/tournamentService';
 import type { TournamentBasicInfo } from '@/common/types';
 import { gameService } from "@/services/gameService";
+import { useNavigate } from 'react-router-dom';
 
 
 const { Title, Text } = Typography;
@@ -30,7 +31,7 @@ const CreateTournamentPage: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-
+  const navigate = useNavigate();
   const [gameOptions, setGameOptions] = useState<string[]>([]);
 
   React.useEffect(() => {
@@ -60,8 +61,12 @@ const CreateTournamentPage: React.FC = () => {
     try {
 
       const res = await tournamentService.create(values);
-      if (res)
+      if (res) {
         message.success('Tạo giải đấu thành công!');
+        navigate(`/tournaments/setup/${res.data.id}`);
+      }
+        
+      
       
     } catch (error) {
       message.error('Có lỗi xảy ra khi tạo giải đấu');

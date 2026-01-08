@@ -144,6 +144,10 @@ export interface TournamentRule {
 
 export interface TournamentRegistration {
   id?: string;
+  team: Team;
+  status: 'pending' | 'approved' | 'rejected';
+  registeredAt: string;
+
 }
 
 export interface TournamentData {
@@ -320,7 +324,15 @@ export interface Team {
   name: string;
   logoUrl?: string;
   seed?: number;
-  members: any[];
+  members: TeamMember[];
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  gameId: string;
+  role?: string;
+  rank?: string;
 }
 
 export interface Match {

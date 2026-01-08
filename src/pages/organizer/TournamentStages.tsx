@@ -136,10 +136,11 @@ const TournamentStages: React.FC<TournamentStepProps> = ({ data, updateData}) =>
     if (data?.registrations) {
       // Lấy teams từ registrations (giả sử có field teams)
       const approvedTeams = data.registrations
-        .filter((reg: any) => reg.status === 'APPROVED')
+        .filter((reg: any) => reg.status === "approved")
         .map((reg: any) => reg.team);
       setTeams(approvedTeams);
     }
+    console.log('TournamentStages registrations data:', data.registrations);
   }, [data]);
 
   const handleGenerateBrackets = async () => {

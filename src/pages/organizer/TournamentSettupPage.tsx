@@ -31,7 +31,7 @@ import TournamentStages from "./TournamentStages";
 import TournamentRegistrationManagement from "./TournamentRegistrationManagement";
 import TournamentRules from "./TournamentRules";
 import TournamentOverview from "./TournamentOverview";
-import TournamentBasicInfo from "./TournamentBasicInfo";
+import TournamentBasicInfoPage from "./TournamentBasicInfo";
 import { tournamentService } from "@/services/tournamentService";
 import type {
   TournamentData,
@@ -101,7 +101,7 @@ const TournamentSetupPage: React.FC = () => {
       key: "basic",
       label: "Thông tin cơ bản",
       icon: <TagOutlined />,
-      component: withTabNavigation(TournamentBasicInfo, "settings", {
+      component: withTabNavigation(TournamentBasicInfoPage, "settings", {
         validateBeforeNext: validateBasicInfo,
       }),
     },

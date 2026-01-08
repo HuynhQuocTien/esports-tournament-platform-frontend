@@ -1,4 +1,3 @@
-// frontend/src/pages/organizer/TournamentBasicInfo.tsx
 import {
   Form,
   Input,
@@ -49,7 +48,7 @@ interface TournamentBasicInfoProps extends TournamentStepProps {
   onNextStep?: () => void;
 }
 
-const TournamentBasicInfo: React.FC<TournamentBasicInfoProps> = ({ 
+const TournamentBasicInfoPage: React.FC<TournamentBasicInfoProps> = ({ 
   data, 
   updateData,
   onNextStep 
@@ -703,4 +702,4 @@ const TournamentBasicInfo: React.FC<TournamentBasicInfoProps> = ({
   );
 };
 
-export default TournamentBasicInfo;
+export default TournamentBasicInfoPage;

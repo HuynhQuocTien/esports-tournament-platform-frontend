@@ -175,7 +175,7 @@ const TournamentRules: React.FC<TournamentStepProps> = ({ data, updateData }) =>
     try {
       const values = await form.validateFields();
       
-      if (!data?.basicInfo?.id) {
+      if (!data.basicInfo.id) {
         message.error('Không tìm thấy ID giải đấu');
         return;
       }

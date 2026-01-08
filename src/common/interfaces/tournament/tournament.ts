@@ -72,6 +72,13 @@ export interface Match {
   team2Score?: number;
   status: string;
   scheduledTime?: string;
+  winnerSeed: number | null;
+  isHeapified: boolean;
+  isBye: boolean;
+  nextLoserMatch?: Match;
+  heapDepth: number;
+  heapPosition: number;
+  matchIndex: number;
 }
 
 export interface Team {

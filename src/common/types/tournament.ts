@@ -269,19 +269,26 @@ export interface ITournamentApiService {
 }
 
 export interface Match {
-  id: string;
-  round: number;
-  order: number;
-  team1?: Team;
-  team2?: Team;
-  team1Score?: number;
-  team2Score?: number;
-  status: string;
-  scheduledTime?: Date;
-  bracket?: Bracket;
-  nextMatch?: Match;
-  nextMatchSlot?: number;
-  createdAt: Date;
+    id: string;
+    round: number;
+    order: number;
+    team1?: Team;
+    team2?: Team;
+    team1Score?: number;
+    team2Score?: number;
+    status: string;
+    scheduledTime?: string;
+    winnerSeed: number | null;
+    isHeapified: boolean;
+    isBye: boolean;
+    nextLoserMatch?: Match;
+    heapDepth: number;
+    heapPosition: number;
+    matchIndex: number;
+    team1Seed: number;
+    team2Seed: number;
+    isActive: boolean;
+    heapValue: number;
 }
 
 export interface Tournament {
@@ -304,6 +311,8 @@ export interface Tournament {
   prizePool?: number;
   createdAt: Date;
   updatedAt: Date;
+  team1seed: number;
+  team2seed: number;
 }
 
 export interface Team {
@@ -323,7 +332,6 @@ export interface Match {
   team1Score?: number;
   team2Score?: number;
   status: string;
-  scheduledTime?: Date;
   bracket?: Bracket;
   nextMatch?: Match;
   nextMatchSlot?: number;

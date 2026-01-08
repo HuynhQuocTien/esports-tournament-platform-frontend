@@ -24,7 +24,8 @@ export const tournamentService = {
     const res = await api.get(`/tournaments/setup/${id}`)
     return res.data;
   },
-    
+  visibilyTournamentToggle: (id: string, isVisible: boolean) =>
+    api.patch(`/tournaments/${id}/visibility`, { isVisible }),
   updateTournamentSection: (id: string, section: keyof TournamentData, data: any): Promise<TournamentApiResponse> =>
     api.patch(`/tournaments/${id}/${section}`),
   saveDraft: (id: string) =>

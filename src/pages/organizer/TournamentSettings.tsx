@@ -1,405 +1,1091 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Form,
+  Card,
   Row,
   Col,
-  Card,
-  Switch,
+  Button,
+  message,
+  Typography,
+  Space,
+  Alert,
+  Spin,
+  Tag,
+  Modal,
+  Progress,
+  Empty,
+  Tabs,
+  List,
+  Avatar,
   Select,
   InputNumber,
+  DatePicker,
+  Form,
   Input,
-  Button,
   Divider,
-  Tag,
-  Checkbox,
-  Alert,
-  message
+  Popconfirm,
+  Switch,
 } from 'antd';
-import type { TournamentStepProps } from '@/common/types/tournament';
-import type { TournamentSetting } from '@/common/types/tournament';
+import {
+  ExclamationCircleOutlined,
+  PlusOutlined,
+  EditOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  ScheduleOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CalendarOutlined,
+} from '@ant-design/icons';
+import type {
+  TournamentStage,
+  Bracket,
+  Match,
+  Team,
+  TournamentStepProps
+} from '@/common/types';
+import { tournamentService } from '@/services/tournamentService';
+import { matchService } from '@/services/matchService';
+import TournamentBracketVisualization from '@/components/tournament/TournamentBracketVisualization';
+import dayjs from 'dayjs';
 
+const { Title, Text } = Typography;
+const { TabPane } = Tabs;
+const { confirm } = Modal;
 const { Option } = Select;
-const { TextArea } = Input;
+const { RangePicker } = DatePicker;
 
-const STREAM_PLATFORMS = [
-  'Twitch',
-  'YouTube',
-  'Facebook Gaming',
-  'TikTok Live',
-  'Douyu',
-  'Nimo TV',
-  'Other'
-];
+interface TournamentStagesProps extends TournamentStepProps {
+  onNextStep?: () => void;
+}
 
-const TournamentBasicSettings: React.FC<TournamentStepProps> = ({ data, updateData }) => {
-  const [form] = Form.useForm<TournamentSetting>();
-  const [requireStream, setRequireStream] = useState<boolean>(false);
-  const [jsonError, setJsonError] = useState<string>('');
+const TournamentStages: React.FC<TournamentStagesProps> = ({
+  data,
+  updateData,
+  onNextStep
+}) => {
+  const [form] = Form.useForm();
+  const [stageForm] = Form.useForm();
+  const [activeTab, setActiveTab] = useState('stages');
+  const [loading, setLoading] = useState(false);
+  const [generatingBracket, setGeneratingBracket] = useState(false);
+  const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [isMatchModalVisible, setIsMatchModalVisible] = useState(false);
+  const [editingMatch, setEditingMatch] = useState<{
+    matchId: string;
+    team1Score?: number;
+    team2Score?: number;
+    scheduledTime?: Date;
+  } | null>(null);
+  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
+  const [stageModalVisible, setStageModalVisible] = useState(false);
+  const [editingStage, setEditingStage] = useState<TournamentStage | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   useEffect(() => {
-    if (data.settings) {
-      const settings = data.settings;
-      form.setFieldsValue({
-        ...settings,
-        // Parse JSON fields if they are strings
-        matchFormat: typeof settings.matchFormat === 'string' 
-          ? settings.matchFormat 
-          : JSON.stringify(settings.matchFormat || {}, null, 2),
-        streamPlatforms: settings.streamPlatforms || []
-      });
-      setRequireStream(settings.requireStream || false);
+    if (data?.registrations) {
+      const approvedTeams = data.registrations
+        .filter((reg: any) => reg.status === 'APPROVED')
+        .map((reg: any) => reg.team);
+      setTeams(approvedTeams);
     }
-  }, [data.settings, form]);
+    
+    // Kiểm tra xem đã có stages chưa
+    checkFormValidity();
+  }, [data]);
 
-  const validateJSON = (value: string) => {
-    if (!value || value.trim() === '') return true;
+  // Kiểm tra validation
+  const checkFormValidity = () => {
+    const isValid = data.stages && data.stages.length > 0;
+    setIsFormValid(isValid);
+    return isValid;
+  };
+
+  const handleGenerateBrackets = async () => {
+    if (!data?.basicInfo.id) return;
+
+    confirm({
+      title: 'Tạo nhánh đấu tự động',
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <div>
+          <p>Hệ thống sẽ tạo nhánh đấu với thông tin:</p>
+          <ul>
+            <li>Số đội: <strong>{teams.length}</strong></li>
+            <li>Thể thức: <strong>{data?.basicInfo.format}</strong></li>
+            <li>Game: <strong>{data?.basicInfo.game}</strong></li>
+          </ul>
+          <Alert
+            type="warning"
+            message="Nhánh đấu cũ sẽ bị xóa nếu đã tồn tại!"
+            style={{ marginTop: 16 }}
+          />
+        </div>
+      ),
+      onOk: async () => {
+        setGeneratingBracket(true);
+        try {
+          await tournamentService.generateBrackets(data?.basicInfo.id, {
+            format: data?.basicInfo.format,
+            teams: teams
+          });
+          
+          message.success('Đã tạo nhánh đấu thành công!');
+          await loadTournamentData();
+        } catch (error) {
+          message.error('Không thể tạo nhánh đấu');
+          console.error('Generate bracket error:', error);
+        } finally {
+          setGeneratingBracket(false);
+        }
+      }
+    });
+  };
+
+  const loadTournamentData = async () => {
+    if (!data?.basicInfo.id) return;
+    
+    setLoading(true);
     try {
-      JSON.parse(value);
-      return true;
+      const res = await tournamentService.getForSetup(data.basicInfo.id);
+      if (res.success) {
+        const updatedData = {
+          ...data,
+          stages: res.data.stages || []
+        };
+        updateData('stages', res.data.stages || []);
+      }
     } catch (error) {
-      return false;
+      message.error('Không thể tải dữ liệu giải đấu');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const onFinish = (values: any): void => {
-    try {
-      // Parse matchFormat if it exists
-      let parsedMatchFormat = null;
-      if (values.matchFormat && values.matchFormat.trim() !== '') {
-        parsedMatchFormat = JSON.parse(values.matchFormat);
-      }
+  const handleAddStage = () => {
+    setEditingStage(null);
+    setStageModalVisible(true);
+  };
 
-      const updatedSettings: TournamentSetting = {
-        ...data.settings,
+  const handleEditStage = (stage: TournamentStage) => {
+    setEditingStage(stage);
+    stageForm.setFieldsValue({
+      ...stage,
+      startDate: stage.startDate ? dayjs(stage.startDate) : null,
+      endDate: stage.endDate ? dayjs(stage.endDate) : null,
+    });
+    setStageModalVisible(true);
+  };
+
+  const handleDeleteStage = async (stageId: string) => {
+    try {
+      // TODO: Gọi API xóa stage
+      const updatedStages = data.stages.filter(stage => stage.id !== stageId);
+      updateData('stages', updatedStages);
+      message.success('Đã xóa vòng đấu');
+    } catch (error) {
+      message.error('Không thể xóa vòng đấu');
+    }
+  };
+
+  const handleStageModalOk = async () => {
+    try {
+      const values = await stageForm.validateFields();
+      
+      const stageData: TournamentStage = {
         ...values,
-        matchFormat: parsedMatchFormat,
-        requireStream,
-        streamPlatforms: values.streamPlatforms || []
+        id: editingStage?.id || `stage-${Date.now()}`,
+        stageOrder: editingStage?.stageOrder || data.stages.length + 1,
+        brackets: editingStage?.brackets || [],
+        startDate: values.startDate ? values.startDate.toISOString() : undefined,
+        endDate: values.endDate ? values.endDate.toISOString() : undefined,
       };
 
-      updateData('settings', updatedSettings);
-      message.success('Cài đặt đã được lưu thành công!');
+      let updatedStages: TournamentStage[];
+      if (editingStage) {
+        updatedStages = data.stages.map(stage =>
+          stage.id === editingStage.id ? stageData : stage
+        );
+      } else {
+        updatedStages = [...data.stages, stageData];
+      }
+
+      updateData('stages', updatedStages);
+      setStageModalVisible(false);
+      stageForm.resetFields();
+      message.success(editingStage ? 'Cập nhật vòng đấu thành công' : 'Thêm vòng đấu thành công');
+      checkFormValidity();
     } catch (error) {
-      message.error('Có lỗi xảy ra khi lưu cài đặt!');
-      console.error('Error saving settings:', error);
+      console.error('Error saving stage:', error);
     }
   };
 
-  const handleStreamToggle = (checked: boolean) => {
-    setRequireStream(checked);
-    form.setFieldValue('requireStream', checked);
+  const handleMatchClick = (match: Match) => {
+    setSelectedMatch(match);
+    setIsMatchModalVisible(true);
+  };
+
+  const handleScheduleMatch = async (match: Match) => {
+    setSelectedMatch(match);
+    setEditingMatch({
+      matchId: match.id,
+      scheduledTime: match.scheduledTime
+    });
+    setScheduleModalVisible(true);
+  };
+
+  const handleSaveMatchSchedule = async () => {
+    if (!selectedMatch || !editingMatch?.scheduledTime) return;
+
+    try {
+      await matchService.schedule(selectedMatch.id, {
+        scheduledTime: editingMatch.scheduledTime
+      });
+      message.success('Đã lên lịch trận đấu');
+      setScheduleModalVisible(false);
+      await loadTournamentData();
+    } catch (error) {
+      message.error('Không thể lên lịch trận đấu');
+    }
+  };
+
+  const handleUpdateMatchResult = async () => {
+    if (!selectedMatch || !editingMatch) return;
+
+    try {
+      await matchService.updateResult(selectedMatch.id, {
+        team1Score: editingMatch.team1Score || 0,
+        team2Score: editingMatch.team2Score || 0
+      });
+      message.success('Đã cập nhật kết quả trận đấu');
+      setIsMatchModalVisible(false);
+      setEditingMatch(null);
+      await loadTournamentData();
+    } catch (error) {
+      message.error('Không thể cập nhật kết quả');
+    }
+  };
+
+  const renderStages = () => {
+    if (data.stages.length === 0) {
+      return (
+        <Empty
+          description={
+            <div>
+              <Title level={4}>Chưa có vòng đấu nào</Title>
+              <Text type="secondary">
+                Tạo vòng đấu để bắt đầu giải đấu. Cần ít nhất 1 vòng đấu.
+              </Text>
+            </div>
+          }
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        >
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleAddStage}
+            icon={<PlusOutlined />}
+          >
+            Thêm vòng đấu
+          </Button>
+          <Button
+            style={{ marginLeft: 16 }}
+            size="large"
+            onClick={handleGenerateBrackets}
+            disabled={teams.length < 2}
+            loading={generatingBracket}
+            icon={<TrophyOutlined />}
+          >
+            Tạo nhánh đấu tự động
+          </Button>
+        </Empty>
+      );
+    }
+
+    return (
+      <div>
+        {data.stages.map((stage: TournamentStage) => (
+          <Card
+            key={stage.id || stage.name}
+            title={
+              <Space>
+                <span>{stage.name}</span>
+                <Tag color="blue">{stage.type}</Tag>
+                {stage.isSeeded && <Tag color="gold">Đã xếp hạt giống</Tag>}
+                <Tag>Thứ tự: {stage.stageOrder}</Tag>
+              </Space>
+            }
+            style={{ marginBottom: 24 }}
+            extra={
+              <Space>
+                <Button
+                  icon={<ScheduleOutlined />}
+                  onClick={() => handleEditStage(stage)}
+                >
+                  Chỉnh sửa
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => handleEditStage(stage)}
+                >
+                  Chi tiết
+                </Button>
+                <Popconfirm
+                  title="Xác nhận xóa vòng đấu"
+                  description="Bạn có chắc chắn muốn xóa vòng đấu này?"
+                  onConfirm={() => stage.id && handleDeleteStage(stage.id)}
+                  okText="Xóa"
+                  cancelText="Hủy"
+                >
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                  >
+                    Xóa
+                  </Button>
+                </Popconfirm>
+              </Space>
+            }
+          >
+            <Row gutter={[16, 16]}>
+              <Col span={8}>
+                <Card size="small" title="Thông tin vòng đấu">
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    <div>
+                      <Text strong>Loại: </Text>
+                      <Text>{stage.type}</Text>
+                    </div>
+                    {stage.format && (
+                      <div>
+                        <Text strong>Định dạng: </Text>
+                        <Text>{JSON.stringify(stage.format).type}</Text>
+                      </div>
+                    )}
+                    {stage.startDate && (
+                      <div>
+                        <Text strong>Bắt đầu: </Text>
+                        <Text>{dayjs(stage.startDate).format('DD/MM/YYYY HH:mm')}</Text>
+                      </div>
+                    )}
+                    {stage.endDate && (
+                      <div>
+                        <Text strong>Kết thúc: </Text>
+                        <Text>{dayjs(stage.endDate).format('DD/MM/YYYY HH:mm')}</Text>
+                      </div>
+                    )}
+                  </Space>
+                </Card>
+              </Col>
+              
+              <Col span={16}>
+                {stage.brackets && stage.brackets.length > 0 ? (
+                  stage.brackets.map((bracket: Bracket) => (
+                    <Card
+                      key={bracket.id}
+                      size="small"
+                      title={
+                        <Space>
+                          {bracket.name}
+                          {bracket.isFinal && (
+                            <Tag color="red">
+                              <TrophyOutlined /> Chung kết
+                            </Tag>
+                          )}
+                        </Space>
+                      }
+                      style={{ marginBottom: 16 }}
+                    >
+                      {bracket.matches && bracket.matches.length > 0 ? (
+                        <TournamentBracketVisualization
+                          bracket={bracket}
+                          onMatchClick={handleMatchClick}
+                          onScheduleMatch={handleScheduleMatch}
+                        />
+                      ) : (
+                        <Empty description="Chưa có trận đấu nào" />
+                      )}
+                    </Card>
+                  ))
+                ) : (
+                  <Card size="small">
+                    <Empty description="Chưa có nhánh đấu nào" />
+                  </Card>
+                )}
+              </Col>
+            </Row>
+          </Card>
+        ))}
+
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <Button
+            type="dashed"
+            icon={<PlusOutlined />}
+            onClick={handleAddStage}
+            size="large"
+          >
+            Thêm vòng đấu mới
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMatchSchedule = () => {
+    const allMatches: Match[] = [];
+    
+    data.stages?.forEach((stage: TournamentStage) => {
+      stage.brackets?.forEach((bracket: Bracket) => {
+        if (bracket.matches) {
+          allMatches.push(...bracket.matches);
+        }
+      });
+    });
+
+    const scheduledMatches = allMatches.filter(m => m.scheduledTime);
+    const unscheduledMatches = allMatches.filter(m => !m.scheduledTime);
+
+    return (
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Alert
+            message={`${scheduledMatches.length} trận đã lên lịch / ${unscheduledMatches.length} trận chưa lên lịch`}
+            type="info"
+            showIcon
+          />
+        </Col>
+
+        <Col span={12}>
+          <Card title="Trận đã lên lịch" size="small">
+            <List
+              dataSource={scheduledMatches.sort((a, b) =>
+                new Date(a.scheduledTime!).getTime() - new Date(b.scheduledTime!).getTime()
+              )}
+              renderItem={match => (
+                <List.Item
+                  actions={[
+                    <Button
+                      type="link"
+                      icon={<EditOutlined />}
+                      onClick={() => handleMatchClick(match)}
+                    >
+                      Chi tiết
+                    </Button>
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={`${match.bracket?.name || 'Bracket'} - Trận ${match.order}`}
+                    description={
+                      <Space direction="vertical" size="small">
+                        <Text>
+                          {match.team1?.name || 'TBD'} vs {match.team2?.name || 'TBD'}
+                        </Text>
+                        <Space>
+                          <ClockCircleOutlined />
+                          <Text type="secondary">
+                            {new Date(match.scheduledTime!).toLocaleString()}
+                          </Text>
+                          <Tag color="blue">Vòng {match.round}</Tag>
+                        </Space>
+                      </Space>
+                    }
+                  />
+                  <Tag color={
+                    match.status === 'COMPLETED' ? 'success' :
+                    match.status === 'PROCESSING' ? 'processing' :
+                    match.status === 'SCHEDULED' ? 'blue' : 'default'
+                  }>
+                    {match.status}
+                  </Tag>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card title="Trận chưa lên lịch" size="small">
+            <List
+              dataSource={unscheduledMatches}
+              renderItem={match => (
+                <List.Item
+                  actions={[
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={() => handleScheduleMatch(match)}
+                    >
+                      <CalendarOutlined /> Lên lịch
+                    </Button>
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={`${match.bracket?.name || 'Bracket'} - Trận ${match.order}`}
+                    description={
+                      <Text>
+                        {match.team1?.name || 'TBD'} vs {match.team2?.name || 'TBD'}
+                      </Text>
+                    }
+                  />
+                  <Tag color={match.status === 'PENDING' ? 'orange' : 'default'}>
+                    {match.status}
+                  </Tag>
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+      </Row>
+    );
+  };
+
+  const renderStats = () => {
+    const allMatches: Match[] = [];
+    
+    data.stages?.forEach((stage: TournamentStage) => {
+      stage.brackets?.forEach((bracket: Bracket) => {
+        if (bracket.matches) {
+          allMatches.push(...bracket.matches);
+        }
+      });
+    });
+
+    const stats = {
+      totalTeams: teams.length,
+      totalMatches: allMatches.length,
+      completedMatches: allMatches.filter(m => m.status === 'COMPLETED').length,
+      inProgressMatches: allMatches.filter(m => m.status === 'PROCESSING').length,
+      pendingMatches: allMatches.filter(m => m.status === 'PENDING').length,
+      scheduledMatches: allMatches.filter(m => m.scheduledTime).length,
+    };
+
+    const progressPercent = stats.totalMatches > 0
+      ? Math.round((stats.completedMatches / stats.totalMatches) * 100)
+      : 0;
+
+    return (
+      <div>
+        <Card title="Tiến độ giải đấu" style={{ marginBottom: 16 }}>
+          <Progress
+            percent={progressPercent}
+            status={progressPercent === 100 ? 'success' : 'active'}
+            strokeColor={{
+              '0%': '#108ee9',
+              '100%': '#87d068',
+            }}
+          />
+          <div style={{ marginTop: 16, textAlign: 'center' }}>
+            <Text type="secondary">
+              {stats.completedMatches}/{stats.totalMatches} trận đã hoàn thành
+            </Text>
+          </div>
+        </Card>
+
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Số đội"
+                value={stats.totalTeams}
+                color="#1890ff"
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Tổng số trận"
+                value={stats.totalMatches}
+                color="#52c41a"
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Trận đã hoàn thành"
+                value={stats.completedMatches}
+                color="#87d068"
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Trận đang diễn ra"
+                value={stats.inProgressMatches}
+                color="#faad14"
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Trận chờ"
+                value={stats.pendingMatches}
+                color="#d9d9d9"
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card size="small">
+              <StatisticCard
+                title="Trận đã lên lịch"
+                value={stats.scheduledMatches}
+                color="#722ed1"
+              />
+            </Card>
+          </Col>
+        </Row>
+      </div>
+    );
+  };
+
+  const handleSaveAndContinue = () => {
+    if (!checkFormValidity()) {
+      message.error('Vui lòng thiết lập ít nhất một vòng đấu');
+      return;
+    }
+
+    message.success('Đã lưu thông tin vòng đấu');
+    if (onNextStep) {
+      setTimeout(() => {
+        onNextStep();
+      }, 500);
+    }
   };
 
   return (
-    <div>
-      <Alert
-        message="Lưu ý quan trọng"
-        description="Các cài đặt này sẽ ảnh hưởng đến cách vận hành giải đấu. Hãy đảm bảo cài đặt đúng trước khi bắt đầu."
-        type="info"
-        showIcon
-        style={{ marginBottom: 24 }}
-      />
-
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          allowTeamRegistration: true,
-          requireApproval: false,
-          allowDraws: false,
-          defaultBestOf: 1,
-          autoSchedule: false,
-          defaultMatchTime: 30,
-          notifyMatchStart: true,
-          notifyRegistration: true,
-          notifyResults: true,
-          requireStream: false,
-          streamPlatforms: []
-        }}
-        onValuesChange={(changedValues) => {
-          if ('matchFormat' in changedValues) {
-            const isValid = validateJSON(changedValues.matchFormat);
-            setJsonError(isValid ? '' : 'Định dạng JSON không hợp lệ');
-          }
-        }}
-      >
-        <Row gutter={[24, 16]}>
-          <Col span={12}>
-            <Card 
-              title="📝 Cài đặt đăng ký" 
-              size="small"
-              extra={<Tag color="blue">Bắt buộc</Tag>}
+    <Spin spinning={loading}>
+      <div style={{ padding: 24 }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 24
+        }}>
+          <Title level={2}>Quản lý Vòng đấu & Trận đấu</Title>
+          <Space>
+            <Button
+              icon={<TrophyOutlined />}
+              onClick={handleGenerateBrackets}
+              loading={generatingBracket}
+              disabled={teams.length < 2}
             >
-              <Form.Item
-                name="allowTeamRegistration"
-                label="Cho phép đăng ký đội"
-                valuePropName="checked"
-                rules={[{ required: true, message: 'Vui lòng chọn tùy chọn!' }]}
-                tooltip="Cho phép các đội đăng ký tham gia giải đấu"
-              >
-                <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-              </Form.Item>
-
-              <Form.Item
-                name="requireApproval"
-                label="Yêu cầu phê duyệt đăng ký"
-                valuePropName="checked"
-                tooltip="Các đội đăng ký cần được phê duyệt trước khi tham gia"
-              >
-                <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-              </Form.Item>
-
-              <div style={{ padding: '8px 12px', background: '#f6ffed', borderRadius: 6, marginTop: 16 }}>
-                <small style={{ color: '#389e0d' }}>
-                  💡 <strong>Gợi ý:</strong> Bật "Yêu cầu phê duyệt" để kiểm soát chất lượng đội tham gia.
-                </small>
-              </div>
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card 
-              title="⚔️ Cài đặt trận đấu" 
-              size="small"
-              extra={<Tag color="green">Thi đấu</Tag>}
+              Tạo nhánh đấu tự động
+            </Button>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddStage}
             >
-              <Form.Item
-                name="allowDraws"
-                label="Cho phép kết quả hòa"
-                valuePropName="checked"
-                tooltip="Cho phép các trận đấu kết thúc với tỷ số hòa"
-              >
-                <Switch checkedChildren="Cho phép" unCheckedChildren="Không" />
-              </Form.Item>
+              Thêm vòng đấu
+            </Button>
+          </Space>
+        </div>
 
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="defaultBestOf"
-                    label="Thể thức mặc định"
-                    tooltip="Số trận thắng cần thiết để chiến thắng loạt đấu"
-                    rules={[{ required: true, message: 'Vui lòng chọn thể thức!' }]}
-                  >
-                    <Select style={{ width: '100%' }}>
-                      <Option value={1}>BO1 (1 trận thắng)</Option>
-                      <Option value={3}>BO3 (2/3 trận)</Option>
-                      <Option value={5}>BO5 (3/5 trận)</Option>
-                      <Option value={7}>BO7 (4/7 trận)</Option>
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="defaultMatchTime"
-                    label="Thời gian trận (phút)"
-                    tooltip="Thời gian dự kiến cho mỗi trận đấu"
-                    rules={[
-                      { required: true, message: 'Vui lòng nhập thời gian!' },
-                      { type: 'number', min: 5, max: 180, message: 'Thời gian phải từ 5-180 phút' }
-                    ]}
-                  >
-                    <InputNumber 
-                      min={5}
-                      max={180}
-                      style={{ width: '100%' }} 
-                      placeholder="VD: 30"
-                      addonAfter="phút"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          type="card"
+          size="large"
+        >
+          <TabPane tab="Vòng đấu" key="stages">
+            {renderStages()}
+          </TabPane>
 
-              <Form.Item
-                name="autoSchedule"
-                label="Tự động lên lịch"
-                valuePropName="checked"
-                tooltip="Tự động sắp xếp lịch thi đấu cho các trận"
-              >
-                <Switch checkedChildren="Tự động" unCheckedChildren="Thủ công" />
-              </Form.Item>
-            </Card>
-          </Col>
+          <TabPane tab="Lịch thi đấu" key="schedule">
+            {renderMatchSchedule()}
+          </TabPane>
 
-          <Col span={24}>
-            <Card 
-              title="🔔 Cài đặt thông báo" 
-              size="small"
-              extra={<Tag color="orange">Thông báo</Tag>}
-            >
-              <Row gutter={[24, 16]}>
-                <Col span={8}>
-                  <Form.Item
-                    name="notifyMatchStart"
-                    label="Thông báo khi trận đấu bắt đầu"
-                    valuePropName="checked"
-                    tooltip="Gửi thông báo khi trận đấu sắp bắt đầu"
-                  >
-                    <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="notifyRegistration"
-                    label="Thông báo đăng ký"
-                    valuePropName="checked"
-                    tooltip="Thông báo khi có đội đăng ký mới"
-                  >
-                    <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-                  </Form.Item>
-                </Col>
-                <Col span={8}>
-                  <Form.Item
-                    name="notifyResults"
-                    label="Thông báo kết quả"
-                    valuePropName="checked"
-                    tooltip="Thông báo khi có kết quả trận đấu mới"
-                  >
-                    <Switch checkedChildren="Bật" unCheckedChildren="Tắt" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              
-              <div style={{ 
-                marginTop: 16, 
-                padding: '12px', 
-                background: '#f0f0f0', 
-                borderRadius: 6 
-              }}>
-                <small style={{ color: '#595959' }}>
-                  📢 Thông báo sẽ được gửi cho: Quản trị viên, Đội trưởng, Người tham gia giải đấu
-                </small>
-              </div>
-            </Card>
-          </Col>
+          <TabPane tab="Thống kê" key="stats">
+            {renderStats()}
+          </TabPane>
+        </Tabs>
 
-          <Col span={12}>
-            <Card 
-              title="📡 Cài đặt stream" 
-              size="small"
-              extra={<Switch checked={requireStream} onChange={handleStreamToggle} />}
-            >
-              <Form.Item
-                name="requireStream"
-                label="Yêu cầu stream trận đấu"
-                valuePropName="checked"
-                hidden
-              >
-                <Input type="hidden" />
-              </Form.Item>
-
-              {requireStream && (
-                <Form.Item
-                  name="streamPlatforms"
-                  label="Nền tảng stream được phép"
-                  tooltip="Chọn các nền tảng stream được chấp nhận"
+        {/* Validation và nút tiếp tục */}
+        <Divider />
+        <Card>
+          <Row justify="space-between" align="middle">
+            <Col>
+              {!isFormValid ? (
+                <Alert
+                  message="Chưa hoàn thành"
+                  description="Vui lòng thiết lập ít nhất một vòng đấu để tiếp tục."
+                  type="warning"
+                  showIcon
+                />
+              ) : (
+                <Alert
+                  message="Đã hoàn thành"
+                  description="Đã thiết lập đầy đủ vòng đấu. Bạn có thể tiếp tục sang bước tiếp theo."
+                  type="success"
+                  showIcon
+                />
+              )}
+            </Col>
+            <Col>
+              <Space>
+                <Button onClick={() => form.resetFields()}>
+                  ↺ Đặt lại
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={handleSaveAndContinue}
+                  disabled={!isFormValid}
+                  icon={<CheckCircleOutlined />}
                 >
-                  <Checkbox.Group style={{ width: '100%' }}>
-                    <Row gutter={[8, 8]}>
-                      {STREAM_PLATFORMS.map(platform => (
-                        <Col span={12} key={platform}>
-                          <Checkbox value={platform}>{platform}</Checkbox>
-                        </Col>
-                      ))}
-                    </Row>
-                  </Checkbox.Group>
-                </Form.Item>
-              )}
+                  💾 Lưu và tiếp tục
+                </Button>
+              </Space>
+            </Col>
+          </Row>
+        </Card>
 
-              {!requireStream && (
-                <div style={{ textAlign: 'center', padding: '20px 0', color: '#8c8c8c' }}>
-                  <small>Stream trận đấu không bắt buộc</small>
-                </div>
-              )}
-            </Card>
-          </Col>
-
-          <Col span={12}>
-            <Card 
-              title="⚙️ Cài đặt nâng cao" 
-              size="small"
-              extra={<Tag color="purple">Nâng cao</Tag>}
+        {/* Stage Modal */}
+        <Modal
+          title={editingStage ? 'Chỉnh sửa vòng đấu' : 'Thêm vòng đấu mới'}
+          open={stageModalVisible}
+          onOk={handleStageModalOk}
+          onCancel={() => {
+            setStageModalVisible(false);
+            stageForm.resetFields();
+          }}
+          width={600}
+        >
+          <Form
+            form={stageForm}
+            layout="vertical"
+          >
+            <Form.Item
+              name="name"
+              label="Tên vòng đấu"
+              rules={[{ required: true, message: 'Vui lòng nhập tên vòng đấu' }]}
             >
-              <Form.Item
-                name="matchFormat"
-                label="Định dạng trận đấu tùy chỉnh (JSON)"
-                tooltip="Các tùy chỉnh đặc biệt cho định dạng trận đấu"
-                validateStatus={jsonError ? 'error' : ''}
-                help={jsonError || 'VD: {"rounds": 3, "timePerRound": 300, "overtime": true}'}
+              <Input placeholder="VD: Vòng bảng, Playoffs, Chung kết" />
+            </Form.Item>
+
+            <Form.Item
+              name="type"
+              label="Loại vòng đấu"
+              rules={[{ required: true, message: 'Vui lòng chọn loại vòng đấu' }]}
+            >
+              <Select placeholder="Chọn loại vòng đấu">
+                <Option value="GROUP_STAGE">Vòng bảng</Option>
+                <Option value="SINGLE_ELIMINATION">Loại trực tiếp</Option>
+                <Option value="DOUBLE_ELIMINATION">Loại kép</Option>
+                <Option value="ROUND_ROBIN">Vòng tròn</Option>
+                <Option value="SWISS">Thụy Sĩ</Option>
+                <Option value="QUALIFIER">Vòng loại</Option>
+                <Option value="FINAL">Chung kết</Option>
+              </Select>
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="startDate"
+                  label="Thời gian bắt đầu"
+                >
+                  <DatePicker
+                    showTime
+                    style={{ width: '100%' }}
+                    format="DD/MM/YYYY HH:mm"
+                    placeholder="Chọn ngày bắt đầu"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="endDate"
+                  label="Thời gian kết thúc"
+                >
+                  <DatePicker
+                    showTime
+                    style={{ width: '100%' }}
+                    format="DD/MM/YYYY HH:mm"
+                    placeholder="Chọn ngày kết thúc"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              name="numberOfGroups"
+              label="Số lượng bảng đấu (nếu có)"
+            >
+              <InputNumber min={1} max={20} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item
+              name="teamsPerGroup"
+              label="Số đội mỗi bảng"
+            >
+              <InputNumber min={1} max={20} style={{ width: '100%' }} />
+            </Form.Item>
+
+            <Form.Item
+              name="isSeeded"
+              label="Xếp hạt giống"
+              valuePropName="checked"
+            >
+              <Switch />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* Match Detail Modal */}
+        <Modal
+          title="Chi tiết trận đấu"
+          open={isMatchModalVisible}
+          onCancel={() => {
+            setIsMatchModalVisible(false);
+            setSelectedMatch(null);
+            setEditingMatch(null);
+          }}
+          width={700}
+          footer={[
+            <Button key="cancel" onClick={() => setIsMatchModalVisible(false)}>
+              Đóng
+            </Button>,
+            selectedMatch?.status !== 'COMPLETED' && (
+              <Button
+                key="update"
+                type="primary"
+                onClick={handleUpdateMatchResult}
+                disabled={!editingMatch}
               >
-                <TextArea 
-                  rows={4}
-                  placeholder='Nhập định dạng JSON tùy chỉnh...'
+                Cập nhật kết quả
+              </Button>
+            )
+          ]}
+        >
+          {selectedMatch && (
+            <div>
+              <Row gutter={[16, 16]}>
+                <Col span={24}>
+                  <Card size="small" title="Thông tin trận đấu">
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Text strong>Vòng:</Text>
+                        <Text>Vòng {selectedMatch.round} - Trận {selectedMatch.order}</Text>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Text strong>Trạng thái:</Text>
+                        <Tag color={
+                          selectedMatch.status === 'COMPLETED' ? 'success' :
+                          selectedMatch.status === 'PROCESSING' ? 'processing' :
+                          selectedMatch.status === 'SCHEDULED' ? 'blue' : 'default'
+                        }>
+                          {selectedMatch.status}
+                        </Tag>
+                      </div>
+                      {selectedMatch.scheduledTime && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Text strong>Thời gian:</Text>
+                          <Text>{new Date(selectedMatch.scheduledTime).toLocaleString()}</Text>
+                        </div>
+                      )}
+                    </Space>
+                  </Card>
+                </Col>
+
+                <Col span={24}>
+                  <Card size="small" title="Đội thi đấu">
+                    <Row gutter={[16, 16]}>
+                      <Col span={10}>
+                        <TeamCard
+                          team={selectedMatch.team1}
+                          slot={1}
+                          matchId={selectedMatch.id}
+                        />
+                      </Col>
+
+                      <Col span={4} style={{ textAlign: 'center', paddingTop: 40 }}>
+                        <Title level={2}>VS</Title>
+                        {selectedMatch.team1Score !== undefined && selectedMatch.team2Score !== undefined && (
+                          <Title level={3} style={{ color: '#52c41a' }}>
+                            {selectedMatch.team1Score} - {selectedMatch.team2Score}
+                          </Title>
+                        )}
+                      </Col>
+
+                      <Col span={10}>
+                        <TeamCard
+                          team={selectedMatch.team2}
+                          slot={2}
+                          matchId={selectedMatch.id}
+                        />
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+
+                {selectedMatch.status !== 'COMPLETED' && (
+                  <Col span={24}>
+                    <Card size="small" title="Cập nhật kết quả">
+                      <Row gutter={16}>
+                        <Col span={10}>
+                          <InputNumber
+                            min={0}
+                            style={{ width: '100%' }}
+                            placeholder="Điểm đội 1"
+                            value={editingMatch?.team1Score}
+                            onChange={(value) => setEditingMatch(prev => ({
+                              ...prev!,
+                              team1Score: value || 0
+                            }))}
+                          />
+                        </Col>
+                        <Col span={4} style={{ textAlign: 'center', paddingTop: 8 }}>
+                          <Text strong>:</Text>
+                        </Col>
+                        <Col span={10}>
+                          <InputNumber
+                            min={0}
+                            style={{ width: '100%' }}
+                            placeholder="Điểm đội 2"
+                            value={editingMatch?.team2Score}
+                            onChange={(value) => setEditingMatch(prev => ({
+                              ...prev!,
+                              team2Score: value || 0
+                            }))}
+                          />
+                        </Col>
+                      </Row>
+                    </Card>
+                  </Col>
+                )}
+
+                {selectedMatch.status === 'COMPLETED' && selectedMatch.team1 && selectedMatch.team2 && (
+                  <Col span={24}>
+                    <Alert
+                      message={`Đội thắng: ${
+                        (selectedMatch.team1Score || 0) > (selectedMatch.team2Score || 0)
+                          ? selectedMatch.team1.name
+                          : selectedMatch.team2.name
+                      }`}
+                      type="success"
+                      showIcon
+                    />
+                  </Col>
+                )}
+              </Row>
+            </div>
+          )}
+        </Modal>
+
+        {/* Schedule Match Modal */}
+        <Modal
+          title="Lên lịch trận đấu"
+          open={scheduleModalVisible}
+          onCancel={() => setScheduleModalVisible(false)}
+          onOk={handleSaveMatchSchedule}
+        >
+          {selectedMatch && (
+            <Form layout="vertical">
+              <Form.Item label="Thời gian" required>
+                <DatePicker
+                  showTime
+                  style={{ width: '100%' }}
+                  value={editingMatch?.scheduledTime ? dayjs(editingMatch.scheduledTime) : null}
+                  onChange={(date) => {
+                    setEditingMatch(prev => ({
+                      ...prev!,
+                      scheduledTime: date?.toDate()
+                    }));
+                  }}
                 />
               </Form.Item>
+              <Alert
+                message="Thông tin trận đấu"
+                description={
+                  <Space direction="vertical">
+                    <Text>{selectedMatch.team1?.name || 'TBD'} vs {selectedMatch.team2?.name || 'TBD'}</Text>
+                    <Text>Vòng {selectedMatch.round} - Trận {selectedMatch.order}</Text>
+                  </Space>
+                }
+                type="info"
+                showIcon
+              />
+            </Form>
+          )}
+        </Modal>
+      </div>
+    </Spin>
+  );
+};
 
-              <div style={{ 
-                padding: '12px', 
-                background: '#fff7e6', 
-                borderRadius: 6, 
-                marginTop: 8 
-              }}>
-                <small style={{ color: '#d46b08' }}>
-                  ⚠️ <strong>Lưu ý:</strong> Chỉ chỉnh sửa JSON nếu bạn hiểu rõ cấu trúc. 
-                  Sai cú pháp có thể gây lỗi hệ thống.
-                </small>
-              </div>
-            </Card>
-          </Col>
-
-          <Col span={24}>
-            <Card title="📋 Tổng quan cài đặt" size="small">
-              <Row gutter={[24, 16]}>
-                <Col span={12}>
-                  <h4>Các cài đặt quan trọng:</h4>
-                  <ul style={{ marginTop: 8, paddingLeft: 20, color: '#595959' }}>
-                    <li><small><strong>BO (Best Of):</strong> Số trận thắng cần thiết để thắng loạt đấu</small></li>
-                    <li><small><strong>Tự động lên lịch:</strong> Hệ thống tự sắp xếp lịch thi đấu</small></li>
-                    <li><small><strong>Phê duyệt đăng ký:</strong> Quản trị viên duyệt từng đội đăng ký</small></li>
-                    <li><small><strong>Stream bắt buộc:</strong> Đội tham gia phải stream trận đấu</small></li>
-                  </ul>
-                </Col>
-                <Col span={12}>
-                  <h4>Ảnh hưởng đến giải đấu:</h4>
-                  <ul style={{ marginTop: 8, paddingLeft: 20, color: '#595959' }}>
-                    <li><small>Cài đặt <strong>không thể thay đổi</strong> khi giải đấu đã bắt đầu</small></li>
-                    <li><small>Các thay đổi sẽ áp dụng ngay lập tức</small></li>
-                    <li><small>Kiểm tra kỹ trước khi lưu cài đặt</small></li>
-                  </ul>
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-
-          <Col span={24}>
-            <Divider />
-            <div style={{ 
-              textAlign: 'right', 
-              padding: '16px', 
-              background: '#fafafa', 
-              borderRadius: 6 
-            }}>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                size="large"
-                style={{ minWidth: 150 }}
-              >
-                💾 Lưu cài đặt
-              </Button>
-              <Button 
-                style={{ marginLeft: 12 }} 
-                size="large"
-                onClick={() => form.resetFields()}
-              >
-                ↺ Đặt lại
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </Form>
+const TeamCard: React.FC<{
+  team?: Team;
+  slot: 1 | 2;
+  matchId: string;
+}> = ({ team, slot, matchId }) => {
+  return (
+    <div
+      style={{
+        border: '1px solid #d9d9d9',
+        borderRadius: '8px',
+        padding: '16px',
+        textAlign: 'center',
+        backgroundColor: '#fafafa',
+        minHeight: '150px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
+    >
+      {team ? (
+        <>
+          <Avatar
+            src={team.logoUrl}
+            size={64}
+            icon={<TeamOutlined />}
+          />
+          <Title level={4} style={{ marginTop: 8, marginBottom: 0 }}>
+            {team.name}
+          </Title>
+          {team.seed && (
+            <Text type="secondary">Hạt giống #{team.seed}</Text>
+          )}
+        </>
+      ) : (
+        <>
+          <Avatar
+            size={64}
+            icon={<TeamOutlined />}
+            style={{ backgroundColor: '#f0f0f0' }}
+          />
+          <Text type="secondary" style={{ marginTop: 8 }}>
+            Chưa có đội
+          </Text>
+          <Text type="secondary" style={{ fontSize: '12px' }}>
+            Slot {slot}
+          </Text>
+        </>
+      )}
     </div>
   );
 };
 
-export default TournamentBasicSettings;
+const StatisticCard: React.FC<{
+  title: string;
+  value: number;
+  color: string;
+}> = ({ title, value, color }) => (
+  <div style={{ textAlign: 'center' }}>
+    <div style={{
+      fontSize: '32px',
+      fontWeight: 'bold',
+      color,
+      marginBottom: '8px'
+    }}>
+      {value}
+    </div>
+    <Text type="secondary">{title}</Text>
+  </div>
+);
+
+export default TournamentStages;

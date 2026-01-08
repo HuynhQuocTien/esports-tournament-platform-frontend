@@ -19,6 +19,15 @@ export class TeamService {
     }
   }
 
+  async getTeamMembers(teamId: string): Promise<Team[]> {
+    try {
+      const response = await api.get(`${this.baseUrl}/${teamId}/members`);
+      return response.data.data;
+    } catch (error: any) {
+      throw this.handleError(error, 'Lấy thành viên đội thất bại');
+    }
+  }
+
   async getTeams(params?: PaginationParams): Promise<PaginatedResponse<Team>> {
     try {
       const response = await api.get(this.baseUrl, { params });

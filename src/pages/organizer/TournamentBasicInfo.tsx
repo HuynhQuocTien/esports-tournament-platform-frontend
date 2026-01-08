@@ -1,3 +1,4 @@
+// frontend/src/pages/organizer/TournamentBasicInfo.tsx
 import {
   Form,
   Input,
@@ -13,10 +14,13 @@ import {
   Avatar,
   Select,
   InputNumber,
+  Switch,
 } from 'antd';
 import {
   UploadOutlined,
   LoadingOutlined,
+  EyeOutlined,
+  EyeInvisibleOutlined,
 } from '@ant-design/icons';
 import type { TournamentBasicInfo, TournamentStepProps } from '@/common/types/tournament';
 import type { UploadProps, UploadFile } from 'antd';
@@ -41,7 +45,15 @@ const tournamentTypes = [
   { value: 'solo', label: 'Solo' },
 ];
 
-const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }) => {
+interface TournamentBasicInfoProps extends TournamentStepProps {
+  onNextStep?: () => void;
+}
+
+const TournamentBasicInfo: React.FC<TournamentBasicInfoProps> = ({ 
+  data, 
+  updateData,
+  onNextStep 
+}) => {
   const [form] = Form.useForm();
   const { id } = useParams<{ id: string }>();
   const [uploadState, setUploadState] = useState<UploadState>({
@@ -50,7 +62,11 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   });
   const [loading, setLoading] = useState(false);
   const [selectedGame, setSelectedGame] = useState<ReturnType<typeof getGameByValue>>();
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [visibilityLoading, setVisibilityLoading] = useState(false);
+  
   console.log(data.basicInfo);
+  
   useEffect(() => {
     if (data?.basicInfo) {
       const formValues: Partial<FormBasicInfo> = {
@@ -68,7 +84,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       if (data.basicInfo.tournamentStart) {
         formValues.tournamentStart = dayjs(data.basicInfo.tournamentStart);
       }
-      
+
       form.setFieldsValue(formValues);
 
       if (data.basicInfo.logoUrl) {
@@ -94,14 +110,49 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
           } as UploadFile,
         }));
       }
+      
+      // Kiểm tra xem form đã đầy đủ chưa
+      checkFormValidity(formValues);
     } else {
       form.resetFields();
       setUploadState({
         logoUploading: false,
         bannerUploading: false,
       });
+      setIsFormValid(false);
     }
   }, [data, form]);
+
+  // Hàm kiểm tra xem form có hợp lệ không
+  const checkFormValidity = (values: Partial<FormBasicInfo>) => {
+    const requiredFields = [
+      'name',
+      'game', 
+      'format',
+      'type',
+      'maxTeams',
+      'registrationStart',
+      'registrationEnd',
+      'tournamentStart'
+    ];
+    
+    const isValid = requiredFields.every(field => {
+      const value = values[field as keyof FormBasicInfo];
+      if (field === 'maxTeams') {
+        return typeof value === 'number' && value >= 2;
+      }
+      return value !== undefined && value !== null && value !== '';
+    });
+    
+    setIsFormValid(isValid);
+    return isValid;
+  };
+
+  // Theo dõi thay đổi form để kiểm tra validation
+  const handleFormValuesChange = () => {
+    const values = form.getFieldsValue();
+    checkFormValidity(values);
+  };
 
   const uploadImage = async (file: File, type: 'logo' | 'banner'): Promise<string> => {
     try {
@@ -188,6 +239,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
   const handleGameChange = (value: string, game?: any) => {
     setSelectedGame(game);
     form.setFieldsValue({ game: value });
+    handleFormValuesChange();
   };
 
   const handleLogoChange: UploadProps['onChange'] = (info) => {
@@ -195,6 +247,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       form.setFieldsValue({ logoUrl: '' });
       setUploadState(prev => ({ ...prev, logoFile: undefined }));
     }
+    handleFormValuesChange();
   };
 
   const handleBannerChange: UploadProps['onChange'] = (info) => {
@@ -202,6 +255,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
       form.setFieldsValue({ bannerUrl: '' });
       setUploadState(prev => ({ ...prev, bannerFile: undefined }));
     }
+    handleFormValuesChange();
   };
 
   const beforeUpload = (file: File, type: 'logo' | 'banner'): boolean => {
@@ -219,10 +273,43 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
     return true;
   };
 
+  const handleVisibilityToggle = async (checked: boolean) => {
+    if (!id) {
+      message.error('Không tìm thấy ID giải đấu');
+      return;
+    }
+
+    setVisibilityLoading(true);
+    try {
+      const res = await tournamentService.visibilyTournamentToggle(id, checked);
+      if (res) {
+        message.success(
+          checked 
+            ? 'Giải đấu đã được công khai! Người dùng có thể xem và đăng ký.' 
+            : 'Giải đấu đã được ẩn! Chỉ bạn có thể xem.'
+        );
+        
+        // Cập nhật dữ liệu local
+        updateData('basicInfo', { ...data.basicInfo, isVisible: checked });
+      }
+    } catch (error) {
+      message.error('Có lỗi khi thay đổi trạng thái hiển thị');
+    } finally {
+      setVisibilityLoading(false);
+    }
+  };
+
   const onFinish = async (values: FormBasicInfo) => {
     setLoading(true);
     
     try {
+      // Kiểm tra lại validation trước khi submit
+      if (!checkFormValidity(values)) {
+        message.error('Vui lòng điền đầy đủ các trường bắt buộc');
+        setLoading(false);
+        return;
+      }
+
       const processedValues: Partial<TournamentBasicInfo> = {
         ...values,
       };
@@ -253,6 +340,13 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
         
         message.success("Cập nhật thông tin thành công!");
         updateData('basicInfo', processedValues);
+        
+        // Chỉ chuyển tab nếu form hợp lệ
+        if (onNextStep && isFormValid) {
+          setTimeout(() => {
+            onNextStep();
+          }, 500);
+        }
       } else {
         message.error("Không tìm thấy id!");
       }
@@ -307,8 +401,46 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
         form={form}
         layout="vertical"
         onFinish={onFinish}
+        onValuesChange={handleFormValuesChange}
       >
         <Row gutter={[24, 16]}>
+          {/* Nút visibility - đặt ở góc trên bên phải */}
+          <Col span={24}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '8px 16px', 
+                backgroundColor: '#fafafa', 
+                borderRadius: '8px',
+                border: '1px solid #f0f0f0'
+              }}>
+                <Switch
+                  checked={data?.basicInfo?.isVisible}
+                  onChange={handleVisibilityToggle}
+                  loading={visibilityLoading}
+                  checkedChildren={<EyeOutlined />}
+                  unCheckedChildren={<EyeInvisibleOutlined />}
+                  style={{ marginRight: 8 }}
+                />
+                <span style={{ fontWeight: 500 }}>
+                  {data?.basicInfo?.isVisible ? 'Đang công khai' : 'Đang ẩn'}
+                </span>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginLeft: 8,
+                  paddingLeft: 8,
+                  borderLeft: '1px solid #d9d9d9'
+                }}>
+                  {data?.basicInfo?.isVisible 
+                    ? 'Người dùng có thể xem và đăng ký' 
+                    : 'Chỉ bạn có thể xem giải đấu'}
+                </div>
+              </div>
+            </div>
+          </Col>
+
           <Col span={24}>
             <Card title="Thông tin chung" size="small">
               <Row gutter={[16, 0]}>
@@ -318,7 +450,10 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                     label="Tên giải đấu"
                     rules={[{ required: true, message: 'Vui lòng nhập tên giải đấu' }]}
                   >
-                    <Input placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2026" />
+                    <Input 
+                      placeholder="VD: Giải đấu Liên Minh Huyền Thoại Mùa Hè 2026" 
+                      onChange={handleFormValuesChange}
+                    />
                   </Form.Item>
                 </Col>
                 
@@ -369,33 +504,41 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
           <Col span={12}>
             <Card title="Thể thức" size="small">
               <Form.Item
-                    name="format"
-                    label="Thể thức giải đấu"
-                    rules={[{ required: true, message: 'Vui lòng chọn' }]}
-                  >
-                    <Select size="large" placeholder="Chọn thể thức giải đấu">
-                      {tournamentFormat.map(type => (
-                        <Option key={type.value} value={type.value}>
-                          {type.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
+                name="format"
+                label="Thể thức giải đấu"
+                rules={[{ required: true, message: 'Vui lòng chọn' }]}
+              >
+                <Select 
+                  size="large" 
+                  placeholder="Chọn thể thức giải đấu"
+                  onChange={handleFormValuesChange}
+                >
+                  {tournamentFormat.map(type => (
+                    <Option key={type.value} value={type.value}>
+                      {type.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
 
-             <Form.Item
-                    name="type"
-                    label="Tham gia dưới dạng"
-                    rules={[{ required: true, message: 'Vui lòng chọn' }]}
-                  >
-                    <Select size="large" placeholder="Chọn loại giải đấu">
-                      {tournamentTypes.map(type => (
-                        <Option key={type.value} value={type.value}>
-                          {type.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                   <Form.Item
+              <Form.Item
+                name="type"
+                label="Tham gia dưới dạng"
+                rules={[{ required: true, message: 'Vui lòng chọn' }]}
+              >
+                <Select 
+                  size="large" 
+                  placeholder="Chọn loại giải đấu"
+                  onChange={handleFormValuesChange}
+                >
+                  {tournamentTypes.map(type => (
+                    <Option key={type.value} value={type.value}>
+                      {type.label}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item
                 name="maxTeams"
                 label="Số đội/thí sinh tối đa"
                 rules={[
@@ -408,6 +551,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   max={512} 
                   style={{ width: '100%' }}
                   size="large"
+                  onChange={handleFormValuesChange}
                 />
               </Form.Item>
             </Card>
@@ -423,6 +567,8 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   showTime 
                   style={{ width: '100%' }}
                   format="DD/MM/YYYY HH:mm"
+                  onChange={handleFormValuesChange}
+                  placeholder="Chọn ngày bắt đầu đăng ký"
                 />
               </Form.Item>
 
@@ -435,6 +581,8 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   showTime 
                   style={{ width: '100%' }}
                   format="DD/MM/YYYY HH:mm"
+                  onChange={handleFormValuesChange}
+                  placeholder="Chọn ngày kết thúc đăng ký"
                 />
               </Form.Item>
 
@@ -447,15 +595,16 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                   showTime 
                   style={{ width: '100%' }}
                   format="DD/MM/YYYY HH:mm"
+                  onChange={handleFormValuesChange}
+                  placeholder="Chọn ngày bắt đầu giải đấu"
                 />
               </Form.Item>
             </Card>
           </Col>
 
           <Col span={12}>
-            
             <Card title="Hình ảnh" size="small">
-                   <Form.Item name="logoUrl" label="Logo giải đấu" hidden>
+              <Form.Item name="logoUrl" label="Logo giải đấu" hidden>
                 <Input type="hidden" />
               </Form.Item>
               
@@ -473,7 +622,7 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                 </div>
               </Form.Item>
 
-                <Form.Item name="bannerUrl" label="Banner giải đấu" hidden>
+              <Form.Item name="bannerUrl" label="Banner giải đấu" hidden>
                 <Input type="hidden" />
               </Form.Item>
 
@@ -503,14 +652,50 @@ const TournamentBasicInfo: React.FC<TournamentStepProps> = ({ data, updateData }
                 placeholder="Mô tả chi tiết về giải đấu, thể lệ, mục tiêu..."
                 maxLength={2000}
                 showCount
+                onChange={handleFormValuesChange}
               />
             </Form.Item>
           </Col>
 
           <Col span={24}>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              Lưu và tiếp tục
-            </Button>
+            <Space>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={loading}
+                disabled={!isFormValid}
+              >
+                {isFormValid ? '💾 Lưu và tiếp tục' : 'Vui lòng điền đầy đủ thông tin'}
+              </Button>
+              <Button htmlType="button" onClick={() => form.resetFields()}>
+                ↺ Đặt lại
+              </Button>
+            </Space>
+            
+            {/* Hiển thị trạng thái validation */}
+            {!isFormValid && (
+              <div style={{ marginTop: 16 }}>
+                <p style={{ color: '#faad14', marginBottom: 8 }}>
+                  ⚠️ <strong>Chưa hoàn thành:</strong> Vui lòng điền đầy đủ các thông tin bắt buộc:
+                </p>
+                <ul style={{ color: '#595959', paddingLeft: 20 }}>
+                  {!form.getFieldValue('name') && <li>Tên giải đấu</li>}
+                  {!form.getFieldValue('game') && <li>Game</li>}
+                  {!form.getFieldValue('format') && <li>Thể thức giải đấu</li>}
+                  {!form.getFieldValue('type') && <li>Loại tham gia</li>}
+                  {(!form.getFieldValue('maxTeams') || form.getFieldValue('maxTeams') < 2) && <li>Số đội tối đa (ít nhất 2)</li>}
+                  {!form.getFieldValue('registrationStart') && <li>Thời gian bắt đầu đăng ký</li>}
+                  {!form.getFieldValue('registrationEnd') && <li>Thời gian kết thúc đăng ký</li>}
+                  {!form.getFieldValue('tournamentStart') && <li>Thời gian bắt đầu giải đấu</li>}
+                </ul>
+              </div>
+            )}
+            
+            {isFormValid && (
+              <div style={{ marginTop: 16, color: '#52c41a' }}>
+                ✅ <strong>Đã hoàn thành:</strong> Tất cả thông tin bắt buộc đã được điền đầy đủ.
+              </div>
+            )}
           </Col>
         </Row>
       </Form>

@@ -42,12 +42,12 @@ import {
 } from "@ant-design/icons";
 import { teamService } from "@/services/teamService";
 import { tournamentService } from "@/services/tournamentService";
-import type { 
-  Team, 
-  Tournament,
-} from "@/common/types";
+import type { Team, Tournament } from "@/common/types";
 import type { TeamMember } from "@/common/types/team";
-import type { EligibilityResponse, RegistrationStatusResponse } from "@/common/interfaces/tournament/tournament";
+import type {
+  EligibilityResponse,
+  RegistrationStatusResponse,
+} from "@/common/interfaces/tournament/tournament";
 
 const { Title, Text, Paragraph } = Typography;
 const { Step } = Steps;
@@ -58,10 +58,10 @@ export const TournamentRegistrationPage: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState(0);
-  
+
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loadingTournament, setLoadingTournament] = useState(true);
-  
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [loadingTeams, setLoadingTeams] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<string>("");
@@ -70,12 +70,15 @@ export const TournamentRegistrationPage: React.FC = () => {
   const [teamMembersList, setTeamMembersList] = useState<TeamMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [teamSearch, setTeamSearch] = useState("");
-  
-  const [eligibility, setEligibility] = useState<EligibilityResponse | null>(null);
+
+  const [eligibility, setEligibility] = useState<EligibilityResponse | null>(
+    null
+  );
   const [loadingEligibility, setLoadingEligibility] = useState(false);
-  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatusResponse | null>(null);
+  const [registrationStatus, setRegistrationStatus] =
+    useState<RegistrationStatusResponse | null>(null);
   const [loadingRegistration, setLoadingRegistration] = useState(false);
-  
+
   const [submittingRegistration, setSubmittingRegistration] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
   const [cancellingRegistration, setCancellingRegistration] = useState(false);
@@ -120,14 +123,17 @@ export const TournamentRegistrationPage: React.FC = () => {
   const loadTournamentData = async () => {
     try {
       setLoadingTournament(true);
+      console.log("Loading tournament data for ID:", id);
       const response = await tournamentService.getById(id!);
       const tournamentData = response.data;
-      
+      console.log("Tournament data loaded:", tournamentData);
+
       // Check eligibility after loading tournament
       await checkEligibility();
-      
+
       setTournament(tournamentData);
     } catch (error: any) {
+      console.error("Error loading tournament:", error);
       message.error("Không thể tải thông tin giải đấu");
       navigate("/tournaments");
     } finally {
@@ -139,6 +145,7 @@ export const TournamentRegistrationPage: React.FC = () => {
     try {
       setLoadingEligibility(true);
       const response = await tournamentService.checkEligibility(id!);
+      console.log("Eligibility Response:", response.data);
       setEligibility(response.data);
     } catch (error: any) {
       console.error("Lỗi kiểm tra điều kiện:", error);
@@ -150,10 +157,16 @@ export const TournamentRegistrationPage: React.FC = () => {
   const checkRegistrationStatus = async (teamId: string) => {
     try {
       setLoadingRegistration(true);
-      const response = await tournamentService.getRegistrationStatus(id!, teamId);
+      console.log("Checking registration status for team:", teamId);
+      const response = await tournamentService.getRegistrationStatus(
+        id!,
+        teamId
+      );
+      console.log("Registration status:", response.data);
       setRegistrationStatus(response.data);
     } catch (error: any) {
       console.error("Lỗi kiểm tra trạng thái đăng ký:", error);
+      setRegistrationStatus(null);
     } finally {
       setLoadingRegistration(false);
     }
@@ -175,12 +188,32 @@ export const TournamentRegistrationPage: React.FC = () => {
     }
   };
 
+  const validateRegistration = () => {
+    if (!selectedTeam) {
+      message.error("Vui lòng chọn đội để đăng ký");
+      return false;
+    }
+
+    if (teamMembersList.length < (tournament?.minTeamSize || 1)) {
+      message.error(
+        `Đội cần tối thiểu ${tournament?.minTeamSize} thành viên để tham gia`
+      );
+      return false;
+    }
+    if (registrationStatus?.isRegistered) {
+      message.error("Đội này đã đăng ký tham gia giải đấu");
+      return false;
+    }
+
+    return true;
+  };
+
   const loadTeamMembers = async (teamId: string) => {
     try {
       setLoadingMembers(true);
-      // Giả sử teamService có hàm getTeamMembers
       const response = await teamService.getTeamMembers(teamId);
-      setTeamMembersList(response.data || []);
+      console.log("Team Members:", response);
+      setTeamMembersList(response || []);
     } catch (error: any) {
       console.error("Không thể tải danh sách thành viên:", error);
       setTeamMembersList([]);
@@ -190,53 +223,71 @@ export const TournamentRegistrationPage: React.FC = () => {
   };
 
   const getTournamentStatusInfo = (status: string) => {
-    switch (status) {
-      case 'draft':
-        return { text: 'Bản nháp', color: 'default', badge: 'default' };
-      case 'announced':
-        return { text: 'Đã công bố', color: 'blue', badge: 'processing' };
-      case 'registration_open':
-        return { text: 'Đang mở đăng ký', color: 'green', badge: 'success' };
-      case 'upcoming':
-        return { text: 'Sắp diễn ra', color: 'orange', badge: 'warning' };
-      case 'registration_closed':
-        return { text: 'Đã đóng đăng ký', color: 'red', badge: 'error' };
-      case 'live':
-        return { text: 'Đang diễn ra', color: 'red', badge: 'processing' };
-      case 'completed':
-        return { text: 'Đã kết thúc', color: 'purple', badge: 'default' };
-      case 'cancelled':
-        return { text: 'Đã hủy', color: 'gray', badge: 'default' };
+    switch (status?.toLowerCase()) {
+      case "draft":
+        return { text: "Bản nháp", color: "default", badge: "default" };
+      case "announced":
+      case "published":
+        return { text: "Đã công bố", color: "blue", badge: "processing" };
+      case "registration_open":
+        return { text: "Đang mở đăng ký", color: "green", badge: "success" };
+      case "upcoming":
+        return { text: "Sắp diễn ra", color: "orange", badge: "warning" };
+      case "registration_closed":
+        return { text: "Đã đóng đăng ký", color: "red", badge: "error" };
+      case "live":
+      case "ongoing":
+        return { text: "Đang diễn ra", color: "red", badge: "processing" };
+      case "completed":
+        return { text: "Đã kết thúc", color: "purple", badge: "default" };
+      case "cancelled":
+        return { text: "Đã hủy", color: "gray", badge: "default" };
       default:
-        return { text: status, color: 'default', badge: 'default' };
+        return {
+          text: status || "Unknown",
+          color: "default",
+          badge: "default",
+        };
     }
   };
 
   const isRegistrationOpen = () => {
     if (!tournament) return false;
-    
+
     // Chỉ các trạng thái này mới cho phép đăng ký
-    const registrationOpenStatuses = ['registration_open', 'announced', 'upcoming'];
-    
+    const registrationOpenStatuses = [
+      "registration_open",
+      "announced",
+      "upcoming",
+      "published",
+    ];
+
     // Kiểm tra trạng thái
-    if (!registrationOpenStatuses.includes(tournament.status)) {
+    if (!registrationOpenStatuses.includes(tournament.status?.toLowerCase())) {
       return false;
     }
-    
+
     // Kiểm tra thời gian đăng ký
     const now = new Date();
-    if (tournament.registrationStart && now < new Date(tournament.registrationStart)) {
+    if (
+      tournament.registrationStart &&
+      now < new Date(tournament.registrationStart)
+    ) {
       return false;
     }
-    
-    if (tournament.registrationEnd && now > new Date(tournament.registrationEnd)) {
+
+    if (
+      tournament.registrationEnd &&
+      now > new Date(tournament.registrationEnd)
+    ) {
       return false;
     }
-    
+
     // Kiểm tra số slot còn lại
-    const availableSlots = tournament.availableSlots || 
-                          (tournament.maxTeams - (tournament.registrationStats?.approved || 0));
-    return availableSlots > 0;
+    const approvedTeamsCount = tournament.approvedTeamsCount || 0;
+    const maxTeams = tournament.maxTeams || 0;
+    const remainingSlots = maxTeams - approvedTeamsCount;
+    return remainingSlots > 0;
   };
 
   const handleCreateTeam = async (values: any) => {
@@ -250,12 +301,12 @@ export const TournamentRegistrationPage: React.FC = () => {
 
       const response = await teamService.createTeam(teamData);
       const newTeam = response.data;
-      
+
       message.success("Tạo đội thành công!");
       setTeams((prev) => [newTeam, ...prev]);
       setSelectedTeam(newTeam.id);
       setShowCreateTeamModal(false);
-      
+
       form.setFieldsValue({
         name: "",
         description: "",
@@ -273,33 +324,37 @@ export const TournamentRegistrationPage: React.FC = () => {
         message.error("Bạn không đủ điều kiện để đăng ký giải đấu này");
         return;
       }
-      
+
       // Kiểm tra thêm nếu giải đấu không mở đăng ký
       if (!isRegistrationOpen()) {
-        const statusInfo = getTournamentStatusInfo(tournament?.status || '');
-        message.error(`Giải đấu ${statusInfo.text.toLowerCase()}. Không thể đăng ký.`);
+        const statusInfo = getTournamentStatusInfo(tournament?.status || "");
+        message.error(
+          `Giải đấu ${statusInfo.text.toLowerCase()}. Không thể đăng ký.`
+        );
         return;
       }
     }
-    
+
     if (currentStep === 1) {
       if (!selectedTeam) {
         message.error("Vui lòng chọn hoặc tạo một đội");
         return;
       }
-      
+
       if (registrationStatus?.isRegistered) {
         message.error("Đội này đã đăng ký tham gia giải đấu");
         return;
       }
-      
+
       // Kiểm tra số thành viên tối thiểu
       if (teamMembersList.length < (tournament?.minTeamSize || 1)) {
-        message.error(`Đội cần tối thiểu ${tournament?.minTeamSize} thành viên để tham gia`);
+        message.error(
+          `Đội cần tối thiểu ${tournament?.minTeamSize} thành viên để tham gia`
+        );
         return;
       }
     }
-    
+
     setCurrentStep((prev) => prev + 1);
   };
 
@@ -309,31 +364,91 @@ export const TournamentRegistrationPage: React.FC = () => {
 
   const handleRegisterForTournament = async () => {
     if (!selectedTeam || !id) return;
-    
+
+    // Kiểm tra validation
+    if (!validateRegistration()) {
+      return;
+    }
+
     try {
       setSubmittingRegistration(true);
-      
+
+      // Log data trước khi gửi
+      console.log("Sending registration data:", {
+        teamId: selectedTeam,
+        registrationData: {
+          note: "Đăng ký tham gia giải đấu",
+          registeredAt: new Date().toISOString(),
+        },
+      });
+
       const response = await tournamentService.registerForTournament(id, {
         teamId: selectedTeam,
         registrationData: {
           note: "Đăng ký tham gia giải đấu",
-          registeredAt: new Date().toISOString()
-        }
+          registeredAt: new Date().toISOString(),
+        },
       });
-      
-      message.success("Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức.");
-      
+
+      console.log("Registration response:", response);
+
+      message.success(
+        "Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức."
+      );
+
       // Refresh data
       await Promise.all([
         loadTournamentData(),
-        checkRegistrationStatus(selectedTeam)
+        checkRegistrationStatus(selectedTeam),
       ]);
-      
+
       // Move back to step 1 to show updated status
       setCurrentStep(1);
     } catch (error: any) {
-      console.error("Lỗi đăng ký:", error);
-      message.error(error.response?.data?.message || "Đăng ký thất bại");
+      console.error("Lỗi đăng ký full error:", error);
+
+      // Xử lý các loại lỗi khác nhau
+      let errorMessage = "Đăng ký thất bại";
+
+      if (error.response) {
+        // Lỗi từ server
+        console.error("Server error response:", error.response);
+        errorMessage =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          error.message;
+
+        // Kiểm tra các trường hợp cụ thể
+        if (error.response.status === 400) {
+          if (errorMessage.includes("chưa mở đăng ký")) {
+            errorMessage = "Giải đấu chưa mở đăng ký";
+          } else if (errorMessage.includes("hết thời hạn")) {
+            errorMessage = "Đã hết thời hạn đăng ký";
+          } else if (errorMessage.includes("đủ số lượng")) {
+            errorMessage = "Giải đấu đã đủ số lượng đội tham gia";
+          } else if (errorMessage.includes("đã đăng ký")) {
+            errorMessage = "Đội này đã đăng ký tham gia giải đấu";
+          }
+        } else if (error.response.status === 404) {
+          errorMessage = "Giải đấu không tồn tại";
+        } else if (error.response.status === 403) {
+          errorMessage = "Bạn không có quyền thực hiện hành động này";
+        } else if (error.response.status === 401) {
+          errorMessage = "Vui lòng đăng nhập để thực hiện đăng ký";
+          // Redirect đến trang đăng nhập nếu cần
+        }
+      } else if (error.request) {
+        // Lỗi network
+        console.error("Network error:", error.request);
+        errorMessage =
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng";
+      } else {
+        // Lỗi khác
+        console.error("Other error:", error.message);
+        errorMessage = error.message;
+      }
+
+      message.error(errorMessage);
     } finally {
       setSubmittingRegistration(false);
     }
@@ -341,14 +456,14 @@ export const TournamentRegistrationPage: React.FC = () => {
 
   const handleCheckIn = async () => {
     if (!selectedTeam || !id) return;
-    
+
     try {
       setCheckingIn(true);
-      
+
       await tournamentService.checkIn(id, {
-        teamId: selectedTeam
+        teamId: selectedTeam,
       });
-      
+
       message.success("Check-in thành công!");
       await checkRegistrationStatus(selectedTeam);
     } catch (error: any) {
@@ -361,7 +476,7 @@ export const TournamentRegistrationPage: React.FC = () => {
 
   const handleCancelRegistration = async () => {
     if (!selectedTeam || !id) return;
-    
+
     Modal.confirm({
       title: "Xác nhận hủy đăng ký",
       content: "Bạn có chắc chắn muốn hủy đăng ký tham gia giải đấu này không?",
@@ -371,26 +486,28 @@ export const TournamentRegistrationPage: React.FC = () => {
       onOk: async () => {
         try {
           setCancellingRegistration(true);
-          
+
           await tournamentService.cancelRegistration(id, {
             teamId: selectedTeam,
-            reason: "Người dùng tự hủy"
+            reason: "Người dùng tự hủy",
           });
-          
+
           message.success("Đã hủy đăng ký thành công");
-          
+
           // Refresh data
           await Promise.all([
             loadTournamentData(),
-            checkRegistrationStatus(selectedTeam)
+            checkRegistrationStatus(selectedTeam),
           ]);
         } catch (error: any) {
           console.error("Lỗi hủy đăng ký:", error);
-          message.error(error.response?.data?.message || "Hủy đăng ký thất bại");
+          message.error(
+            error.response?.data?.message || "Hủy đăng ký thất bại"
+          );
         } finally {
           setCancellingRegistration(false);
         }
-      }
+      },
     });
   };
 
@@ -402,33 +519,50 @@ export const TournamentRegistrationPage: React.FC = () => {
 
   const getRegistrationStatusTag = (status?: string) => {
     switch (status) {
-      case 'PENDING':
+      case "PENDING":
         return <Tag color="orange">Chờ duyệt</Tag>;
-      case 'APPROVED':
+      case "APPROVED":
         return <Tag color="green">Đã duyệt</Tag>;
-      case 'REJECTED':
+      case "REJECTED":
         return <Tag color="red">Từ chối</Tag>;
-      case 'CANCELLED':
+      case "CANCELLED":
         return <Tag color="default">Đã hủy</Tag>;
       default:
         return null;
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const formatDate = (dateString?: string | Date) => {
+    if (!dateString) return "";
+
+    try {
+      const date =
+        typeof dateString === "string" ? new Date(dateString) : dateString;
+      if (isNaN(date.getTime())) return "";
+
+      return date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", dateString, error);
+      return "";
+    }
   };
 
   if (loadingTournament) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <Spin size="large" tip="Đang tải thông tin giải đấu..." />
       </div>
     );
@@ -436,19 +570,29 @@ export const TournamentRegistrationPage: React.FC = () => {
 
   if (!tournament) {
     return (
-      <div style={{ textAlign: 'center', padding: 50 }}>
+      <div style={{ textAlign: "center", padding: 50 }}>
         <Alert
           message="Không tìm thấy giải đấu"
           description="Giải đấu bạn tìm kiếm không tồn tại hoặc đã bị xóa."
           type="error"
           showIcon
         />
-        <Button onClick={() => navigate('/tournaments')} style={{ marginTop: 20 }}>
+        <Button
+          onClick={() => navigate("/tournaments")}
+          style={{ marginTop: 20 }}
+        >
           Quay lại danh sách giải đấu
         </Button>
       </div>
     );
   }
+
+  // Tính toán các giá trị từ tournament
+  const approvedTeamsCount = tournament.approvedTeamsCount || 0;
+  const maxTeams = tournament.maxTeams || 0;
+  const remainingSlots = Math.max(0, maxTeams - approvedTeamsCount);
+  const registrationProgress = tournament.registrationProgress || 0;
+  const organizerEmail = tournament.organizer?.email || "support@esports.com";
 
   return (
     <div style={{ padding: 24, background: "#f8fafc", minHeight: "100vh" }}>
@@ -505,16 +649,25 @@ export const TournamentRegistrationPage: React.FC = () => {
                     message="Không thể đăng ký"
                     description={
                       <div>
-                        <p>Giải đấu hiện đang ở trạng thái: 
-                          <Tag color={getTournamentStatusInfo(tournament.status).color} style={{ marginLeft: 8 }}>
+                        <p>
+                          Giải đấu hiện đang ở trạng thái:
+                          <Tag
+                            color={
+                              getTournamentStatusInfo(tournament.status).color
+                            }
+                            style={{ marginLeft: 8 }}
+                          >
                             {getTournamentStatusInfo(tournament.status).text}
                           </Tag>
                         </p>
-                        {tournament.registrationStart && tournament.registrationEnd && (
-                          <p>
-                            Thời gian đăng ký: {formatDate(tournament.registrationStart)} - {formatDate(tournament.registrationEnd)}
-                          </p>
-                        )}
+                        {tournament.registrationStart &&
+                          tournament.registrationEnd && (
+                            <p>
+                              Thời gian đăng ký:{" "}
+                              {formatDate(tournament.registrationStart)} -{" "}
+                              {formatDate(tournament.registrationEnd)}
+                            </p>
+                          )}
                       </div>
                     }
                     type="warning"
@@ -523,95 +676,125 @@ export const TournamentRegistrationPage: React.FC = () => {
                   />
                 )}
 
-                <Descriptions 
-                  column={{ xs: 1, sm: 2 }} 
-                  bordered 
+                <Descriptions
+                  column={{ xs: 1, sm: 2 }}
+                  bordered
                   size="small"
                   style={{ marginBottom: 24 }}
                 >
                   <Descriptions.Item label="Trạng thái">
-                    <Badge 
-                      status={getTournamentStatusInfo(tournament.status).badge as any} 
+                    <Badge
+                      status={
+                        getTournamentStatusInfo(tournament.status).badge as any
+                      }
                       text={getTournamentStatusInfo(tournament.status).text}
                     />
                   </Descriptions.Item>
                   <Descriptions.Item label="Số đội tối đa">
-                    {tournament.maxTeams}
+                    {maxTeams}
                   </Descriptions.Item>
                   <Descriptions.Item label="Số thành viên">
                     {tournament.minTeamSize}-{tournament.maxTeamSize} người
                   </Descriptions.Item>
                   <Descriptions.Item label="Đội đã đăng ký">
-                    {tournament.registrationStats?.approved || 0}/{tournament.maxTeams}
+                    {approvedTeamsCount}/{maxTeams}
                   </Descriptions.Item>
                   <Descriptions.Item label="Slot còn lại">
-                    {tournament.availableSlots || Math.max(0, tournament.maxTeams - (tournament.registrationStats?.approved || 0))}
+                    {remainingSlots}
                   </Descriptions.Item>
                 </Descriptions>
 
                 {/* Eligibility Check */}
                 {loadingEligibility ? (
-                  <div style={{ textAlign: 'center', padding: 40 }}>
+                  <div style={{ textAlign: "center", padding: 40 }}>
                     <Spin tip="Đang kiểm tra điều kiện..." />
                   </div>
-                ) : eligibility && (
-                  <Card 
-                    title="Kiểm tra điều kiện tham gia" 
-                    style={{ marginBottom: 24 }}
-                  >
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                        {eligibility.canRegister ? (
-                          <>
-                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 24, marginRight: 8 }} />
-                            <Text strong style={{ color: '#52c41a' }}>
-                              Bạn có thể đăng ký tham gia giải đấu!
-                            </Text>
-                          </>
-                        ) : (
-                          <>
-                            <CloseOutlined style={{ color: '#ff4d4f', fontSize: 24, marginRight: 8 }} />
-                            <Text strong style={{ color: '#ff4d4f' }}>
-                              Bạn không thể đăng ký tham gia
-                            </Text>
-                          </>
-                        )}
-                      </div>
-
-                      {eligibility.reasons && eligibility.reasons.length > 0 && (
-                        <Alert
-                          message="Lý do không thể đăng ký:"
-                          type="warning"
-                          description={
-                            <ul style={{ margin: 0, paddingLeft: 20 }}>
-                              {eligibility.reasons.map((reason, index) => (
-                                <li key={index}>{reason}</li>
-                              ))}
-                            </ul>
-                          }
-                          style={{ marginBottom: 16 }}
-                        />
-                      )}
-
-                      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-                        <div>
-                          <Text strong>Slot còn lại:</Text>
-                          <Title level={4} style={{ margin: 0 }}>
-                            {eligibility.remainingSlots}
-                          </Title>
+                ) : (
+                  eligibility && (
+                    <Card
+                      title="Kiểm tra điều kiện tham gia"
+                      style={{ marginBottom: 24 }}
+                    >
+                      <Space direction="vertical" style={{ width: "100%" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: 16,
+                          }}
+                        >
+                          {eligibility.canRegister ? (
+                            <>
+                              <CheckCircleOutlined
+                                style={{
+                                  color: "#52c41a",
+                                  fontSize: 24,
+                                  marginRight: 8,
+                                }}
+                              />
+                              <Text strong style={{ color: "#52c41a" }}>
+                                Bạn có thể đăng ký tham gia giải đấu!
+                              </Text>
+                            </>
+                          ) : (
+                            <>
+                              <CloseOutlined
+                                style={{
+                                  color: "#ff4d4f",
+                                  fontSize: 24,
+                                  marginRight: 8,
+                                }}
+                              />
+                              <Text strong style={{ color: "#ff4d4f" }}>
+                                Bạn không thể đăng ký tham gia
+                              </Text>
+                            </>
+                          )}
                         </div>
-                        <div>
-                          <Text strong>Có thể đăng ký:</Text>
-                          <Title level={4} style={{ 
-                            margin: 0, 
-                            color: eligibility.canRegister ? '#3f8600' : '#cf1322' 
-                          }}>
-                            {eligibility.canRegister ? 'Có' : 'Không'}
-                          </Title>
+
+                        {eligibility.reasons &&
+                          eligibility.reasons.length > 0 && (
+                            <Alert
+                              message="Lý do không thể đăng ký:"
+                              type="warning"
+                              description={
+                                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                  {eligibility.reasons.map((reason, index) => (
+                                    <li key={index}>{reason}</li>
+                                  ))}
+                                </ul>
+                              }
+                              style={{ marginBottom: 16 }}
+                            />
+                          )}
+
+                        <div
+                          style={{ display: "flex", gap: 24, flexWrap: "wrap" }}
+                        >
+                          <div>
+                            <Text strong>Slot còn lại:</Text>
+                            <Title level={4} style={{ margin: 0 }}>
+                              {eligibility.remainingSlots}
+                            </Title>
+                          </div>
+                          <div>
+                            <Text strong>Có thể đăng ký:</Text>
+                            <Title
+                              level={4}
+                              style={{
+                                margin: 0,
+                                color: eligibility.canRegister
+                                  ? "#3f8600"
+                                  : "#cf1322",
+                              }}
+                            >
+                              {eligibility.canRegister ? "Có" : "Không"}
+                            </Title>
+                          </div>
                         </div>
-                      </div>
-                    </Space>
-                  </Card>
+                      </Space>
+                    </Card>
+                  )
                 )}
               </div>
             )}
@@ -626,51 +809,66 @@ export const TournamentRegistrationPage: React.FC = () => {
                 {/* Registration Status */}
                 {registrationStatus?.isRegistered && (
                   <Card
-                    style={{ 
+                    style={{
                       marginBottom: 24,
-                      borderLeft: '4px solid #1890ff',
-                      backgroundColor: '#f6ffed'
+                      borderLeft: "4px solid #1890ff",
+                      backgroundColor: "#f6ffed",
                     }}
                   >
-                    <Space direction="vertical" style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Space direction="vertical" style={{ width: "100%" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
                         <Text strong>Trạng thái đăng ký:</Text>
                         {getRegistrationStatusTag(registrationStatus.status)}
                       </div>
-                      
+
                       {registrationStatus.registration && (
                         <>
                           <Text>
-                            Đã đăng ký lúc: {formatDate(registrationStatus.registration.registeredAt)}
+                            Đã đăng ký lúc:{" "}
+                            {formatDate(
+                              registrationStatus.registration.registeredAt
+                            )}
                           </Text>
                           {registrationStatus.registration.approvedAt && (
                             <Text>
-                              Đã duyệt lúc: {formatDate(registrationStatus.registration.approvedAt)}
+                              Đã duyệt lúc:{" "}
+                              {formatDate(
+                                registrationStatus.registration.approvedAt
+                              )}
                             </Text>
                           )}
                           {registrationStatus.registration.hasCheckedIn && (
                             <Text>
-                              Đã check-in lúc: {formatDate(registrationStatus.registration.checkedInAt)}
+                              Đã check-in lúc:{" "}
+                              {formatDate(
+                                registrationStatus.registration.checkedInAt
+                              )}
                             </Text>
                           )}
                         </>
                       )}
 
                       <Space>
-                        {registrationStatus.status === 'APPROVED' && 
-                         !registrationStatus.registration?.hasCheckedIn && (
-                          <Button
-                            type="primary"
-                            icon={<CheckOutlined />}
-                            loading={checkingIn}
-                            onClick={handleCheckIn}
-                          >
-                            Check-in
-                          </Button>
-                        )}
-                        
-                        {(registrationStatus.status === 'PENDING' || 
-                          registrationStatus.status === 'APPROVED') && (
+                        {registrationStatus.status === "APPROVED" &&
+                          !registrationStatus.registration?.hasCheckedIn && (
+                            <Button
+                              type="primary"
+                              icon={<CheckOutlined />}
+                              loading={checkingIn}
+                              onClick={handleCheckIn}
+                            >
+                              Check-in
+                            </Button>
+                          )}
+
+                        {(registrationStatus.status === "PENDING" ||
+                          registrationStatus.status === "APPROVED") && (
                           <Button
                             danger
                             loading={cancellingRegistration}
@@ -714,7 +912,7 @@ export const TournamentRegistrationPage: React.FC = () => {
                   }
                 >
                   {loadingTeams ? (
-                    <div style={{ textAlign: 'center', padding: 40 }}>
+                    <div style={{ textAlign: "center", padding: 40 }}>
                       <Spin tip="Đang tải danh sách đội..." />
                     </div>
                   ) : filteredTeams.length === 0 ? (
@@ -737,18 +935,21 @@ export const TournamentRegistrationPage: React.FC = () => {
                     <Radio.Group
                       value={selectedTeam}
                       onChange={(e) => setSelectedTeam(e.target.value)}
-                      style={{ width: '100%' }}
+                      style={{ width: "100%" }}
                     >
                       <List
                         dataSource={filteredTeams}
                         renderItem={(team) => (
                           <List.Item>
-                            <Radio value={team.id} style={{ width: '100%' }}>
+                            <Radio value={team.id} style={{ width: "100%" }}>
                               <Card
                                 hoverable
                                 style={{
-                                  width: '100%',
-                                  border: selectedTeam === team.id ? '2px solid #1890ff' : undefined,
+                                  width: "100%",
+                                  border:
+                                    selectedTeam === team.id
+                                      ? "2px solid #1890ff"
+                                      : undefined,
                                 }}
                                 bodyStyle={{ padding: 16 }}
                               >
@@ -761,8 +962,8 @@ export const TournamentRegistrationPage: React.FC = () => {
                                         style={{
                                           width: 64,
                                           height: 64,
-                                          borderRadius: '50%',
-                                          objectFit: 'cover',
+                                          borderRadius: "50%",
+                                          objectFit: "cover",
                                         }}
                                       />
                                     ) : (
@@ -770,42 +971,60 @@ export const TournamentRegistrationPage: React.FC = () => {
                                         style={{
                                           width: 64,
                                           height: 64,
-                                          borderRadius: '50%',
-                                          background: '#f0f0f0',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
+                                          borderRadius: "50%",
+                                          background: "#f0f0f0",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
                                         }}
                                       >
-                                        <TeamOutlined style={{ fontSize: 24, color: '#999' }} />
+                                        <TeamOutlined
+                                          style={{
+                                            fontSize: 24,
+                                            color: "#999",
+                                          }}
+                                        />
                                       </div>
                                     )}
                                   </Col>
                                   <Col xs={20} sm={21}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                      }}
+                                    >
                                       <div>
                                         <Title level={5} style={{ margin: 0 }}>
                                           {team.name}
                                         </Title>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                          {team.description || 'Chưa có mô tả'}
+                                        <Text
+                                          type="secondary"
+                                          style={{ fontSize: 12 }}
+                                        >
+                                          {team.description || "Chưa có mô tả"}
                                         </Text>
                                         <div style={{ marginTop: 8 }}>
                                           <Space wrap>
                                             <Tag color="blue">
-                                              <TeamOutlined /> {teamMembersList.length}/{team.maxMembers} thành viên
+                                              <TeamOutlined />{" "}
+                                              {teamMembersList.length}/
+                                              {team.maxMembers} thành viên
                                             </Tag>
-                                            {team.game && (
-                                              <Tag color="purple">{team.game}</Tag>
+                                            {tournament.game && (
+                                              <Tag color="purple">
+                                                {tournament.game}
+                                              </Tag>
                                             )}
                                           </Space>
                                         </div>
                                       </div>
                                       <div>
-                                        {registrationStatus?.isRegistered && 
-                                         registrationStatus.registration?.teamId === team.id && (
-                                          <Tag color="green">Đã đăng ký</Tag>
-                                        )}
+                                        {registrationStatus?.isRegistered &&
+                                          registrationStatus.registration
+                                            ?.teamId === team.id && (
+                                            <Tag color="green">Đã đăng ký</Tag>
+                                          )}
                                       </div>
                                     </div>
                                   </Col>
@@ -834,7 +1053,7 @@ export const TournamentRegistrationPage: React.FC = () => {
                     style={{ marginBottom: 24 }}
                   >
                     {loadingMembers ? (
-                      <div style={{ textAlign: 'center', padding: 40 }}>
+                      <div style={{ textAlign: "center", padding: 40 }}>
                         <Spin tip="Đang tải thành viên..." />
                       </div>
                     ) : teamMembersList.length > 0 ? (
@@ -844,25 +1063,38 @@ export const TournamentRegistrationPage: React.FC = () => {
                             <Card
                               size="small"
                               style={{
-                                borderLeft: member.role === 'CAPTAIN' ? '3px solid #1890ff' : undefined,
+                                borderLeft:
+                                  member.role === "CAPTAIN"
+                                    ? "3px solid #1890ff"
+                                    : undefined,
                               }}
                             >
-                              <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <Space
+                                direction="vertical"
+                                size={4}
+                                style={{ width: "100%" }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                  }}
+                                >
                                   <Text strong style={{ fontSize: 14 }}>
-                                    {member.inGameName || member.user?.fullname || 'Chưa có tên'}
+                                    {member.inGameName ||
+                                      member.user?.fullname ||
+                                      "Chưa có tên"}
                                   </Text>
-                                  {member.role === 'CAPTAIN' && (
-                                    <Tag color="blue" size="small">Đội trưởng</Tag>
+                                  {member.role === "CAPTAIN" && (
+                                    <Tag color="blue">Đội trưởng</Tag>
                                   )}
                                 </div>
                                 <Text type="secondary" style={{ fontSize: 12 }}>
                                   {member.user?.email}
                                 </Text>
                                 {member.gameRole && (
-                                  <Tag color="purple" size="small">
-                                    {member.gameRole}
-                                  </Tag>
+                                  <Tag color="purple">{member.gameRole}</Tag>
                                 )}
                               </Space>
                             </Card>
@@ -906,7 +1138,8 @@ export const TournamentRegistrationPage: React.FC = () => {
                       <Text strong>{tournament.name}</Text>
                     </Descriptions.Item>
                     <Descriptions.Item label="Đội tham gia">
-                      {teams.find(t => t.id === selectedTeam)?.name || 'Chưa chọn đội'}
+                      {teams.find((t) => t.id === selectedTeam)?.name ||
+                        "Chưa chọn đội"}
                     </Descriptions.Item>
                     <Descriptions.Item label="Số thành viên">
                       <Text>{teamMembersList.length} người</Text>
@@ -950,21 +1183,27 @@ export const TournamentRegistrationPage: React.FC = () => {
                 <div />
               )}
               {currentStep < steps.length - 1 ? (
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   onClick={handleNextStep}
                   disabled={currentStep === 0 && !eligibility?.canRegister}
                 >
                   Tiếp theo
                 </Button>
               ) : (
-                <Button 
-                  type="primary" 
+                <Button
+                  type="primary"
                   onClick={handleRegisterForTournament}
                   loading={submittingRegistration}
-                  disabled={!selectedTeam || registrationStatus?.isRegistered}
+                  disabled={
+                    !selectedTeam ||
+                    registrationStatus?.isRegistered ||
+                    submittingRegistration
+                  }
                 >
-                  {registrationStatus?.isRegistered ? 'Đã đăng ký' : 'Xác nhận đăng ký'}
+                  {registrationStatus?.isRegistered
+                    ? "Đã đăng ký"
+                    : "Xác nhận đăng ký"}
                 </Button>
               )}
             </div>
@@ -1043,11 +1282,11 @@ export const TournamentRegistrationPage: React.FC = () => {
                   Số đội đã đăng ký
                 </Text>
                 <Title level={4} style={{ margin: 0 }}>
-                  {tournament.registrationStats?.approved || 0}/{tournament.maxTeams}
+                  {approvedTeamsCount}/{maxTeams}
                 </Title>
-                <Progress 
-                  percent={Math.round(((tournament.registrationStats?.approved || 0) / tournament.maxTeams) * 100)} 
-                  size="small" 
+                <Progress
+                  percent={registrationProgress}
+                  size="small"
                   status="active"
                   style={{ marginTop: 8 }}
                 />
@@ -1072,10 +1311,13 @@ export const TournamentRegistrationPage: React.FC = () => {
                     Thời gian đăng ký
                   </Text>
                   <Text style={{ fontSize: 14 }}>
-                    {formatDate(tournament.registrationStart)} - {formatDate(tournament.registrationEnd)}
+                    {formatDate(tournament.registrationStart)} -{" "}
+                    {formatDate(tournament.registrationEnd)}
                   </Text>
                   {new Date() > new Date(tournament.registrationEnd) && (
-                    <Tag color="red" style={{ marginTop: 4 }}>Đã kết thúc</Tag>
+                    <Tag color="red" style={{ marginTop: 4 }}>
+                      Đã kết thúc
+                    </Tag>
                   )}
                 </div>
               )}
@@ -1092,7 +1334,8 @@ export const TournamentRegistrationPage: React.FC = () => {
                   </Text>
                   <div style={{ marginTop: 8 }}>
                     <Text type="secondary" style={{ fontSize: 12 }}>
-                      {teamMembersList.length}/{tournament.maxTeamSize} thành viên
+                      {teamMembersList.length}/{tournament.maxTeamSize} thành
+                      viên
                     </Text>
                   </div>
                 </div>
@@ -1105,11 +1348,13 @@ export const TournamentRegistrationPage: React.FC = () => {
               message="Quy tắc giải đấu"
               description={
                 <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12 }}>
-                  <li>Mỗi đội phải có ít nhất {tournament.minTeamSize} thành viên</li>
+                  <li>
+                    Mỗi đội phải có ít nhất {tournament.minTeamSize} thành viên
+                  </li>
                   <li>Tuân thủ lịch thi đấu và quy tắc ứng xử</li>
                   <li>Không gian lận hoặc sử dụng phần mềm trợ giúp</li>
                   <li>Quyết định của BTC là cuối cùng</li>
-                  <li>Liên hệ: {tournament.organizer?.email || 'support@esports.com'}</li>
+                  <li>Liên hệ: {organizerEmail}</li>
                 </ul>
               }
               type="warning"
@@ -1154,10 +1399,12 @@ export const TournamentRegistrationPage: React.FC = () => {
                 rules={[
                   { required: true, message: "Vui lòng nhập số thành viên" },
                   {
-                    type: 'number',
+                    type: "number",
                     min: tournament?.minTeamSize || 1,
-                    message: `Tối thiểu ${tournament?.minTeamSize || 1} thành viên`
-                  }
+                    message: `Tối thiểu ${
+                      tournament?.minTeamSize || 1
+                    } thành viên`,
+                  },
                 ]}
               >
                 <Input

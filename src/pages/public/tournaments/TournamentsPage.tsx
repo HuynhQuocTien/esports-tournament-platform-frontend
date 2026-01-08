@@ -99,7 +99,7 @@ export const TournamentsPage: React.FC = () => {
       },
       LIVE: {
         color: "orange",
-        text: "Đang diễn ra",
+        text: " ",
         icon: <PlayCircleOutlined />,
       },
       COMPLETED: {
@@ -399,9 +399,7 @@ export const TournamentsPage: React.FC = () => {
                             <Text type="secondary" style={{ fontSize: 12 }}>
                               Bắt đầu:{" "}
                               {tournament.tournamentStart
-                                ? tournament.tournamentStart
-                                    .toDate()
-                                    .toLocaleDateString()
+                                ? new Date(tournament.tournamentStart).toLocaleDateString("vi-VN")
                                 : "Chưa xác định"}{" "}
                             </Text>
                           </Space>
